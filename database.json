@@ -160,9 +160,9 @@
     "nam_hoc": 2026,
     "de_so": 1,
     "noi_dung": "Một đoạn mạch xoay chiều gồm một điện trở thuần R mắc nối tiếp với một cuộn cảm thuần L. Tổng trở Z của đoạn mạch được tính bằng công thức nào?",
-    "cac_lua_chon": "Z = R + Z_L,Z = \\\\sqrt{R^2 + Z_L^2},Z = |R - Z_L|,Z = \\\\sqrt{R^2 - Z_L^2}",
+    "cac_lua_chon": "Z = R + Z_L,Z = \\sqrt{R^2 + Z_L^2},Z = |R - Z_L|,Z = \\sqrt{R^2 - Z_L^2}",
     "dap_an_dung": "B",
-    "giai_chi_tiet": "Do điện áp trên điện trở vuông pha với điện áp trên cuộn cảm thuần, tổng trở hệ mạch tuân theo quy tắc hình học Pythagore: Z = \\\\sqrt{R^2 + Z_L^2}."
+    "giai_chi_tiet": "Do điện áp trên điện trở vuông pha với điện áp trên cuộn cảm thuần, tổng trở hệ mạch tuân theo quy tắc hình học Pythagore: Z = \\sqrt{R^2 + Z_L^2}."
   },
   {
     "id": 16,

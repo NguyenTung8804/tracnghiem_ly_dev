@@ -313,8 +313,8 @@
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.4.10" %}
-    {% set BUILD_TIME = "08/08/2026 21:00" %}
+    {% set VERSION = "3.4.11" %}
+    {% set BUILD_TIME = "08/08/2026 21:30" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -747,12 +747,11 @@ function coreMathInterpreter(text, isFinalPhase = false) {
          .replace(/\\bigcap/g, "∩")
          .replace(/\\bigcup/g, "∪")
          .replace(/\\infty/g, "∞")   // ◄ Thêm vô cực (Rất cần cho Lý)
-         .replace(/\\hbar/g, "ℏ");   // ◄ Thêm hằng số Planck rút gọn (Lượng tử ánh sáng)
-                
+         .replace(/\\hbar/g, "ℏ")   // ◄ Thêm hằng số Planck rút gọn (Lượng tử ánh sáng)        
          // --- Bổ sung ký hiệu hình học thô từ danh sách của bạn ---
          .replace(/\\perp/g, "⊥")         // Ký hiệu vuông góc
          .replace(/\\parallel/g, "∥")     // Ký hiệu song song
-         .replace(/\\textbf\{([^}]+)\}/g, "<strong>$1</strong>") // Thay thế chữ in đậm chuẩn HTML
+         .replace(/\\textbf\{([^}]+)\}/g, "<strong>$1</strong>")// Thay thế chữ in đậm chuẩn HTML
     
 
     // 8. Phím tắt chỉ số nhanh từ code gốc của bạn

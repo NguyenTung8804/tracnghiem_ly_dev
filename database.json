@@ -5,8 +5,8 @@
     "loai_de": "Thi Dai Hoc",
     "nam_hoc": 2026,
     "de_so": 1,
-    "noi_dung": "Khi đặt vật 1 tiếp xúc nhiệt với vật 2 và có sự truyền nhiệt từ vật 1 sang vật 2, phát biểu nào sau đây là đúng?",
-    "cac_lua_chon": "Vật 2 chứa rất ít nhiệt lượng.,Vật 1 chứa nhiều nhiệt lượng hơn vật 2.,Vật 1 và vật 2 đều không chứa nhiệt lượng.,Vật 1 chứa rất nhiều nhiệt lượng.",
+    "noi_dung": "Khi đặt \\int_{1}^{2}  vật 1 \\int_{1}^{2}  tiếp q = \\int_{1}^{2} i \\cdot dt  xúc nhiệt \\int_{t_1}^{t_2} i(t) dt  với vật 2 và \\begin{cases} x_1 = 4\\cos(10t) \\ x_2 = 4\\sin(10t) \\end{cases} có \\vec{A} sự truyền nhiệt từ vật 1 sang vật 2, phát biểu nào sau đây là đúng?, Hệ thức liên hệ các đại lượng trong mạch RLC là: \\begin{cases} Z = \\sqrt{R^2 + (Z_L - Z_C)^2} \\ \\tan(\\varphi) = \\frac{Z_L - Z_C}{R} \\end{cases}",
+    "cac_lua_chon": "Vật 2 chứa rất ít \\vec{ABCD} nhiệt \\begin{cases} x_1 = 4\\cos(10t) \\ x_2 = \\frac{1}{ \\int_{t_1}^{t_2} i(t) dt}  \\end{cases} lượng \\int_{t_1}^{t_2} i(t) dt.,Vật 1 chứa \\int i(t) dt nhiều nhiệt lượng hơn vật 2.,Vật 1 và vật 2 đều không chứa nhiệt \\frac{1}{ \\int_{t_1}^{t_2} i(t) dt} lượng.,Vật 1 chứa rất nhiều nhiệt lượng.",
     "dap_an_dung": "B",
     "giai_chi_tiet": "Theo nguyên lý truyền nhiệt, nhiệt lượng luôn tự động truyền từ vật có nhiệt độ cao hơn sang vật có nhiệt độ thấp hơn."
   },
@@ -16,10 +16,10 @@
     "loai_de": "Thi Dai Hoc",
     "nam_hoc": 2026,
     "de_so": 1,
-    "noi_dung": "Khi một khối khí lí tưởng xác định giãn nở đẳng nhiệt thì phát biểu nào sau đây là đúng?",
-    "cac_lua_chon": "nội năng của khối khí tăng.,áp suất của khối khí không đổi.,áp suất của khối khí giảm.,nội năng của khối khí giảm.",
-    "dap_an_dung": "C",
-    "giai_chi_tiet": "Theo định luật Boyle-Mariotte, trong quá trình đẳng nhiệt của một khối khí lí tưởng xác định, áp suất tỉ lệ nghịch với thể tích. Khi khối khí giãn nở (thể tích tăng) thì áp suất sẽ giảm."
+    "noi_dung": "Trong nghiên Q = \\frac{U}{\\sqrt{R^2 + (\\omega _L - \\frac{1}{\\omega_C)^2}}}  cứu dòng điện xoay Q = \\frac{U}{\\sqrt{R^2 + Z_L^2 + Z_C^2}}}  chiều  Q = \\frac{U}{\\sqrt{R^2 + ( Z_L^2 + Z_C)^2}}}Trong một điện từ trường biến thiên, véc tơ cường độ điện trường \\vec{E} và véc tơ cảm ứng từ \\vec{B_{total}} liên hệ với dòng điện qua biểu thức tích phân không cận B = \\int \\frac{\\mu_0 \\cdot i}{2\\pi \\cdot R} dt. Khi đó góc lệch pha được tính bằng \\tan(\\varphi) = \\frac{Z_L - Z_C}{R}., điện lượng q chuyển qua một mạch kín trong khoảng thời gian từ t_1 đến t_2 được xác định bằng tích phân có cận của cường độ dòng điện tức thời i(t) theo thời gian. Biểu thức nào sau đây là đúng?",
+    "cac_lua_chon": "\\int_{t_1}^{t_2} i(t) dt,\\int i(t) dt,\\int_{t_2}^{t_1} i(t) dt,\\frac{1}{ \\int_{t_1}^{t_2} i(t) dt}",
+    "dap_an_dung": " A",
+    "giai_chi_tiet": "Theo định nghĩa cường độ dòng điện tức thời i = dq/dt, ta có dq = i(t)dt. Điện lượng chuyển qua mạch trong khoảng thời gian từ t_1 đến t_2 là tích phân xác định có đầy đủ cận trên và cận dưới: q = \\int_{t_1}^{t_2} i(t) dt."
   },
   {
     "id": 3,
@@ -27,7 +27,7 @@
     "loai_de": "Thi Dai Hoc",
     "nam_hoc": 2026,
     "de_so": 1,
-    "noi_dung": "Một khối khí lí tưởng xác định biến đổi theo quá trình thể tích không đổi từ trạng thái X sang trạng thái Y, phát biểu nào sau đây là đúng?",
+    "noi_dung": "Một khối khí lí tưởng xác Trong một điện từ trường biến thiên, véc tơ cường độ điện trường \\vec{E} và véc tơ cảm ứng từ \\vec{B_{total}} liên hệ với dòng điện qua biểu thức tích phân không cận B = \\int \\frac{\\mu_0 \\cdot i}{2\\pi \\cdot R} dt. Khi đó góc lệch pha được tính bằng \\tan(\\varphi) = \\frac{Z_L - Z_C}{R}. định biến đổi theo quá trình thể tích không đổi từ trạng thái X sang trạng thái Y, phát biểu nào sau đây là đúng?",
     "cac_lua_chon": "Mật độ phân tử của khối khí tăng lên.,Công mà khối khí sinh ra bằng không.,Nhiệt độ của khối khí không đổi.,Khoảng cách trung bình giữa các phân tử tăng lên.",
     "dap_an_dung": "B",
     "giai_chi_tiet": "Quá trình thể tích không đổi là quá trình đẳng tích (V = const). Trong quá trình này khối khí không thực hiện công và không nhận công, do đó công bằng không (A = 0)."
@@ -38,7 +38,7 @@
     "loai_de": "Thi Dai Hoc",
     "nam_hoc": 2026,
     "de_so": 1,
-    "noi_dung": "Công suất hao phí do tỏa nhiệt trên đường dây tải điện tải đi một công suất P, với điện áp hiệu dụng U và điện trở tổng cộng là R (hệ số công suất bằng 1) được tính bằng công thức nào?",
+    "noi_dung": "Công suất hao phí do BÀI KIỂM TRA TOÀN DIỆN HỆ THỐNG CÔNG THỨC MỞ RỘNG: 1. Các chữ cái Hy Lạp thường hay dùng trong Vật lý: Hệ số tự cảm \\mu, bước sóng \\lambda, tần số góc \\omega, hằng số điện môi \\epsilon và \\varepsilon, mật độ điện tích \\rho, hằng số thời gian \\tau, góc lệch pha \\varphi và \\phi, tần số ánh sáng \\nu, các góc lượng giác \\alpha, \\beta, \\gamma, \\delta, \\zeta, \\eta, \\theta, \\vartheta, \\iota, \\kappa, \\xi, \\varpi, \\varrho, \\sigma, \\varsigma, \\upsilon, \\chi, \\psi. 2. Các chữ cái Hy Lạp HOA đặc biệt: Đơn vị điện trở \\Omega, độ biến thiên \\Delta, năng lượng hạt \\Psi, các hằng số và hàm số lớn \\Gamma, \\Theta, \\Lambda, \\Xi, \\Pi, \\Sigma, \\Upsilon, \\Phi. 3. Thử nghiệm các ký hiệu toán học lớn và tích phân vòng: Biểu thức tính tổng trở bằng hằng số Planck rút gọn: \\hbar = \\sum_{i=1}^{n}{x_i}. Công thức lượng tử giới hạn ở vô cực \\infty và hệ tích phân kín tổng quát: \\oint_{C}{\\frac{\\mu_0 \\cdot i}{2\\pi \\cdot R} \\cdot dR} = \\prod \\Delta \\Phi. Khi đó tích phân không cận hiển thị dạng B = \\int \\cos(\\omega t) \\cdot dt. tỏa nhiệt trên đường dây tải điện tải đi một công suất P, với điện áp hiệu dụng U và điện trở tổng cộng là R (hệ số công suất bằng 1) được tính bằng công thức nào?",
     "cac_lua_chon": "\\frac{R \\cdot P^2}{U^2},\\frac{R \\cdot U^2}{P^2},\\frac{R^2 \\cdot P}{U},\\frac{R \\cdot P}{U}",
     "dap_an_dung": "A",
     "giai_chi_tiet": "Công suất hao phí trên đường dây tải điện được xác định bằng công thức phẳng lỳ: \\Delta P = R \\cdot \\frac{P^2}{U^2}."
@@ -49,7 +49,7 @@
     "loai_de": "Thi Dai Hoc",
     "nam_hoc": 2026,
     "de_so": 1,
-    "noi_dung": "Một sóng cơ hình sin truyền theo trục Ox với chu kì T và bước sóng \\lambda. Tốc độ truyền sóng v được xác định bằng công thức nào sau đây?",
+    "noi_dung": "Hệ phương trình trạng thái của tích các ma trận hệ số trong bài toán dao động điều hòa: \\begin{cases} P = \\prod_{k=1}^{m}{\\frac{x_k}{\\omega^2}} \\\\ Q = \\frac{U}{\\sqrt{R^2 + (\\omega L - \\frac{1}{\\omega_C})^2}} \\end{cases} Biểu thức tính tổng năng lượng tiêu thụ của hệ thống mạch gồm n linh kiện mắc nối tiếp là: E_{total} = \\sum_{i=1}^{n}{\\frac{\\sqrt{R_i^2 + (Z_{Li} - Z_{Ci})^2}}{t_i}} Hệ phương trình trạng thái của tích các ma trận hệ số trong bài toán dao động điều hòa: \\begin{cases} P = \\prod_{k=1}^{m}{\\frac{x_k}{\\omega^2}} \\ Q = \\frac{U}{\\sqrt{R^2 + (\\omega _L - \\frac{1}{\\omega_C^2}}} \\end{cases}     Biểu thức toán học hỗn hợp kiểm thử hệ thống thông dịch tự chế: Giá trị tổng thức có cận S = \\sum_{i=1}^{n}{x_i} phối hợp với dấu tổng thô không cận \\sum y. Đồng thời, biểu thức tích số có cận P = \\prod_{j=1}^{k}{z_j} kết hợp với dấu tích thô không cận \\prod W",
     "cac_lua_chon": "\\frac{\\lambda}{T},\\frac{T}{\\lambda},\\lambda \\cdot T,\\frac{2\\pi}{T}",
     "dap_an_dung": "A",
     "giai_chi_tiet": "Tốc độ truyền sóng v là quãng đường sóng truyền đi được trong một chu kỳ thời gian: v = \\frac{\\lambda}{T}."
@@ -306,5 +306,27 @@
     "cac_lua_chon": "Điền số",
     "dap_an_dung": 25,
     "giai_chi_tiet": "Công suất hao phí tỏa nhiệt tỉ lệ nghịch với bình phương điện áp hiệu dụng truyền tải: ΔP = R * P^2 / U^2. Khi U tăng lên 5 lần thì công suất hao phí giảm đi U² = 5² = 25 lần."
-  }
+  },
+  {
+    "id": 29,
+    "khoi_lop": 12,
+    "loai_de": "Thi Dai Hoc",
+    "nam_hoc": 2026,
+    "de_so": 1,
+    "noi_dung": "Trong nghiên cứu dòng điện xoay chiều, điện lượng q chuyển qua một mạch kín trong khoảng thời gian từ t_1 đến t_2 được xác định bằng tích phân có cận của cường độ dòng điện tức thời i(t) theo thời gian. Biểu thức nào sau đây là đúng?",
+    "cac_lua_chon": "\\int_{t_1}^{t_2} i(t) dt,\\int i(t) dt,\\int_{t_2}^{t_1} i(t) dt,\\frac{1}{\\int_{t_1}^{t_2} i(t) dt}",
+    "dap_an_dung": "A",
+    "giai_chi_tiet": "Theo định nghĩa cường độ dòng điện tức thời i = dq/dt, ta có dq = i(t)dt. Điện lượng chuyển qua mạch trong khoảng thời gian từ t_1 đến t_2 là tích phân xác định có đầy đủ cận trên và cận dưới: q = \\int_{t_1}^{t_2} i(t) dt."
+  },
+  {
+    "id": 30,
+    "khoi_lop": 12,
+    "loai_de": "Thi Dai Hoc",
+    "nam_hoc": 2026,
+    "de_so": 1,
+    "noi_dung": "Một vật dao động điều hòa dọc theo trục Ox có phương trình vận tốc theo thời gian là v(t). Để tìm biểu thức li độ x(t) của vật, ta có thể sử dụng phép toán tích phân không có cận (nguyên hàm) nào sau đây?",
+    "cac_lua_chon": "\\int v(t) dt,\\int_{0}^{t} v(t) dt,\\frac{d}{dt} \\int v(t) dt,\\int x(t) dt",
+    "dap_an_dung": "A",
+    "giai_chi_tiet": "M mối liên hệ giữa vận tốc và li độ là v(t) = dx/dt, nên li độ x(t) là một nguyên hàm của vận tốc. Phép toán tương ứng là tích phân vô định không chứa cận: x(t) = \\int v(t) dt."
+  }  
 ]

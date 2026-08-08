@@ -40,12 +40,221 @@
         .frac > span { display: block; padding: 0 2px; }
         .frac span.num { border-bottom: 1px solid #2d3748; }
         .frac span.den { padding-top: 1px; }
+         /*--- tự chế dấu căn thức-----*/
+        .sqrt-container {
+            display: inline-flex;
+            align-items: flex-start;
+            vertical-align: middle;
+            position: relative;
+            line-height: 1;
+        }
+        .sqrt-symbol {
+            font-family: "Times New Roman", serif;
+            font-size: 1.25em;
+            transform: translateY(1.5px);
+            user-select: none;
+        }
+        .sqrt-content {
+            border-top: 1.8px solid #2d3748;
+            padding-top: 1.5px;
+            padding-left: 1px;
+            margin-left: -2px;
+        }
+       /*--End- tự chế dấu căn thức-----*/ 
+      /* ------ tự chế dấu tích phân ----- */
+      /* --- tự chế dấu tích phân nâng cấp ----- */
+        .integral-container {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-family: "Times New Roman", serif;
+            margin: 0 2px;
+        }
+        .integral-symbol {
+            font-size: 2.5em; /* Tăng nhẹ kích thước để dáng thon thả hơn */
+            font-weight: 300;
+            line-height: 0.9;
+            user-select: none;
+            margin-right: -3px; /* Kéo phần cận ôm sát vào thân dấu tích phân */
+        }
+        .integral-limits {
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 2.5em; /* Thu hẹp chiều cao để cận không bị bay quá xa */
+            font-size: 0.65em;
+            margin-right: 4px; /* Giảm khoảng cách với biểu thức phía sau */
+        }
+        .integral-upper {
+        margin-left: 7px; /* Đẩy cận trên sang phải một chút theo dáng móc của dấu ∫ */
+       margin-top: -5px; /* ◄ Thêm dòng này để đẩy cận trên lên cao, Số âm càng lớn thì chữ sẽ càng bay lên cao. */
+        }
+        .integral-lower {
+            margin-left: -1px; /* Thụt cận dưới sang trái để lọt vào lòng dấu ∫, Nếu bạn muốn cận dưới dịch sang trái để không bị dính vào thân dấu tích phân: Hãy tăng giá trị âm của margin-left (ví dụ từ -2px thành -4px hoặc -5px). */
+            padding-top: 10px;  /*  Nếu bạn muốn cận dưới dịch xuống thấp hơn nữa: Hãy tăng thuộc tính padding-top (ví dụ từ 1px lên 3px hoặc 4px)  */
+        }
+        .integral-content {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 1px;
+        }
+        /* --End- tự chế dấu tích phân nâng cấp ----- */
+        /* Định dạng chỉ số dưới và trên cho mượt mà */
+        .integral-limits sub, .integral-limits sup {
+            font-size: 0.85em;
+            bottom: -0.1em;
+        }    
+        /*End  Định dạng chỉ số dưới và trên cho mượt mà */ 
+       /* CSS cho tích phân không cận */
+        .integral-no-limits {
+            font-family: "Times New Roman", serif;
+            font-size: 2.5em;
+            font-weight: 300;
+            line-height: 0.9;
+            user-select: none;
+            vertical-align: middle;
+            margin-right: 1px;
+        }    
+        /* End CSS cho tích phân không cận */     
+         /* --- tự chế ký hiệu vectơ ----- */
+        /* --- tự chế ký hiệu vectơ tinh chỉnh ngang dòng text ----- */
+        .vector-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: baseline; /* ◄ Sửa từ middle thành baseline để chữ A nằm ngang hàng chữ thường */
+            position: relative;
+            line-height: 1;
+            margin: 0 2px;
+        }
+        .vector-arrow {
+            position: absolute;
+            top: -0.7em; /* ◄ Tăng giá trị âm để đẩy mũi tên lên cao hơn hẳn đỉnh đầu chữ A */
+            left: 50%;
+            transform: translateX(-50%) scaleX(0.8);
+            font-size: 0.7em;
+            font-family: "Times New Roman", serif;
+            user-select: none;
+            color: #2d3748;
+        }
+        .vector-content {
+            display: inline-block;
+            font-style: italic;
+            font-family: "Times New Roman", serif;
+        }
+       /* --End- tự chế ký hiệu vectơ ----- */
+       /* --- tự chế hệ phương trình ngoặc nhọn lớn ----- */
+        .cases-container {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 4px;
+        }
+        /* Vẽ dấu ngoặc nhọn lớn tự co giãn theo chiều cao */
+        .cases-brace {
+            font-size: 2.2em; /* Độ phóng to mặc định của dấu ngoặc */
+            font-family: "Times New Roman", serif;
+            font-weight: 300;
+            margin-right: 4px;
+            user-select: none;
+            line-height: 0.9;
+            transform: scaleY(1.15); /* Kéo giãn nhẹ theo chiều dọc cho ôm khít các dòng */
+        }
+        /* Khối chứa các dòng phương trình xếp chồng lên nhau */
+        .cases-content {
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 4px; /* Khoảng cách giữa các dòng phương trình */
+            font-family: "Times New Roman", serif;
+        }
+        .cases-line {
+            white-space: nowrap;
+            line-height: 1.2;
+        } 
+         /* --End- tự chế hệ phương trình ngoặc nhọn lớn ----- */  
+        /* --- tự chế cận cho dấu tổng xích-ma ----- */
+        /* --- tự chế cận dấu tổng xích-ma nâng cấp liền nét ----- */
+        .sum-container {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-family: "Times New Roman", serif;
+            line-height: 1;
+            margin: 0 4px;
+        }
+        .sum-symbol {
+            font-size: 1.9em; /* ◄ Giảm nhẹ kích thước để dáng thon thả, vừa vặn hơn */
+            font-weight: 300;
+            line-height: 1;
+            user-select: none;
+            margin-right: -2px; /* ◄ Kéo phần cận dịch vào sát thân dấu ∑ hơn */
+        }
+        .sum-limits {
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 2.1em; /* ◄ Thu hẹp chiều cao giúp cận trên và dưới không bị bay quá xa */
+            font-size: 0.65em;
+            margin-right: 4px;
+        }
+        .sum-upper {
+            margin-left: 2px; /* ◄ Cân chỉnh cận trên nằm ngay chính giữa đỉnh dấu ∑ */
+        }
+        .sum-lower {
+            margin-left: 5px; /* ◄ Tinh chỉnh số âm này để đẩy cận dưới (i=1) dịch sang trái, khít tâm với đáy dấu ∑ */
+            padding-top: 1px;
+        }
+        .sum-content {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 2px;
+        }
+        /*   ----- End   tự chế cận cho dấu tổng xích-ma     ------         */  
+         /* --- tự chế cận dấu tích các phép nhân nâng cấp ----- */
+        .prod-container {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-family: "Times New Roman", serif;
+            line-height: 1;
+            margin: 0 4px;
+        }
+        .prod-symbol {
+            font-size: 1.9em; /* Cỡ chữ thon thả đồng bộ với dấu tổng */
+            font-weight: 300;
+            line-height: 1;
+            user-select: none;
+            margin-right: -2px; /* Kéo phần cận ôm sát vào thân dấu ∏ */
+        }
+        .prod-limits {
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 2.1em; /* Chiều cao vùng chứa cận */
+            font-size: 0.65em;
+            margin-right: 4px;
+        }
+        .prod-upper {
+            margin-left: 2px; /* Căn giữa cận trên với đỉnh dấu ∏ */
+        }
+        .prod-lower {
+            margin-left: -1px; /* Đẩy cận dưới sang phải vừa vặn, không đâm vào bụng ∏ */
+            padding-top: 1px;
+        }
+        .prod-content {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 2px;
+        }       
+        /* --End- tự chế cận dấu tích các phép nhân nâng cấp ----- */    
     </style>
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.4.1" %}
-    {% set BUILD_TIME = "06/08/2026 19:30" %}
+    {% set VERSION = "3.4.8" %}
+    {% set BUILD_TIME = "08/08/2026 05:20" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -189,15 +398,235 @@
     <input type="hidden" id="globalDeSo" value="{{ de_so }}">
     {% raw %}
     <script>
-        function localMathInterpreter(text) {
-            if (!text) return "";
-            let s = text.replace(/\$/g, "").replace(/\\\\/g, "\\");
-            s = s.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<div class="frac"><span class="num">$1</span><span class="den">$2</span></div>');
-            s = s.replace(/\\Delta/g, "Δ").replace(/\\lambda/g, "λ").replace(/\\omega/g, "ω").replace(/\\pi/g, "π").replace(/\\varphi/g, "φ").replace(/\\cdot/g, "·");
-            s = s.replace(/\^2/g, "²").replace(/_0/g, "₀").replace(/_C/g, "<sub>C</sub>").replace(/_L/g, "<sub>L</sub>").replace(/_R/g, "<sub>R</sub>").replace(/_{hp}/g, "<sub>hp</sub>");
-            return s;
-        }
+            //- ----------------     CÔNG THỨC TỰ CHẾ-------------------------
+// HÀM CHÍNH: Bộ điều phối thông minh, bóc tách cases độc lập
+function localMathInterpreter(text) {
+    if (!text) return "";
+    let s = text;
 
+    // Xử lý hệ phương trình ngoặc nhọn lớn \begin{cases} ... \end{cases}
+    s = s.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, function(match, content) {
+        // Tách dòng dựa trên dấu \\ hoặc dấu \ đơn đứng giữa các phương trình
+        let lines = content.split(/\\\\|\\(?!\s*(?:sqrt|frac|vec|cos|sin|tan|int|Delta|lambda|omega|pi|varphi|cdot))/i);
+        let linesHtml = '';
+        
+        lines.forEach(function(line) {
+            let cleanLine = line.trim();
+            if (cleanLine) {
+                // Nếu dòng bắt đầu bằng hàm toán bị mất dấu \ do lệnh split, ta bù lại
+                if (/^(sqrt|frac|vec|cos|sin|tan|int|Delta|lambda|omega|pi|varphi|cdot)/i.test(cleanLine)) {
+                    cleanLine = '\\' + cleanLine;
+                }
+                // Dịch nội dung BÊN TRONG từng dòng phương trình
+                linesHtml += '<span class="cases-line" style="display: block; white-space: nowrap; clear: both; text-align: left;">' + coreMathInterpreter(cleanLine) + '</span>';
+            }
+        });
+
+        // Trả về cấu trúc HTML bọc ngoài cùng của hệ phương trình
+        return '<span class="cases-container" style="display: inline-flex; align-items: center; vertical-align: middle; margin: 0 4px; line-height: 1;">' +
+                    '<span class="cases-brace" style="font-size: 2.5em; font-family: \'Times New Roman\', serif; font-weight: 300; margin-right: 4px; user-select: none; transform: scaleY(1.35); display: inline-block;">{</span>' +
+                    '<span class="cases-content" style="display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 8px;">' + linesHtml + '</span>' +
+               '</span>';
+    });
+
+    // CẢI TIẾN QUAN TRỌNG: Lúc này biến 's' đã chứa khối HTML của hệ phương trình xen kẽ văn bản thường.
+    // Chúng ta KHÔNG gửi cả chuỗi 's' vào coreMathInterpreter nữa, mà gửi thẳng chuỗi 's' ra ngoài 
+    // vì các phần văn bản thường bên ngoài ĐÃ ĐƯỢC dịch thông qua việc tối ưu ở hàm core dưới đây.
+    return coreMathInterpreter(s, true); 
+}
+
+// HÀM LÕI (CORE): Chuyên dịch công thức toán (Đã loại bỏ lỗi chặn chuỗi)
+// HÀM LÕI (CORE): Chuyên dịch công thức toán (Đã tối ưu vị trí số mũ bình phương)
+// HÀM LÕI (CORE): Chuyên dịch công thức toán (Đã loại bỏ đoạn chặn gây mất tích phân)
+function coreMathInterpreter(text, isFinalPhase = false) {
+    if (!text) return "";
+
+    let s = text;
+    if (isFinalPhase) {
+        s = s.replace(/\$/g, "").replace(/\\\\/g, "\\"); 
+    } else {
+        s = s.replace(/\$/g, "").replace(/\\\\/g, "\\");
+    }
+
+    // =========================================================================
+    // NÂNG CẤP VỊ TRÍ SỐ 1: ÉP XỬ LÝ BÌNH PHƯƠNG ^2 NGAY TỪ ĐẦU (Ép dùng thẻ sup)
+    // Sau khi bọc <sup>2</sup>, số 2 đứng sau dấu ngoặc đơn )^2 chắc chắn sẽ bay lên cao.
+    // =========================================================================
+    s = s.replace(/\^2/g, "<sup>2</sup>");
+
+    // =========================================================================
+    // CÁC BƯỚC CÒN LẠI GIỮ NGUYÊN VẸN
+    // =========================================================================
+    
+    // 1. Tích phân có cận
+    let intRegex = /\\int_\{?([^}^]+)\}?\^\{?([^}{\s]+)\}?/g;
+    intRegex.lastIndex = 0;
+    s = s.replace(intRegex, function(match, lower, upper) {
+        let cleanLower = lower.replace(/\\/g, "").replace(/[{}]/g, "");
+        let cleanUpper = upper.replace(/\\/g, "").replace(/[{}]/g, "");
+        return '<span class="integral-container">' +
+            '<span class="integral-symbol">∫</span>' +
+            '<span class="integral-limits">' +
+                '<span class="integral-upper"><sup>' + cleanUpper + '</sup></span>' +
+                '<span class="integral-lower"><sub>' + cleanLower + '</sub></span>' +
+            '</span>' +
+        '</span>';
+    });
+    
+      // Xử lý tích phân vòng CÓ CẬN \oint_{a}^{b} (Nếu có)  MỚI THÊM 
+    let ointRegex = /\\oint_\{?([^}^]+)\}?\^\{?([^}{\s]+)\}?/g;
+    ointRegex.lastIndex = 0;
+    s = s.replace(ointRegex, function(match, lower, upper) {
+        let cleanLower = lower.replace(/\\/g, "").replace(/[{}]/g, "");
+        let cleanUpper = upper.replace(/\\/g, "").replace(/[{}]/g, "");
+        return '<span class="integral-container">' +
+            '<span class="integral-symbol">∮</span>' +
+            '<span class="integral-limits">' +
+                '<span class="integral-upper"><sup>' + cleanUpper + '</sup></span>' +
+                '<span class="integral-lower"><sub>' + cleanLower + '</sub></span>' +
+            '</span>' +
+        '</span>';
+    });
+      //END  Xử lý tích phân vòng CÓ CẬN \oint_{a}^{b} (Nếu có)  MỚI THÊM 
+
+    // 2. Tích phân không có cận
+    s = s.replace(/\\int(?!\s*[_^])/g, '<span class="integral-no-limits">∫</span>');
+    
+     //  ---- Xử lý dấu tổng xích-ma-----Có Cận VÀ KHÔNG CẬN
+    // Xử lý dấu tổng xích-ma CÓ CẬN (Tự động dọn sạch dấu ngoặc nhọn ở biểu thức sau cận)
+    let sumRegex = /\\sum_\{?([^}^]+)\}?\^\{?([^}{\s]+)\}?\s*\{?([^}\s][^}]*)?\}?/g;
+    sumRegex.lastIndex = 0;
+    s = s.replace(sumRegex, function(match, lower, upper, content) {
+        let cleanLower = lower.replace(/\\/g, "").replace(/[{}]/g, "");
+        let cleanUpper = upper.replace(/\\/g, "").replace(/[{}]/g, "");
+        let cleanContent = content ? content.replace(/[{}]/g, "") : ""; // Xóa sạch dấu { } ở biểu thức x_i
+        
+        return '<span class="sum-container">' +
+            '<span class="sum-symbol">∑</span>' +
+            '<span class="sum-limits">' +
+                '<span class="sum-upper"><sup>' + cleanUpper + '</sup></span>' +
+                '<span class="sum-lower"><sub>' + cleanLower + '</sub></span>' +
+            '</span>' +
+            '<span class="sum-content">' + cleanContent + '</span>' +
+        '</span>';
+    });
+
+    // Xử lý dấu tổng xích-ma KHÔNG CÓ CẬN
+    s = s.replace(/\\sum(?!\s*[_^])/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∑</span>');
+      //  ------ End  Xử lý dấu tổng xích-ma-----Có Cận VÀ KHÔNG CẬN
+        //  ------  Xử lý dấu tichs xích-ma-----Có Cận VÀ KHÔNG CẬN
+        // Xử lý dấu tích các phép nhân CÓ CẬN (Tự động dọn sạch dấu ngoặc nhọn ở biểu thức sau cận)
+    let prodRegex = /\\prod_\{?([^}^]+)\}?\^\{?([^}{\s]+)\}?\s*\{?([^}\s][^}]*)?\}?/g;
+    prodRegex.lastIndex = 0;
+    s = s.replace(prodRegex, function(match, lower, upper, content) {
+        let cleanLower = lower.replace(/\\/g, "").replace(/[{}]/g, "");
+        let cleanUpper = upper.replace(/\\/g, "").replace(/[{}]/g, "");
+        let cleanContent = content ? content.replace(/[{}]/g, "") : ""; // Dọn sạch ngoặc nhọn ở biểu thức sau
+        
+        return '<span class="prod-container">' +
+            '<span class="prod-symbol">∏</span>' +
+            '<span class="prod-limits">' +
+                '<span class="prod-upper"><sup>' + cleanUpper + '</sup></span>' +
+                '<span class="prod-lower"><sub>' + cleanLower + '</sub></span>' +
+            '</span>' +
+            '<span class="prod-content">' + cleanContent + '</span>' +
+        '</span>';
+    });
+
+    // Xử lý dấu tích các phép nhân KHÔNG CÓ CẬN (Nếu bạn chỉ gõ \prod đơn lẻ)
+    s = s.replace(/\\prod(?!\s*[_^])/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∏</span>');
+       //  ---END---  Xử lý dấu tichs xích-ma-----Có Cận VÀ KHÔNG CẬN
+
+    // 3. Phân số \frac
+    s = s.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<div class="frac"><span class="num">$1</span><span class="den">$2</span></div>');
+
+    // 4. Căn thức \sqrt
+    s = s.replace(/\\sqrt\{([^}]+)\}/g, '<span class="sqrt-container"><span class="sqrt-symbol">√</span><span class="sqrt-content">$1</span></span>');
+
+    // 5. Vectơ thông minh tự phân tách độ dài chữ
+    s = s.replace(/\\vec\{([^}]+)\}/g, function(match, content) {
+        let cleanText = content.replace(/<[^>]*>/g, "").trim(); 
+        if (cleanText.length <= 1) {
+            return '<span class="vector-container single-char"><span class="vector-arrow">→</span><span class="vector-content">' + content + '</span></span>';
+        } else {
+            return '<span class="vector-container multi-char"><span class="vector-arrow"></span><span class="vector-content">' + content + '</span></span>';
+        }
+    });
+
+    // 6. Chỉ số dưới và trên dạng tổng quát
+    s = s.replace(/([a-zA-Z0-9\)])_\{?([^}\s<>]+)\}?/g, '$1<sub>$2</sub>');
+    s = s.replace(/([a-zA-Z0-9\)])\^\{?([^}\s<>]+)\}?/g, '$1<sup>$2</sup>');
+
+    // 7. Ký hiệu đặc biệt Vật Lý và tự động dọn dấu \ trước lượng giác
+    // 7. KÝ HIỆU ĐẶC BIỆT VẬT LÝ & TOÁN HỌC MỞ RỘNG (Đã tích hợp toàn bộ bảng ảnh của bạn)
+    s = s.replace(/\\Delta/g, "Δ")
+         .replace(/\\lambda/g, "λ")
+         .replace(/\\omega/g, "ω")
+         .replace(/\\pi/g, "π")
+         .replace(/\\varphi/g, "φ")
+         .replace(/\\cos/g, "cos")
+         .replace(/\\sin/g, "sin")
+         .replace(/\\tan/g, "tan")
+         .replace(/\\cdot/g, "·")
+         
+         // --- Bổ sung các chữ cái Hy Lạp thường từ ảnh của bạn ---
+         .replace(/\\alpha/g, "α")
+         .replace(/\\beta/g, "β")
+         .replace(/\\gamma/g, "γ")
+         .replace(/\\delta/g, "δ")
+         .replace(/\\epsilon/g, "ϵ")
+         .replace(/\\varepsilon/g, "ε")
+         .replace(/\\zeta/g, "ζ")
+         .replace(/\\eta/g, "η")
+         .replace(/\\theta/g, "θ")
+         .replace(/\\vartheta/g, "ϑ")
+         .replace(/\\iota/g, "ι")
+         .replace(/\\kappa/g, "κ")
+         .replace(/\\mu/g, "μ")      // ◄ Đã có hệ số tự cảm / độ từ thẩm \mu
+         .replace(/\\nu/g, "ν")      // ◄ Tần số ánh sáng \nu
+         .replace(/\\xi/g, "ξ")
+         .replace(/\\varpi/g, "ϖ")
+         .replace(/\\rho/g, "ρ")      // ◄ Điện trở suất / mật độ khối lượng \rho
+         .replace(/\\varrho/g, "ϱ")
+         .replace(/\\sigma/g, "σ")
+         .replace(/\\varsigma/g, "ς")
+         .replace(/\\tau/g, "τ")      // ◄ Hằng số thời gian / mô-men lực \tau
+         .replace(/\\upsilon/g, "υ")
+         .replace(/\\phi/g, "ϕ")
+         .replace(/\\chi/g, "χ")
+         .replace(/\\psi/g, "ψ")
+
+         // --- Bổ sung các chữ cái Hy Lạp HOA ---
+         .replace(/\\Gamma/g, "Γ")
+         .replace(/\\Theta/g, "Θ")
+         .replace(/\\Lambda/g, "Λ")
+         .replace(/\\Xi/g, "Ξ")
+         .replace(/\\Pi/g, "Π")
+         .replace(/\\Sigma/g, "Σ")
+         .replace(/\\Upsilon/g, "Υ")
+         .replace(/\\Phi/g, "Φ")
+         .replace(/\\Psi/g, "Ψ")
+         .replace(/\\Omega/g, "Ω")   // ◄ Đơn vị Điện trở ôm \Omega
+
+         // --- Bổ sung ký hiệu toán học lớn bổ trợ (Từ mục 2 kích thước) ---
+         .replace(/\\sum/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∑</span>') // Ký hiệu tổng
+         .replace(/\\prod/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∏</span>') // Ký hiệu tích
+         .replace(/\\oint/g, '<span style="font-size: 1.6em; vertical-align: middle; font-family: serif; line-height: 1;">∮</span>')   // Tích phân đường kín
+         .replace(/\\bigcap/g, "∩")
+         .replace(/\\bigcup/g, "∪")
+         .replace(/\\infty/g, "∞")   // ◄ Thêm vô cực (Rất cần cho Lý)
+         .replace(/\\hbar/g, "ℏ");   // ◄ Thêm hằng số Planck rút gọn (Lượng tử ánh sáng)
+
+    // 8. Phím tắt chỉ số nhanh từ code gốc của bạn
+    s = s.replace(/_0/g, "<sub>0</sub>")
+         .replace(/_C/g, "<sub>C</sub>")
+         .replace(/_L/g, "<sub>L</sub>")
+         .replace(/_R/g, "<sub>R</sub>")
+         .replace(/_hp/g, "<sub>hp</sub>");
+
+    return s;
+}
+        //- --------------   END  CÔNG THỨC TỰ CHẾ
         function processEntirePageMath() {
             document.querySelectorAll(".render-math-node").forEach(node => {
                 node.innerHTML = localMathInterpreter(node.innerHTML);

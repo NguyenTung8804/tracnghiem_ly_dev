@@ -309,12 +309,80 @@
             white-space: nowrap;
         }
        /*   End -- TỰ CHẾ KÝ HIỆU HÌNH HỌC TỰ CO GIÃN MỚI ---*/
+     /* -----------   Thiết kế hộp thông báo lúc hết giờ--------        */  
+      /* =========================================================================
+           --- HỘP THOẠI THÔNG BÁO HẾT GIỜ TỰ CHẾ HIỆN ĐẠI (MODAL) ---
+           ========================================================================= */
+        .timeout-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.55); /* Lớp nền mờ tối phía sau */
+            backdrop-filter: blur(4px); /* Làm nhòe nhẹ hậu cảnh cực sang trọng */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999; /* Luôn nổi lên trên cùng toàn bộ trang web */
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .timeout-modal-overlay.show {
+            opacity: 1; visibility: visible;
+        }
+        .timeout-modal-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.85);
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .timeout-modal-overlay.show .timeout-modal-box {
+            transform: scale(1);
+        }
+        .timeout-modal-icon {
+            font-size: 45px;
+            color: #e53e3e; /* Màu đỏ cảnh báo */
+            margin-bottom: 12px;
+        }
+        .timeout-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+        .timeout-modal-text {
+            font-size: 15px;
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        .timeout-modal-btn {
+            background: #2b6cb0; /* Màu xanh đại dương công nghệ */
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s ease;
+            box-shadow: 0 4px 6px rgba(43, 108, 176, 0.2);
+        }
+        .timeout-modal-btn:hover {
+            background: #2c5282; /* Đậm màu hơn khi di chuột vào */
+        }
+      /* ------END-----   Thiết kế hộp thông báo lúc hết giờ--------        */  
     </style>
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.4.11" %}
-    {% set BUILD_TIME = "08/08/2026 21:30" %}
+    {% set VERSION = "3.5.2" %}      <!-- Sửa phần đồng hồ đếm ngược và nộp bài -->
+    {% set BUILD_TIME = "08/08/2026 23:15" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -451,8 +519,18 @@
                 {% endif %}
 
             {% endfor %}
-            <button type="submit" class="btn-submit" style="margin-top: 30px;">NỘP BÀI THI</button>
+             <button type="submit" id="submit-btn" class="btn-submit" style="margin-top: 30px;">NỘP BÀI THI</button>
         </form>
+          <!-- Hộp thoại thông báo hết giờ ẩn sẵn -->
+    <div id="timeoutModal" class="timeout-modal-overlay">
+        <div class="timeout-modal-box">
+            <div class="timeout-modal-icon">⏰</div>
+            <div class="timeout-modal-title">Hết thời gian làm bài!</div>
+            <div class="timeout-modal-text">Bài làm của bạn sẽ được nộp tự động vào hệ thống ngay bây giờ.</div>
+            <button type="button" id="closeTimeoutBtn" class="timeout-modal-btn">Xem kết quả thi của bạn</button>
+        </div>
+    </div>
+         <!--End Hộp thoại thông báo hết giờ ẩn sẵn -->  
         <div class="result-box" id="resultBox"></div>
     </div>
     <input type="hidden" id="globalDeSo" value="{{ de_so }}">
@@ -819,9 +897,53 @@ function coreMathInterpreter(text, isFinalPhase = false) {
                 if (typeof MathJax !== 'undefined') { MathJax.Hub.Queue(["Typeset", MathJax.Hub]); }
             });
         };
+   //  -----Hết giờ tự động nộp bài thi và hiển thị kết quả  
+    let duration = 15; // Giữ 15 giây để test hiệu ứng, sau này sửa thành 50 * 60
+    const timer = document.getElementById("timer");
+    
+    const timerInterval = setInterval(() => { 
+        let m = Math.floor(duration / 60), s = duration % 60; 
+        timer.textContent = "Thời gian: " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; 
+        
+        // Hiệu ứng cảnh báo nhấp nháy đỏ khi dưới 10 giây
+        if (duration <= 10) { 
+            timer.style.color = "red"; 
+            timer.style.fontWeight = "bold";
+            timer.style.visibility = (timer.style.visibility === "hidden") ? "visible" : "hidden";
+        } else {
+            timer.style.color = ""; 
+            timer.style.visibility = "visible";
+        }
 
-        let duration = 50 * 60; const timer = document.getElementById("timer");
-        setInterval(() => { let m = Math.floor(duration / 60), s = duration % 60; timer.textContent = "Thời gian: " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; if (--duration < 0) { document.getElementById("quizForm").dispatchEvent(new Event('submit')); } }, 1000);
+        // --- KHI HẾT GIỜ: GIẢ LẬP HÀNH VI BẤM NÚT NỘP BÀI ---
+        // --- KHI HẾT GIỜ: KÍCH HOẠT HỘP THOẠI TỰ CHẾ HIỆN ĐẠI ---
+        if (--duration < 0) { 
+            clearInterval(timerInterval); // Dừng đồng hồ
+            timer.style.visibility = "visible"; 
+            timer.textContent = "HẾT GIỜ!";
+            
+            // 1. Hiển thị hộp thoại Modal căn giữa màn hình mượt mà
+            const modal = document.getElementById("timeoutModal");
+            if (modal) modal.classList.add("show");
+            
+            // 2. Lắng nghe sự kiện click vào nút "Xem kết quả thi của bạn"
+            const closeBtn = document.getElementById("closeTimeoutBtn");
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    modal.classList.remove("show"); // Ẩn hộp thoại đi
+                    
+                    // Tự động kích hoạt cú click chuột ảo vào nút NỘP BÀI THI có ID 'submit-btn'
+                    const submitButton = document.getElementById("submit-btn");
+                    if (submitButton) {
+                        submitButton.click(); 
+                    } else {
+                        document.getElementById("quizForm").dispatchEvent(new Event('submit'));
+                    }
+                };
+            }
+        } 
+    }, 1000);
+    // ----End Hết giờ tự động nộp bài thi và hiển thị kết quả        
     </script>
     {% endraw %}
 </body>

@@ -253,8 +253,8 @@
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.4.8" %}
-    {% set BUILD_TIME = "08/08/2026 05:20" %}
+    {% set VERSION = "3.4.9" %}
+    {% set BUILD_TIME = "08/08/2026 17:00" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -537,11 +537,71 @@ function coreMathInterpreter(text, isFinalPhase = false) {
     s = s.replace(/\\prod(?!\s*[_^])/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∏</span>');
        //  ---END---  Xử lý dấu tichs xích-ma-----Có Cận VÀ KHÔNG CẬN
 
-    // 3. Phân số \frac
-    s = s.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<div class="frac"><span class="num">$1</span><span class="den">$2</span></div>');
-
-    // 4. Căn thức \sqrt
-    s = s.replace(/\\sqrt\{([^}]+)\}/g, '<span class="sqrt-container"><span class="sqrt-symbol">√</span><span class="sqrt-content">$1</span></span>');
+//------------------------------------------------------
+   // 3 & 4. BỘ LỌC CUỐN CHIẾU ĐẶC TRỊ PHÂN SỐ \frac VÀ CĂN THỨC \sqrt LỒNG NHAU VÔ CỰC
+    let loopCount = 0;
+    while (loopCount < 100) { // Giới hạn vòng lặp bảo vệ hệ thống không bị treo
+        let lastFrac = s.lastIndexOf('\\frac{');
+        let lastSqrt = s.lastIndexOf('\\sqrt{');
+        
+        // Nếu không còn bất kỳ dấu \frac{ hoặc \sqrt{ nào thì dừng vòng lặp
+        if (lastFrac === -1 && lastSqrt === -1) break;
+        
+        // THƯỢNG SÁCH: Từ khóa nào xuất hiện muộn hơn (nằm sâu bên trong lõi hơn) thì dịch trước
+        if (lastFrac !== -1 && (lastFrac > lastSqrt || lastSqrt === -1)) {
+            // Tiến hành bóc tách cặp ngoặc nhọn cân bằng cho Tử số của \frac
+            let numStart = lastFrac + 6;
+            let openBraces = 1;
+            let i = numStart;
+            while (openBraces > 0 && i < s.length) {
+                if (s[i] === '{') openBraces++;
+                if (s[i] === '}') openBraces--;
+                i++;
+            }
+            let numContent = s.substring(numStart, i - 1);
+            
+            // Tiếp tục bóc tách cặp ngoặc nhọn cân bằng cho Mẫu số của \frac
+            if (s[i] === '{') {
+                let denStart = i + 1;
+                openBraces = 1;
+                i++;
+                while (openBraces > 0 && i < s.length) {
+                    if (s[i] === '{') openBraces++;
+                    if (s[i] === '}') openBraces--;
+                    i++;
+                }
+                let denContent = s.substring(denStart, i - 1);
+                let fullFrac = s.substring(lastFrac, i);
+                
+                // Dịch đệ quy sạch sẽ phần ruột bên trong tử và mẫu trước
+                let renderedNum = coreMathInterpreter(numContent);
+                let renderedDen = coreMathInterpreter(denContent);
+                
+                s = s.replace(fullFrac, '<div class="frac"><span class="num">' + renderedNum + '</span><span class="den">' + renderedDen + '</span></div>');
+            } else {
+                break; // Thoát an toàn nếu cấu trúc gõ sai chính tả
+            }
+        } else if (lastSqrt !== -1) {
+            // Tiến hành bóc tách cặp ngoặc nhọn cân bằng cho phần ruột bên trong \sqrt
+            let start = lastSqrt + 6;
+            let openBraces = 1;
+            let i = start;
+            while (openBraces > 0 && i < s.length) {
+                if (s[i] === '{') openBraces++;
+                if (s[i] === '}') openBraces--;
+                i++;
+            }
+            let innerContent = s.substring(start, i - 1);
+            let fullSqrt = s.substring(lastSqrt, i);
+            
+            // Dịch đệ quy sạch sẽ ruột của dấu căn thức
+            let renderedInner = coreMathInterpreter(innerContent);
+            
+            s = s.replace(fullSqrt, '<span class="sqrt-container"><span class="sqrt-symbol">√</span><span class="sqrt-content">' + renderedInner + '</span></span>');
+        }
+        loopCount++;
+    }
+//------------------------------------------------------
 
     // 5. Vectơ thông minh tự phân tách độ dài chữ
     s = s.replace(/\\vec\{([^}]+)\}/g, function(match, content) {

@@ -249,12 +249,72 @@
             padding-left: 2px;
         }       
         /* --End- tự chế cận dấu tích các phép nhân nâng cấp ----- */    
+            /* =========================================================================
+           --- TỰ CHẾ KÝ HIỆU HÌNH HỌC TỰ CO GIÃN MỚI ---
+           ========================================================================= */
+        
+        /* 1. Ký hiệu góc \widehat{ABC} */
+        .angle-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: baseline;
+            position: relative;
+            line-height: 1;
+            margin: 0 1px;
+            padding-top: 0.35em; /* Tạo khoảng trống phía trên cho dấu mũ */
+        }
+        .angle-hat {
+            position: absolute;
+            top: -0.2em; /* Độ cao đẩy dấu mũ lên trên đầu chữ */
+            left: 50%;
+            transform: translateX(-50%) scaleX(1.1);
+            font-size: 0.85em;
+            font-family: serif;
+            user-select: none;
+            color: #2d3748;
+        }
+        .angle-content {
+            display: inline-block;
+            font-family: "Times New Roman", serif;
+            font-weight: bold;
+        }
+
+        /* 2. Ký hiệu cung tròn \frown{AB} */
+        .arc-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: stretch;
+            vertical-align: baseline;
+            position: relative;
+            line-height: 1;
+            margin: 0 1px;
+            padding-top: 0.3em;
+        }
+        /* Tự vẽ cung tròn uốn cong mềm mại bám theo độ rộng của chữ cái */
+        .arc-container::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 1px;
+            right: 1px;
+            height: 4px;
+            border-top: 1.3px solid #2d3748;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0; /* Tạo độ cong vòng vòm */
+        }
+        .arc-content {
+            display: inline-block;
+            font-family: "Times New Roman", serif;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+       /*   End -- TỰ CHẾ KÝ HIỆU HÌNH HỌC TỰ CO GIÃN MỚI ---*/
     </style>
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.4.9" %}
-    {% set BUILD_TIME = "08/08/2026 17:00" %}
+    {% set VERSION = "3.4.10" %}
+    {% set BUILD_TIME = "08/08/2026 21:00" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -515,13 +575,16 @@ function coreMathInterpreter(text, isFinalPhase = false) {
     s = s.replace(/\\sum(?!\s*[_^])/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∑</span>');
       //  ------ End  Xử lý dấu tổng xích-ma-----Có Cận VÀ KHÔNG CẬN
         //  ------  Xử lý dấu tichs xích-ma-----Có Cận VÀ KHÔNG CẬN
-        // Xử lý dấu tích các phép nhân CÓ CẬN (Tự động dọn sạch dấu ngoặc nhọn ở biểu thức sau cận)
+    // 2.2b: Xử lý dấu tích các phép nhân CÓ CẬN \prod_{cận_dưới}^{cận_trên} (Sửa lỗi lộ mã thô prod)
     let prodRegex = /\\prod_\{?([^}^]+)\}?\^\{?([^}{\s]+)\}?\s*\{?([^}\s][^}]*)?\}?/g;
     prodRegex.lastIndex = 0;
     s = s.replace(prodRegex, function(match, lower, upper, content) {
         let cleanLower = lower.replace(/\\/g, "").replace(/[{}]/g, "");
         let cleanUpper = upper.replace(/\\/g, "").replace(/[{}]/g, "");
-        let cleanContent = content ? content.replace(/[{}]/g, "") : ""; // Dọn sạch ngoặc nhọn ở biểu thức sau
+        let cleanContent = content ? content.replace(/[{}]/g, "") : ""; 
+        
+        // Gọi đệ quy hàm lõi dịch nội dung toán (như phân số \frac) bên trong dấu tích
+        let renderedContent = coreMathInterpreter(cleanContent);
         
         return '<span class="prod-container">' +
             '<span class="prod-symbol">∏</span>' +
@@ -529,11 +592,11 @@ function coreMathInterpreter(text, isFinalPhase = false) {
                 '<span class="prod-upper"><sup>' + cleanUpper + '</sup></span>' +
                 '<span class="prod-lower"><sub>' + cleanLower + '</sub></span>' +
             '</span>' +
-            '<span class="prod-content">' + cleanContent + '</span>' +
+            '<span class="prod-content">' + renderedContent + '</span>' +
         '</span>';
     });
 
-    // Xử lý dấu tích các phép nhân KHÔNG CÓ CẬN (Nếu bạn chỉ gõ \prod đơn lẻ)
+    // Xử lý dấu tích các phép nhân KHÔNG CÓ CẬN (Nếu chỉ gõ \prod trơn lẻ)
     s = s.replace(/\\prod(?!\s*[_^])/g, '<span style="font-size: 1.4em; vertical-align: -0.1em; font-family: serif; line-height: 1;">∏</span>');
        //  ---END---  Xử lý dấu tichs xích-ma-----Có Cận VÀ KHÔNG CẬN
 
@@ -612,6 +675,15 @@ function coreMathInterpreter(text, isFinalPhase = false) {
             return '<span class="vector-container multi-char"><span class="vector-arrow"></span><span class="vector-content">' + content + '</span></span>';
         }
     });
+    
+    // -----------XỬ LÝ GÓC HÌNH HỌC---------------------------------
+        // 5.1: Xử lý ký hiệu góc \widehat{ABC} (Tự động bọc CSS căn tâm)
+    s = s.replace(/\\widehat\{([^}]+)\}/g, '<span class="angle-container"><span class="angle-hat">^</span><span class="angle-content">$1</span></span>');
+    s = s.replace(/\\hat\{([^}]+)\}/g, '<span class="angle-container"><span class="angle-hat">^</span><span class="angle-content">$1</span></span>');
+
+    // 5.2: Xử lý ký hiệu cung tròn \frown{AB} (Tự vẽ cung cong co giãn)
+    s = s.replace(/\\frown\{([^}]+)\}/g, '<span class="arc-container"><span class="arc-content">$1</span></span>');   
+    // -------END----XỬ LÝ GÓC HÌNH HỌC---------------------------------
 
     // 6. Chỉ số dưới và trên dạng tổng quát
     s = s.replace(/([a-zA-Z0-9\)])_\{?([^}\s<>]+)\}?/g, '$1<sub>$2</sub>');
@@ -676,6 +748,12 @@ function coreMathInterpreter(text, isFinalPhase = false) {
          .replace(/\\bigcup/g, "∪")
          .replace(/\\infty/g, "∞")   // ◄ Thêm vô cực (Rất cần cho Lý)
          .replace(/\\hbar/g, "ℏ");   // ◄ Thêm hằng số Planck rút gọn (Lượng tử ánh sáng)
+                
+         // --- Bổ sung ký hiệu hình học thô từ danh sách của bạn ---
+         .replace(/\\perp/g, "⊥")         // Ký hiệu vuông góc
+         .replace(/\\parallel/g, "∥")     // Ký hiệu song song
+         .replace(/\\textbf\{([^}]+)\}/g, "<strong>$1</strong>") // Thay thế chữ in đậm chuẩn HTML
+    
 
     // 8. Phím tắt chỉ số nhanh từ code gốc của bạn
     s = s.replace(/_0/g, "<sub>0</sub>")

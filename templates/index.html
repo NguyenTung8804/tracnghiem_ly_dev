@@ -885,9 +885,14 @@ function coreMathInterpreter(text, isFinalPhase = false) {
         }
         window.addEventListener("DOMContentLoaded", processEntirePageMath);
 
-        document.getElementById("quizForm").onsubmit = function (e) {
-            e.preventDefault(); 
-            const submitBtn = document.querySelector(".btn-submit");
+document.getElementById("quizForm").onsubmit = function (e) {
+    e.preventDefault();
+    
+    // CHÈN DÒNG NÀY VÀO ĐÂY: Dừng đồng hồ ngay lập tức khi bắt đầu nộp bài
+    if (window.timerInterval) {
+        clearInterval(window.timerInterval);
+    }
+    const submitBtn = document.querySelector(".btn-submit");
             if (submitBtn) {
                 submitBtn.disabled = true; submitBtn.style.backgroundColor = "#a0aec0";
                 submitBtn.innerHTML = "🔒 Bài thi đã được nộp thành công"; 
@@ -1063,7 +1068,7 @@ p3Blocks.forEach(b => {
     let duration = 15; // Giữ 15 giây để test hiệu ứng, sau này sửa thành 50 * 60
     const timer = document.getElementById("timer");
     
-    const timerInterval = setInterval(() => { 
+    window.timerInterval = setInterval(() => {
         let m = Math.floor(duration / 60), s = duration % 60; 
         timer.textContent = "Thời gian: " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; 
         
@@ -1080,7 +1085,7 @@ p3Blocks.forEach(b => {
         // --- KHI HẾT GIỜ: GIẢ LẬP HÀNH VI BẤM NÚT NỘP BÀI ---
         // --- KHI HẾT GIỜ: KÍCH HOẠT HỘP THOẠI TỰ CHẾ HIỆN ĐẠI ---
         if (--duration < 0) { 
-            clearInterval(timerInterval); // Dừng đồng hồ
+            clearInterval(window.timerInterval);// Dừng đồng hồ
             timer.style.visibility = "visible"; 
             timer.textContent = "HẾT GIỜ!";
             

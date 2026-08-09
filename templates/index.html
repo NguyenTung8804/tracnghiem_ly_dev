@@ -377,12 +377,48 @@
             background: #2c5282; /* Đậm màu hơn khi di chuột vào */
         }
       /* ------END-----   Thiết kế hộp thông báo lúc hết giờ--------        */  
+/*-------- Màu nền xanh đỏ cho đáp án Đúng/Sai----Phần 1-----*/
+      .option-item.correct-choice {
+    background-color: #c6f6d5 !important; /* Nền xanh lá nhạt */
+    border-color: #38a169 !important;     /* Viền xanh lá đậm */
+}
+.option-item.wrong-choice {
+    background-color: #fed7d7 !important;  /* Nền đỏ nhạt */
+    border-color: #e53e3e !important;      /* Viền đỏ đậm */
+}
+/*---------ENd Màu nền xanh đỏ cho đáp án Đúng/Sai-----Phần 1-------*/
+/*-------- Màu nền xanh đỏ cho đáp án Đúng/Sai----Phần II-----*/
+.tf-table td.correct-cell {
+    background-color: #c6f6d5 !important; /* Xanh lá nhạt khi chọn đúng */
+    font-weight: bold;
+    color: #22543d;
+}
+.tf-table td.wrong-cell {
+    background-color: #fed7d7 !important; /* Đỏ nhạt khi chọn sai */
+    font-weight: bold;
+    color: #742a2a;
+}
+/*------End-- Màu nền xanh đỏ cho đáp án Đúng/Sai----Phần II-----*/
+/*------- Màu nền xanh đỏ cho đáp án Đúng/Sai----Phần III-----*/
+input.input-correct {
+    border-color: #38a169 !important;     /* Viền xanh lá đậm */
+    background-color: #c6f6d5 !important; /* Nền xanh lá nhạt */
+    color: #22543d !important;             /* Chữ xanh đậm */
+    font-weight: bold;
+}
+input.input-wrong {
+    border-color: #e53e3e !important;     /* Viền đỏ đậm */
+    background-color: #fed7d7 !important; /* Nền đỏ nhạt */
+    color: #742a2a !important;             /* Chữ đỏ đậm */
+    font-weight: bold;
+}
+/*------End-- Màu nền xanh đỏ cho đáp án Đúng/Sai----Phần III-----*/
     </style>
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.5.2" %}      <!-- Sửa phần đồng hồ đếm ngược và nộp bài -->
-    {% set BUILD_TIME = "08/08/2026 23:15" %}
+    {% set VERSION = "3.5.3" %}      <!-- Tô xanh đỏ đáp án Đúng/Sai -->
+    {% set BUILD_TIME = "09/08/2026 22:45" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -872,26 +908,152 @@ function coreMathInterpreter(text, isFinalPhase = false) {
             fetch("/api/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: batchAnswers, de_so: currentDeSo }) })
             .then(res => res.json()).then(resData => {
                 const sMap = {}; resData.details.forEach(item => { sMap[String(item.id)] = item; });
+//--------Tô xanh đỏ đáp án đúng/sai phần 1--------------------------
+p1Blocks.forEach(b => {
+    const id = b.getAttribute('data-id');
+    const div = document.getElementById("feedback_p1_" + id);
+    const res = sMap[String(id)];
+    const userChoice = batchAnswers[String(id)] || "Chưa chọn";
 
-                p1Blocks.forEach(b => {
-                    const id = b.getAttribute('data-id'); const div = document.getElementById("feedback_p1_" + id); const res = sMap[String(id)];
-        // Sửa chấm điểm phần 1: Lấy đáp án cục bộ từ trình duyệt để xóa lỗi undefined     
-              const userChoice = batchAnswers[String(id)] || "Chưa chọn";
-                    if (div && res) { div.innerHTML = `<p class="${res.is_correct ? 'correct' : 'wrong'}" style="margin-top:12px;">${res.is_correct ? '✓ Đúng' : '✗ Sai'} (Bạn chọn: ${userChoice} - Đúng: ${res.dap_an_dung})</p><div class="explanation"><strong>Giải thích:</strong> ${localMathInterpreter(res.giai_chi_tiet)}</div>`; }
-                });
-                p2Blocks.forEach(b => {
-                    const id = b.getAttribute('data-id'); const div = document.getElementById("feedback_p2_" + id); const res = sMap[String(id)];
-                    if (div && res) {
-                        let sub = res.sub_feedback, html = `<div style="margin-top:15px; border-top:1px dashed #cbd5e0; padding-top:10px;"><ul style="list-style-type:none; padding-left:10px;">`;
-                        ['a', 'b', 'c', 'd'].forEach(k => { html += `<li>• Ý ${k}): <span class="${sub[k].is_correct ? 'correct' : 'wrong'}">${sub[k].is_correct ? '✓ Đúng' : '✗ Sai'}</span> (Chọn: ${sub[k].chosen} - Đúng: <strong>${sub[k].correct}</strong>)</li>`; });
-                        div.innerHTML = html + `</ul><div class="explanation"><strong>Giải thích:</strong> ${localMathInterpreter(res.giai_chi_tiet)}</div></div>`;
+    // 1. Xóa các class màu cũ trước đó nếu có khi làm lại
+    b.querySelectorAll('.option-item').forEach(item => {
+        item.classList.remove('correct-choice', 'wrong-choice');
+    });
+
+    if (res) {
+        // 2. Tô màu Đỏ cho ô người dùng chọn SAI
+        if (!res.is_correct && userChoice !== "Chưa chọn") {
+            const wrongInput = b.querySelector(`input[value="${userChoice}"]`);
+            if (wrongInput) {
+                wrongInput.closest('.option-item').classList.add('wrong-choice');
+            }
+        }
+
+        // 3. Luôn tô màu Xanh cho ô đáp án ĐÚNG của hệ thống
+        const correctInput = b.querySelector(`input[value="${res.dap_an_dung}"]`);
+        if (correctInput) {
+            correctInput.closest('.option-item').classList.add('correct-choice');
+        }
+
+        // 4. Hiển thị hộp giải thích chi tiết bên dưới câu hỏi
+        if (div) {
+            div.innerHTML = `
+                <p class="${res.is_correct ? 'correct' : 'wrong'}" style="margin-top:12px;">
+                    ${res.is_correct ? '✓ Đúng' : '✗ Sai'} (Bạn chọn: ${userChoice} - Đúng: ${res.dap_an_dung})
+                </p>
+                <div class="explanation">
+                    <strong>Giải thích:</strong> ${localMathInterpreter(res.giai_chi_tiet)}
+                </div>`;
+        }
+    }
+});
+//-------End---Tô xanh đỏ đáp án đúng/sai phần 1----------   
+  //---------Tô xanh đỏ đáp án đúng/sai phần 2----------                                         
+p2Blocks.forEach(b => {
+    const id = b.getAttribute('data-id');
+    const div = document.getElementById("feedback_p2_" + id);
+    const res = sMap[String(id)];
+
+    // 1. Reset màu của các ô trong bảng về mặc định trước khi chấm điểm
+    b.querySelectorAll('.tf-table td').forEach(td => {
+        td.classList.remove('correct-cell', 'wrong-cell');
+    });
+
+    if (div && res) {
+        let sub = res.sub_feedback;
+        let html = `<div style="margin-top:15px; border-top:1px dashed #cbd5e0; padding-top:10px;"><ul style="list-style-type:none; padding-left:10px;">`;
+
+        ['a', 'b', 'c', 'd'].forEach(k => {
+            const isCorrect = sub[k].is_correct;
+            let chosen = sub[k].chosen || "Chưa chọn";
+            let correct = sub[k].correct || "";
+
+            // Chuẩn hóa ký tự để tìm chính xác input value="Đ" hoặc value="S" trên HTML của bạn
+            if (chosen === "Đúng") chosen = "Đ";
+            if (chosen === "Sai") chosen = "S";
+            if (correct === "Đúng") correct = "Đ";
+            if (correct === "Sai") correct = "S";
+
+            // 2. Tìm dòng <tr> của phát biểu hiện tại (a, b, c, d)
+            const radioNode = b.querySelector(`input[name="q_${id}_${k}"][value="${correct}"]`);
+            if (radioNode) {
+                const row = radioNode.closest('tr');
+                if (row) {
+                    if (chosen === "Chưa chọn") {
+                        // Nếu bỏ sót, tô màu đỏ nhẹ cảnh báo ngay ô đáp án đúng
+                        const correctTd = row.querySelector(`input[value="${correct}"]`);
+                        if (correctTd) correctTd.closest('td').classList.add('wrong-cell');
+                    } else if (isCorrect) {
+                        // Nếu làm ĐÚNG: Tô xanh ô người dùng chọn
+                        const correctTd = row.querySelector(`input[value="${chosen}"]`);
+                        if (correctTd) correctTd.closest('td').classList.add('correct-cell');
+                    } else {
+                        // Nếu làm SAI: Tô đỏ ô người dùng chọn sai và tô xanh ô đáp án đúng của hệ thống
+                        const wrongTd = row.querySelector(`input[value="${chosen}"]`);
+                        const correctTd = row.querySelector(`input[value="${correct}"]`);
+                        if (wrongTd) wrongTd.closest('td').classList.add('wrong-cell');
+                        if (correctTd) correctTd.closest('td').classList.add('correct-cell');
                     }
-                });
-                p3Blocks.forEach(b => {
-                    const id = b.getAttribute('data-id'); const div = document.getElementById("feedback_p3_" + id); const res = sMap[String(id)];
-                    if (div && res) { div.innerHTML = `<p class="${res.is_correct ? 'correct' : 'wrong'}" style="margin-top:12px;">${res.is_correct ? '✓ Đúng' : '✗ Sai'} (Bạn nhập: ${res.chosen} - Đúng: ${res.dap_an_dung})</p><div class="explanation"><strong>Giải thích:</strong> ${localMathInterpreter(res.giai_chi_tiet)}</div>`; }
-                });
+                }
+            }
 
+            // Hiển thị lại text danh sách tổng hợp chữ Đúng/Sai cho học sinh dễ đọc
+            const textChosen = chosen === "Đ" ? "Đúng" : (chosen === "S" ? "Sai" : "Chưa chọn");
+            const textCorrect = correct === "Đ" ? "Đúng" : "Sai";
+
+            html += `<li>• Ý ${k}): <span class="${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ Đúng' : '✗ Sai'}</span> (Chọn: ${textChosen} - Đúng: <strong>${textCorrect}</strong>)</li>`;
+        });
+
+        // 3. In phần giải thích chi tiết ra giao diện
+        div.innerHTML = html + `</ul><div class="explanation"><strong>Giải thích:</strong> ${localMathInterpreter(res.giai_chi_tiet)}</div></div>`;
+    }
+});
+  //-------End---Tô xanh đỏ đáp án đúng/sai phần 2----------   
+  //----Tô xanh đỏ đáp án đúng/sai-------- phần 3----------         
+p3Blocks.forEach(b => {
+    const id = b.getAttribute('data-id');
+    const div = document.getElementById("feedback_p3_" + id);
+    const res = sMap[String(id)];
+
+    // 1. Tìm ô input nhập đáp án của câu hỏi hiện tại
+    const inputField = b.querySelector(`input[name="q_${id}"]`) || b.querySelector('input[type="text"]');
+
+    // Reset màu của ô input về mặc định khi làm lại bài
+    if (inputField) {
+        inputField.classList.remove('input-correct', 'input-wrong');
+    }
+
+    if (div && res) {
+        // Lấy đáp án đã nhập: ưu tiên res.chosen, nếu không có thì lấy giá trị hiển thị ở inputField, cuối cùng mới báo Chưa nhập
+        let userAns = "Chưa nhập";
+        if (res.chosen !== undefined && res.chosen !== null && res.chosen !== "") {
+            userAns = res.chosen;
+        } else if (inputField && inputField.value.trim() !== "") {
+            userAns = inputField.value.trim();
+        } else if (batchAnswers && batchAnswers[String(id)]) {
+            userAns = batchAnswers[String(id)];
+        }
+
+        // 2. Kiểm tra kết quả để thêm class màu sắc trực quan vào ô input
+        if (inputField) {
+            if (res.is_correct) {
+                inputField.classList.add('input-correct');
+            } else {
+                inputField.classList.add('input-wrong');
+            }
+        }
+
+        // 3. Hiển thị khối thông báo kết quả và Giải thích chi tiết bằng MathJax
+        div.innerHTML = `
+            <p class="${res.is_correct ? 'correct' : 'wrong'}" style="margin-top:12px;">
+                ${res.is_correct ? '✓ Đúng' : '✗ Sai'} (Bạn nhập: ${userAns} - Đáp án đúng: <strong>${res.dap_an_dung}</strong>)
+            </p>
+            <div class="explanation">
+                <strong>Giải thích:</strong> ${localMathInterpreter(res.giai_chi_tiet)}
+            </div>`;
+    }
+});
+  //--End--Tô xanh đỏ đáp án đúng/sai-------- phần 3----------         
                 const box = document.getElementById("resultBox");
                 if (box) { box.style.display = "block"; box.innerHTML = `<h3>KẾT QUẢ BÀI THI CỦA BẠN</h3><p style="font-size:23px;font-weight:bold;color:var(--accent-color);">TỔNG ĐIỂM QUY ĐỔI HỆ 10: ${resData.total_score} / 10 điểm</p>`; box.scrollIntoView({ behavior: 'smooth' }); }
                 if (typeof MathJax !== 'undefined') { MathJax.Hub.Queue(["Typeset", MathJax.Hub]); }

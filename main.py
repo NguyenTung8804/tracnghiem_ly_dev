@@ -14,7 +14,7 @@ from email.mime.text import MIMEText
 app = FastAPI()
 
 # ---------------- CẤU HÌNH GỬI EMAIL MIỄN PHÍ ----------------
-SMTP_SERVER = "://gmail.com"
+SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SENDER_EMAIL = "tracnghiemonlinevietdragon@gmail.com"
 SENDER_PASSWORD = "iisogmecxfzjufnd"

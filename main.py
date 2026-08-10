@@ -5,11 +5,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict
-#-------------------------------------------------
+#------------------Thu_viện_gửi_email-------------------------------
 import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+#--------------End----Thu_viện_gửi_email---------------------------------
+#------------------Thu_viện_đính_kèm_email------------------------------
+import os
+import pdfkit
+from email.mime.base import MIMEBase
+from email import encoders
+#------------------Thu_viện_đính_kèm_email------------------------------
 
 app = FastAPI()
 
@@ -163,8 +169,6 @@ async def submit_exam(data: ExamSubmit):
     }
 
 # ---------------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
-# ---------------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
-# ---------------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
 class EmailSubmit(BaseModel):
     name: str
     email: str
@@ -172,66 +176,64 @@ class EmailSubmit(BaseModel):
 
 @app.post("/api/send-result-email")
 async def send_result_email(data: EmailSubmit):
+    # 1. Tạo tên file và nội dung HTML cho PDF
+    pdf_filename = f"KetQua_{data.name.replace(' ', '_')}.pdf"
+    
     try:
-        student_name = data.name
-        student_email = data.email
-        res_data = data.result
-
-        total_score = res_data.get("total_score", 0)
-        total_attempted = res_data.get("total_attempted", 0)
-        total_questions = res_data.get("total_questions", 33)
-        score_p1 = res_data.get("score_p1", 0)
-        score_p2 = res_data.get("score_p2", 0)
-        score_p3 = res_data.get("score_p3", 0)
-
-        # Thiết lập tiêu đề và cấu trúc bức thư gửi đi
-        msg = MIMEMultipart('alternative')
-        msg['From'] = f"VietDragon Learning Center <{SENDER_EMAIL}>"
-        msg['To'] = student_email
-        msg['Subject'] = f"📋 KẾT QUẢ BÀI THI VẬT LÝ - HỌC SINH: {student_name.upper()}"
-
-        # Biên soạn nội dung bức thư định dạng HTML hiển thị trên điện thoại
-        html_content = f"""
-        <html>
-        <body style="font-family: 'Times New Roman', serif; line-height: 1.6; color: #2d3748; padding: 20px; background-color: #f7fafc;">
-            <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; padding: 25px; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <h2 style="color: #2b6cb0; text-align: center; border-bottom: 2px solid #2b6cb0; padding-bottom: 12px; margin-top: 0; font-size: 24px;">VIETDRAGON LEARNING CENTER</h2>
-                <p style="font-size: 16px;">Chào <strong>{student_name}</strong>,</p>
-                <p style="font-size: 16px;">Hệ thống đã ghi nhận và hoàn tất chấm điểm bài thi thử trắc nghiệm môn <strong>Vật Lý</strong> của bạn. Dưới đây là thông tin chi tiết bảng điểm:</p>
-                
-                <div style="background-color: #ebf8ff; border-left: 4px solid #3182ce; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                    <p style="font-size: 20px; margin: 0; font-weight: bold; color: #2b6cb0;">🏅 TỔNG ĐIỂM QUY ĐỔI HỆ 10: <span style="font-size: 26px; color: #e53e3e;">{total_score}</span> / 10 điểm</p>
-                </div>
-
-                <p style="font-size: 16px; margin-bottom: 8px;"><strong>💡 Thống kê ma trận số lượng câu làm được:</strong></p>
-                <ul style="padding-left: 20px; font-size: 15px; list-style-type: none; line-height: 1.8;">
-                    <li style="margin-bottom: 5px;">• <strong>Tổng số câu đã thực hiện làm:</strong> <span style="font-weight: bold; color: #3182ce;">{total_attempted}</span> / {total_questions} câu toàn bài</li>
-                    <li style="margin-bottom: 5px;">• Số câu trả lời đúng Phần I: <span style="color: #38a169; font-weight: bold;">{score_p1}</span> câu</li>
-                    <li style="margin-bottom: 5px;">• Số câu đúng tuyệt đối Phần II: <span style="color: #38a169; font-weight: bold;">{score_p2}</span> câu</li>
-                    <li style="margin-bottom: 5px;">• Số câu trả lời đúng Phần III: <span style="color: #38a169; font-weight: bold;">{score_p3}</span> câu</li>
-                </ul>
-
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;">
-                <p style="font-size: 13px; color: #a0aec0; text-align: center; margin-bottom: 0;">Đây là thư thông báo tự động từ hệ thống thi trắc nghiệm trực tuyến VietDragon. Vui lòng không trả lời thư này.</p>
-            </div>
-        </body>
-        </html>
+        # Cấu trúc dữ liệu kết quả
+        r = data.result
+        
+        # 2. Tạo nội dung HTML (có thể tùy chỉnh thêm)
+        pdf_html = f"""
+        <html><body>
+            <h2>VIETDRAGON LEARNING CENTER</h2>
+            <h3>PHIẾU KẾT QUẢ VẬT LÝ - {data.name}</h3>
+            <p>Tổng điểm: <strong>{r.get("total_score", 0)} / 10</strong></p>
+            <p>Chi tiết: {r.get("score_p1", 0)}/{r.get("score_p2", 0)}/{r.get("score_p3", 0)}</p>
+        </body></html>
         """
-        msg.attach(MIMEText(html_content, 'html', 'utf-8'))
 
-        # Kích hoạt gửi email bất đồng bộ qua aiosmtplib
-        await aiosmtplib.send(
-            msg,
-            hostname=SMTP_SERVER,
-            port=SMTP_PORT,
-            username=SENDER_EMAIL,
-            password=SENDER_PASSWORD,
-            start_tls=True
-        )
+        # 3. Xuất file PDF (yêu cầu pdfkit và wkhtmltopdf)
+        import pdfkit
+        pdfkit.from_string(pdf_html, pdf_filename)
 
-        return {"success": True, "message": "Email đã được gửi thành công!"}
+        # 4. Gửi email với file đính kèm
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+        from email.mime.base import MIMEBase
+        from email import encoders
+        import aiosmtplib
+
+        msg = MIMEMultipart('mixed')
+        msg['From'] = f"VietDragon <{SENDER_EMAIL}>"
+        msg['To'] = data.email
+        msg['Subject'] = f"KẾT QUẢ THI - {data.name}"
+        
+        # Nội dung email
+        msg.attach(MIMEText("Vui lòng xem file đính kèm.", 'plain'))
+        
+        # Đính kèm file
+        with open(pdf_filename, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+            
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition", f"attachment; filename={pdf_filename}")
+        msg.attach(part)
+
+        # Gửi
+        await aiosmtplib.send(msg, hostname=SMTP_SERVER, port=SMTP_PORT, 
+                              username=SENDER_EMAIL, password=SENDER_PASSWORD, start_tls=True)
+
+        return {"success": True, "message": "Đã gửi email!"}
 
     except Exception as e:
         return {"success": False, "message": str(e)}
+        
+    finally:
+        # 5. Dọn dẹp file PDF
+        import os
+        if os.path.exists(pdf_filename):
+            os.remove(pdf_filename)
 # ------End---------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
 

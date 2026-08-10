@@ -176,52 +176,75 @@ class EmailSubmit(BaseModel):
 
 @app.post("/api/send-result-email")
 async def send_result_email(data: EmailSubmit):
-    # 1. Tạo tên file và nội dung HTML cho PDF
+    # Sử dụng đúng tên file có đuôi .pdf
     pdf_filename = f"KetQua_{data.name.replace(' ', '_')}.pdf"
     
     try:
-        # Cấu trúc dữ liệu kết quả
         r = data.result
         
-        # 2. Tạo nội dung HTML (có thể tùy chỉnh thêm)
+        # Thêm thẻ meta charset="utf-8" vào đầu HTML
         pdf_html = f"""
-        <html><body>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: 'DejaVu Sans', sans-serif; }}
+            </style>
+        </head>
+        <body>
             <h2>VIETDRAGON LEARNING CENTER</h2>
             <h3>PHIẾU KẾT QUẢ VẬT LÝ - {data.name}</h3>
             <p>Tổng điểm: <strong>{r.get("total_score", 0)} / 10</strong></p>
             <p>Chi tiết: {r.get("score_p1", 0)}/{r.get("score_p2", 0)}/{r.get("score_p3", 0)}</p>
-        </body></html>
+        </body>
+        </html>
         """
 
-        # 3. Xuất file PDF (yêu cầu pdfkit và wkhtmltopdf)
+        # SỬA LỖI FONT: Ép cấu hình mã hóa UTF-8 khi pdfkit biên dịch
         import pdfkit
-        pdfkit.from_string(pdf_html, pdf_filename)
+        options = {
+            'encoding': "UTF-8",
+            'custom-header': [
+                ('Content-Type', 'text/html; charset=utf-8')
+            ],
+            'no-outline': None
+        }
+        pdfkit.from_string(pdf_html, pdf_filename, options=options)
 
-        # 4. Gửi email với file đính kèm
+        # Gửi email với file đính kèm
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
         from email.mime.base import MIMEBase
         from email import encoders
+        from email.header import Header # Thêm thư viện xử lý tiêu đề tiếng Việt
         import aiosmtplib
 
         msg = MIMEMultipart('mixed')
         msg['From'] = f"VietDragon <{SENDER_EMAIL}>"
         msg['To'] = data.email
-        msg['Subject'] = f"KẾT QUẢ THI - {data.name}"
         
-        # Nội dung email
-        msg.attach(MIMEText("Vui lòng xem file đính kèm.", 'plain'))
+        # Sửa lỗi tiêu đề Email tiếng Việt bị lỗi hiển thị
+        msg['Subject'] = Header(f"KẾT QUẢ THI - {data.name}", 'utf-8').encode()
         
-        # Đính kèm file
+        msg.attach(MIMEText("Vui lòng xem file đính kèm.", 'plain', 'utf-8'))
+        
+        # Đọc tệp PDF
         with open(pdf_filename, "rb") as f:
-            part = MIMEBase("application", "octet-stream")
+            part = MIMEBase("application", "pdf")
             part.set_payload(f.read())
             
         encoders.encode_base64(part)
-        part.add_header("Content-Disposition", f"attachment; filename={pdf_filename}")
+        
+        # SỬA LỖI NONAME: Ép tên file về dạng không dấu khi gửi qua Internet để trình duyệt nhận diện đuôi .pdf
+        import unicodedata
+        safe_filename = unicodedata.normalize('NFKD', pdf_filename).encode('ascii', 'ignore').decode('utf-8')
+        
+        part.add_header(
+            "Content-Disposition", 
+            f"attachment; filename={safe_filename}"
+        )
         msg.attach(part)
 
-        # Gửi
         await aiosmtplib.send(msg, hostname=SMTP_SERVER, port=SMTP_PORT, 
                               username=SENDER_EMAIL, password=SENDER_PASSWORD, start_tls=True)
 
@@ -231,7 +254,6 @@ async def send_result_email(data: EmailSubmit):
         return {"success": False, "message": str(e)}
         
     finally:
-        # 5. Dọn dẹp file PDF
         import os
         if os.path.exists(pdf_filename):
             os.remove(pdf_filename)

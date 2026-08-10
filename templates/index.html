@@ -417,8 +417,8 @@ input.input-wrong {
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.5.4" %}      <!-- Tô xanh đỏ đáp án Đúng/Sai -->
-    {% set BUILD_TIME = "09/08/2026 24:00" %}
+    {% set VERSION = "3.5.5" %}      <!-- Tô xanh đỏ đáp án Đúng/Sai -->
+    {% set BUILD_TIME = "10/08/2026 10:30" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -1059,11 +1059,103 @@ p3Blocks.forEach(b => {
     }
 });
   //--End--Tô xanh đỏ đáp án đúng/sai-------- phần 3----------         
-                const box = document.getElementById("resultBox");
-                if (box) { box.style.display = "block"; box.innerHTML = `<h3>KẾT QUẢ BÀI THI CỦA BẠN</h3><p style="font-size:23px;font-weight:bold;color:var(--accent-color);">TỔNG ĐIỂM QUY ĐỔI HỆ 10: ${resData.total_score} / 10 điểm</p>`; box.scrollIntoView({ behavior: 'smooth' }); }
-                if (typeof MathJax !== 'undefined') { MathJax.Hub.Queue(["Typeset", MathJax.Hub]); }
-            });
+                const resultBox = document.getElementById("resultBox");
+                if (resultBox) {
+                    resultBox.style.display = "block";
+      //-----Hộp kết quả và nút bấm gửi Email
+           resultBox.innerHTML = `
+                        <h3 style="margin: 0; color: var(--primary-color); font-size: 22px;">KẾT QUẢ BÀI THI CỦA BẠN</h3>
+                        <p style="font-size: 23px; margin: 12px 0; color: var(--accent-color); font-weight: bold;">TỔNG ĐIỂM QUY ĐỔI HỆ 10: <span style="font-size:30px;">${resData.total_score}</span> / 10 điểm</p>
+                        <hr style="border:0; border-top:1px solid #cbd5e0; margin:12px 0;">
+                        <p style="font-size: 19px; margin: 5px 0; color: #4a5568;">💡 <strong>Thống kê ma trận số lượng câu làm được:</strong></p>
+                        <p style="font-size: 19px; margin: 5px 0 0 15px;">• <strong>Tổng số câu đã thực hiện làm:</strong> <span style="color:var(--accent-color); font-weight:bold;">${resData.total_attempted}</span> / ${resData.total_questions} câu toàn bài</p>
+                        <p style="font-size: 18px; margin: 5px 0 0 15px;">• Số câu trả lời đúng Phần I: <span class="correct">${resData.score_p1}</span> câu</p>
+                        <p style="font-size: 18px; margin: 5px 0 0 15px;">• Số câu đúng tuyệt đối Phần II: <span class="correct">${resData.score_p2}</span> câu</p>
+                        <p style="font-size: 18px; margin: 5px 0 0 15px;">• Số câu trả lời đúng Phần III: <span class="correct">${resData.score_p3}</span> câu</p>
+                        
+                        <!-- === VỊ TRÍ 1: THÊM HTML NÚT BẤM VÀ FORM EMAIL TẠI ĐÂY === -->
+                        <hr style="border:0; border-top:1px solid #cbd5e0; margin:20px 0;">
+                        <div style="text-align: center;">
+                            <button type="button" id="btnMoFormEmail" style="background-color: #3182ce; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;">
+                                📬 Gửi kết quả thi này cho tôi
+                            </button>
+                            
+                            <div id="formGuiEmail" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f7fafc; max-width: 400px; margin-left: auto; margin-right: auto; text-align: left;">
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #4a5568;">Nhập thông tin để nhận bài làm qua Email:</p>
+                                <input type="text" id="emailStudentName" placeholder="Họ và tên học sinh" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box;">
+                                <input type="email" id="emailStudentAddress" placeholder="Địa chỉ Email nhận bài" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box;">
+                                <button type="button" id="btnXacNhanGuiEmail" style="background-color: #38a169; color: white; border: none; padding: 8px 15px; font-size: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%;">
+                                    Xác nhận gửi Email
+                                </button>
+                                <p id="msgEmailStatus" style="margin: 8px 0 0 0; font-size: 14px; font-weight: bold; text-align: center;"></p>
+                            </div>
+                        </div>
+                    `;
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+
+                    // === VỊ TRÍ 2: THÊM JAVASCRIPT XỬ LÝ TƯƠNG TÁC TẠI ĐÂY ===
+                    const btnMoForm = document.getElementById("btnMoFormEmail");
+                    const formEmail = document.getElementById("formGuiEmail");
+                    const btnXacNhan = document.getElementById("btnXacNhanGuiEmail");
+                    const msgStatus = document.getElementById("msgEmailStatus");
+
+                    if (btnMoForm && formEmail) {
+                        btnMoForm.addEventListener("click", function() {
+                            formEmail.style.display = "block"; // Hiện form nhập liệu
+                            btnMoForm.style.display = "none";  // Ẩn nút mở ban đầu
+                        });
+                    }
+
+                    if (btnXacNhan) {
+                        btnXacNhan.addEventListener("click", function() {
+                            const studentName = document.getElementById("emailStudentName").value.trim();
+                            const studentEmail = document.getElementById("emailStudentAddress").value.trim();
+
+                            if (!studentName || !studentEmail) {
+                                msgStatus.style.color = "#e53e3e";
+                                msgStatus.textContent = "❌ Vui lòng điền đầy đủ Tên và Email!";
+                                return;
+                            }
+
+                            msgStatus.style.color = "#3182ce";
+                            msgStatus.textContent = "⏳ Đang kết nối máy chủ gửi Email...";
+                            btnXacNhan.disabled = true;
+
+                            // Gọi API chuyển dữ liệu sang Python backend xử lý SMTP gửi thư thực tế
+                            fetch("/api/send-result-email", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    name: studentName,
+                                    email: studentEmail,
+                                    answers: batchAnswers, // Biến lưu đáp án học sinh đã chọn toàn bài
+                                    result: resData        // Object chứa điểm số từ API chấm điểm
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(mailRes => {
+                                if (mailRes.success) {
+                                    msgStatus.style.color = "#38a169";
+                                    msgStatus.textContent = "✅ Đã gửi email thành công! Hãy kiểm tra hộp thư.";
+                                } else {
+                                    msgStatus.style.color = "#e53e3e";
+                                    msgStatus.textContent = "❌ Thất bại: " + mailRes.message;
+                                    btnXacNhan.disabled = false;
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Lỗi gửi mail:", err);
+                                msgStatus.style.color = "#e53e3e";
+                                msgStatus.textContent = "❌ Lỗi hệ thống đường truyền, thử lại sau!";
+                                btnXacNhan.disabled = false;
+                            });
+                        });
+                    }
+                }
+            })
+            .catch(error => console.error("Lỗi đồng bộ hệ thống:", error));
         };
+            //---End--Hộp kết quả và nút bấm gửi Email
    //  -----Hết giờ tự động nộp bài thi và hiển thị kết quả  
     let duration = 15; // Giữ 15 giây để test hiệu ứng, sau này sửa thành 50 * 60
     const timer = document.getElementById("timer");

@@ -417,8 +417,8 @@ input.input-wrong {
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.5.5" %}      <!-- Tô xanh đỏ đáp án Đúng/Sai -->
-    {% set BUILD_TIME = "10/08/2026 23:00" %}
+    {% set VERSION = "3.5.5" %}      <!-- Xuất file pdf và gửi email-->
+    {% set BUILD_TIME = "11/08/2026 01:00" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
         <div class="brand">
@@ -1122,33 +1122,76 @@ p3Blocks.forEach(b => {
                             btnXacNhan.disabled = true;
 
                             // Gọi API chuyển dữ liệu sang Python backend xử lý SMTP gửi thư thực tế
-                            fetch("/api/send-result-email", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    name: studentName,
-                                    email: studentEmail,
-                                    answers: batchAnswers, // Biến lưu đáp án học sinh đã chọn toàn bài
-                                    result: resData        // Object chứa điểm số từ API chấm điểm
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(mailRes => {
-                                if (mailRes.success) {
-                                    msgStatus.style.color = "#38a169";
-                                    msgStatus.textContent = "✅ Đã gửi email thành công! Hãy kiểm tra hộp thư.";
-                                } else {
-                                    msgStatus.style.color = "#e53e3e";
-                                    msgStatus.textContent = "❌ Thất bại: " + mailRes.message;
-                                    btnXacNhan.disabled = false;
-                                }
-                            })
-                            .catch(err => {
-                                console.error("Lỗi gửi mail:", err);
-                                msgStatus.style.color = "#e53e3e";
-                                msgStatus.textContent = "❌ Lỗi hệ thống đường truyền, thử lại sau!";
-                                btnXacNhan.disabled = false;
-                            });
+     //-----------------Nội dung đề thi gửi email----------------------                       
+        // 1. Tự động trích xuất mảng câu hỏi chi tiết từ sMap và dữ liệu làm bài batchAnswers
+        const formattedQuestions = resData.details.map((item) => {
+            let userAns = batchAnswers[String(item.id)] || "Không trả lời";
+            let correctAns = item.dap_an_dung || "";
+            let explanationText = item.giai_chi_tiet || "";
+            let questionText = "";
+
+            // Lấy nội dung câu hỏi gốc từ giao diện để giữ nguyên công thức toán tự chế
+            const questionNode = document.querySelector(`.question-block[data-id="${item.id}"] .question-text`);
+            if (questionNode) {
+                questionText = questionNode.innerHTML.replace(/<strong>Câu \d+:<\/strong>/i, "").trim();
+            }
+
+            // Đồng bộ định dạng đáp án Đúng/Sai (Phần II) để xuất PDF đẹp mắt
+            if (item.sub_feedback) {
+                let p2UserParts = [];
+                let p2CorrectParts = [];
+                ['a', 'b', 'c', 'd'].forEach(k => {
+                    let uPart = batchAnswers[`q_${item.id}_${k}`] || "Chưa chọn";
+                    let cPart = item.sub_feedback[k]?.correct || "";
+                    p2UserParts.push(`${k}) ${uPart === "Đ" ? "Đúng" : uPart === "S" ? "Sai" : uPart}`);
+                    p2CorrectParts.push(`${k}) ${cPart}`);
+                });
+                userAns = p2UserParts.join(" | ");
+                correctAns = p2CorrectParts.join(" | ");
+            }
+
+            return {
+                question_text: questionText,
+                user_answer: userAns,
+                correct_answer: correctAns,
+                explanation: explanationText
+            };
+        });
+
+        // 2. Tiến hành gọi API gửi Email kết quả đầy đủ nội dung bài làm
+        fetch("/api/send-result-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: studentName,
+                email: studentEmail,
+                result: {
+                    total_score: resData.total_score,
+                    score_p1: resData.score_p1,
+                    score_p2: resData.score_p2,
+                    score_p3: resData.score_p3,
+                    questions: formattedQuestions // Đưa mảng câu hỏi chi tiết vào trong object result
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(mailRes => {
+            if (mailRes.success) {
+                msgStatus.style.color = "#38a169";
+                msgStatus.textContent = "✅ Đã gửi email thành công! Hãy kiểm tra hộp thư.";
+            } else {
+                msgStatus.style.color = "#e53e3e";
+                msgStatus.textContent = "❌ Thất bại: " + mailRes.message;
+                btnXacNhan.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi gửi mail:", err);
+            msgStatus.style.color = "#e53e3e";
+            msgStatus.textContent = "❌ Lỗi hệ thống đường truyền, thử lại sau!";
+            btnXacNhan.disabled = false;
+        });
+     //------------Rnd-----Nội dung đề thi gửi email----------------------                       
                         });
                     }
                 }

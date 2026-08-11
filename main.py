@@ -176,83 +176,93 @@ class EmailSubmit(BaseModel):
 
 @app.post("/api/send-result-email")
 async def send_result_email(data: EmailSubmit):
-    # Sử dụng đúng tên file có đuôi .pdf
     pdf_filename = f"KetQua_{data.name.replace(' ', '_')}.pdf"
-    
     try:
         r = data.result
-        
-        # Thêm thẻ meta charset="utf-8" vào đầu HTML
+        questions_list = r.get("questions", [])
+      #-----------------------------------------------------
+      # --- ĐOẠN CODE NÂNG CẤP GIAO DIỆN PDF SANG TRỌNG TRONG MAIN.PY ---
+        questions_html = ""
+        for index, q in enumerate(questions_list, 1):
+            user_ans = q.get("user_answer", "Không trả lời")
+            correct_ans = q.get("correct_answer", "")
+            is_correct = "✔ Đúng" in user_ans or user_ans == correct_ans
+            bg_badge = "#e6f4ea" if is_correct else "#fce8e6"
+            text_badge = "#137333" if is_correct else "#c5221f"
+            
+            # HTML cho từng câu hỏi với bảng so sánh đáp án
+            questions_html += f"""
+            <div class="question-card">
+                <div class="question-text"><strong>Câu {index}:</strong> {q.get("question_text", "")}</div>
+                <table class="ans-table">
+                    <tr>
+                        <td width="50%">
+                            <div class="ans-label">Đáp án của bạn:</div>
+                            <div class="ans-value" style="background-color: {bg_badge}; color: {text_badge};">{user_ans}</div>
+                        </td>
+                        <td width="50%">
+                            <div class="ans-label">Đáp án đúng:</div>
+                            <div class="ans-value" style="background-color: #e8f0fe; color: #1a73e8;">{correct_ans}</div>
+                        </td>
+                    </tr>
+                </table>
+                {f'<div class="explanation-box"><strong>💡 Giải thích:</strong> {q.get("explanation")}</div>' if q.get("explanation") else ''}
+            </div>"""
+
+        # Cấu hình Layout HTML/CSS chi tiết cho file PDF
         pdf_html = f"""
+        <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
             <style>
-                body {{ font-family: 'DejaVu Sans', sans-serif; }}
+                @page {{ size: A4; margin: 20mm 15mm; }}
+                body {{ font-family: sans-serif; color: #202124; line-height: 1.6; }}
+                .brand-header {{ text-align: center; border-bottom: 3px double #1a73e8; padding-bottom: 10px; }}
+                .summary-card {{ background: #f8f9fa; border: 1px solid #dadce0; padding: 15px; border-radius: 8px; }}
+                .question-card {{ border: 1px solid #dadce0; padding: 15px; margin-bottom: 15px; page-break-inside: avoid; }}
+                .ans-table {{ width: 100%; border-collapse: collapse; }}
+                .ans-value {{ padding: 8px; border-radius: 4px; font-weight: bold; text-align: center; }}
+                .explanation-box {{ margin-top: 10px; padding: 10px; background-color: #fdf6e2; border-left: 3px solid #f57c00; }}
             </style>
         </head>
         <body>
-            <h2>VIETDRAGON LEARNING CENTER</h2>
-            <h3>PHIẾU KẾT QUẢ VẬT LÝ - {data.name}</h3>
-            <p>Tổng điểm: <strong>{r.get("total_score", 0)} / 10</strong></p>
-            <p>Chi tiết: {r.get("score_p1", 0)}/{r.get("score_p2", 0)}/{r.get("score_p3", 0)}</p>
+            <div class="brand-header"><h2>VIETDRAGON LEARNING CENTER</h2></div>
+            <div class="summary-card">
+                <p><strong>Học sinh:</strong> {data.name}</p>
+                <p><strong>Tổng điểm:</strong> {r.get("total_score", 0)}/10</p>
+            </div>
+            <h3>CHI TIẾT BÀI THI</h3>
+            {questions_html}
         </body>
-        </html>
-        """
-
-        # SỬA LỖI FONT: Ép cấu hình mã hóa UTF-8 khi pdfkit biên dịch
+        </html>"""  
+     # --END- ĐOẠN CODE NÂNG CẤP GIAO DIỆN PDF SANG TRỌNG TRONG MAIN.PY ---      
         import pdfkit
-        options = {
-            'encoding': "UTF-8",
-            'custom-header': [
-                ('Content-Type', 'text/html; charset=utf-8')
-            ],
-            'no-outline': None
-        }
+        options = {'encoding': "UTF-8", 'javascript-delay': '2500', 'no-outline': None}
         pdfkit.from_string(pdf_html, pdf_filename, options=options)
-
-        # Gửi email với file đính kèm
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
         from email.mime.base import MIMEBase
         from email import encoders
-        from email.header import Header # Thêm thư viện xử lý tiêu đề tiếng Việt
+        from email.header import Header
         import aiosmtplib
-
+        import unicodedata
         msg = MIMEMultipart('mixed')
         msg['From'] = f"VietDragon <{SENDER_EMAIL}>"
         msg['To'] = data.email
-        
-        # Sửa lỗi tiêu đề Email tiếng Việt bị lỗi hiển thị
         msg['Subject'] = Header(f"KẾT QUẢ THI - {data.name}", 'utf-8').encode()
-        
-        msg.attach(MIMEText("Vui lòng xem file đính kèm.", 'plain', 'utf-8'))
-        
-        # Đọc tệp PDF
+        msg.attach(MIMEText("Chào bạn, vui lòng xem tệp đính kèm.", 'plain', 'utf-8'))
         with open(pdf_filename, "rb") as f:
             part = MIMEBase("application", "pdf")
             part.set_payload(f.read())
-            
         encoders.encode_base64(part)
-        
-        # SỬA LỖI NONAME: Ép tên file về dạng không dấu khi gửi qua Internet để trình duyệt nhận diện đuôi .pdf
-        import unicodedata
         safe_filename = unicodedata.normalize('NFKD', pdf_filename).encode('ascii', 'ignore').decode('utf-8')
-        
-        part.add_header(
-            "Content-Disposition", 
-            f"attachment; filename={safe_filename}"
-        )
+        part.add_header("Content-Disposition", f'attachment; filename="{safe_filename}"')
         msg.attach(part)
-
-        await aiosmtplib.send(msg, hostname=SMTP_SERVER, port=SMTP_PORT, 
-                              username=SENDER_EMAIL, password=SENDER_PASSWORD, start_tls=True)
-
-        return {"success": True, "message": "Đã gửi email!"}
-
+        await aiosmtplib.send(msg, hostname=SMTP_SERVER, port=SMTP_PORT, username=SENDER_EMAIL, password=SENDER_PASSWORD, start_tls=True)
+        return {"success": True, "message": "Đã gửi email thành công!"}
     except Exception as e:
         return {"success": False, "message": str(e)}
-        
     finally:
         import os
         if os.path.exists(pdf_filename):

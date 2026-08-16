@@ -155,6 +155,7 @@ async def submit_exam(data: ExamSubmit):
         detailed_results.append({
             "id": q["id"],
             "noi_dung": q["noi_dung"],
+            "question_text": q["noi_dung"],
             "dap_an_dung": str(q["dap_an_dung"]),
             "is_correct": is_correct_block,
             "giai_chi_tiet": q["giai_chi_tiet"],
@@ -214,7 +215,7 @@ async def send_result_email(data: EmailSubmit):
             if not clean_correct:
                 clean_correct = "A"
 
-            # 1. TRÍCH XUẤT VÀ LÀM SẠCH TOÀN BỘ CÔNG THỨC TOÁN Ở ĐÁP ÁN A, B, C, D (ÁP DỤNG MỌI PHẦN)
+            # 1. TRÍCH XUẤT VÀ SỬ DỤNG TRỌN VẸN HTML CÔNG THỨC ĐÃ DỊCH TỪ FRONTEND
             labels = ["A", "B", "C", "D"]
             keys_map = ["opt_A", "opt_B", "opt_C", "opt_D"]
             opts_clean = []
@@ -225,18 +226,10 @@ async def send_result_email(data: EmailSubmit):
                     opt_text = f"Phương án {lbl}"
                 else:
                     opt_text = str(raw_opt_text).strip()
-                
-                # Làm sạch chuỗi toán vỡ dính liền từ Frontend gửi lên
-                opt_text = opt_text.replace("∫ t2 t1 i(t) dt", "∫<sub>t₁</sub><sup>t₂</sup> i(t)dt")
-                opt_text = opt_text.replace("∫ t2 t1 i(t)dt", "∫<sub>t₁</sub><sup>t₂</sup> i(t)dt")
-                opt_text = opt_text.replace("∫t2 t1 i(t)dt", "∫<sub>t₁</sub><sup>t₂</sup> i(t)dt")
-                opt_text = opt_text.replace("x1 = 4cos(10t)x2 = 4sin(10t)", "x₁ = 4cos(10t); x₂ = 4sin(10t)")
-                opt_text = opt_text.replace("x1 = 4cos(10t) x2 = 4sin(10t)", "x₁ = 4cos(10t); x₂ = 4sin(10t)")
                 opts_clean.append(opt_text)
 
-            # --- TRƯỜNG HỢP 1: CÂU TRẮC NGHIỆM ĐƠN PHẦN I (HOẶC PHẦN II HIỂN THỊ DẠNG Ô TRÒN CHẤN CHỌN) ---
-            # ──────── THƯ VIỆN ĐỒNG BỘ CÔNG THỨC DÙNG CHUNG (BACKEND) ────────
-            if "Phần I" in current_part or clean_correct in ["A", "B", "C", "D"] or "Phần II" in current_part:
+            # --- TRƯỜNG HỢP 1: CÂU TRẮC NGHIỆM ĐƠN PHẦN I ---
+            if "Phần I" in current_part or clean_correct in ["A", "B", "C", "D"]:
                 choices_layout_html += '<table class="web-options-grid"><tr>'
                 for o_idx, lbl in enumerate(labels):
                     if o_idx == 2:
@@ -245,14 +238,10 @@ async def send_result_email(data: EmailSubmit):
                     is_selected = (student_choice == lbl)
                     dot_class = "radio-dot checked" if is_selected else "radio-dot"
                     
-                    # Gọi trực tiếp chuỗi HTML công thức tự chế nguyên bản, không qua bộ lọc dọn dẹp chuỗi thô của Python
-                    raw_opt_text = q.get(keys_map[o_idx])
-                    opt_text = str(raw_opt_text).strip() if raw_opt_text is not None else f"Phương án {lbl}"
-                    
                     choices_layout_html += f"""
                     <td>
                         <span class="{dot_class}"></span>
-                        <span class="opt-label-text"><strong>{lbl}.</strong> {opt_text}</span>
+                        <span class="opt-label-text"><strong>{lbl}.</strong> {opts_clean[o_idx]}</span>
                     </td>
                     """
                 choices_layout_html += '</tr></table>'
@@ -392,8 +381,7 @@ async def send_result_email(data: EmailSubmit):
                     display: table-row; 
                     padding-top: 1px; 
                     font-style: italic; 
-                }}
-                
+                }}                
                 .integral-container {{ 
                     display: inline-table; 
                     vertical-align: middle; 
@@ -415,21 +403,33 @@ async def send_result_email(data: EmailSubmit):
                 }}
                 .integral-upper {{ display: block; }}
                 .integral-lower {{ display: block; }}       
-                /* ──────── THƯ VIỆN CSS ĐỊNH DẠNG MŨ GÓC CHO PDF ──────── */
+                /* ──────── THƯ VIỆN CSS NÂNG CẤP VÀ LỜI GIẢI ──────── */
                 .hat, .angle-hat {{
                     position: relative;
                     display: inline-block;
-                    padding-top: 4px;
+                    padding-top: 2px;
                 }}
                 .hat::before, .angle-hat::before {{
                     content: "^";
                     position: absolute;
-                    top: -6px;
+                    top: -5px;
                     left: 50%;
-                    transform: translateX(-50%) scaleX(1.5);
+                    transform: translateX(-50%) scaleX(1.3);
                     font-size: 11px;
                     font-weight: bold;
-                }}                               
+                }}
+                /* Định dạng hộp giải chi tiết, chống tràn mép */
+                .explanation-card {{ 
+                    margin-top: 10px; 
+                    padding: 12px; 
+                    background-color: #fffdf3; 
+                    border-left: 4px solid #f2994a; 
+                    border-radius: 0 4px 4px 0; 
+                    border: 1px solid #f0e4b2;
+                    border-left-width: 4px;
+                    text-align: justify;
+                    page-break-inside: avoid;
+                }}                         
             </style>
         </head>
         <body>

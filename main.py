@@ -5,17 +5,20 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict
-#------------------Thu_viện_gửi_email-------------------------------
+#-----------Thu_viện_gửi_email-----------------------------------------
 import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-#--------------End----Thu_viện_gửi_email---------------------------------
-#------------------Thu_viện_đính_kèm_email------------------------------
+#-----------End----Thu_viện_gửi_email----------------------------------
+#-----------Thu_viện_đính_kèm_email------------------------------------
 import os
 import pdfkit
 from email.mime.base import MIMEBase
 from email import encoders
-#------------------Thu_viện_đính_kèm_email------------------------------
+import asyncio       # Dòng thêm mới 1
+import unicodedata   # Dòng thêm mới 2
+from email.header import Header # Dòng thêm mới 3
+#-----------Thu_viện_đính_kèm_email------------------------------------
 
 app = FastAPI()
 
@@ -168,90 +171,296 @@ async def submit_exam(data: ExamSubmit):
         "details": detailed_results
     }
 
-# ---------------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
+# -------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
 class EmailSubmit(BaseModel):
     name: str
     email: str
     result: dict
-
+#=======================================================================
 @app.post("/api/send-result-email")
 async def send_result_email(data: EmailSubmit):
     pdf_filename = f"KetQua_{data.name.replace(' ', '_')}.pdf"
+    
     try:
         r = data.result
         questions_list = r.get("questions", [])
-      #-----------------------------------------------------
-      # --- ĐOẠN CODE NÂNG CẤP GIAO DIỆN PDF SANG TRỌNG TRONG MAIN.PY ---
         questions_html = ""
+        last_part = ""
+        
+        # ──────── THUẬT TOÁN ĐỒNG BỘ LOCAL MATH INTERPRETER SANG PYTHON ────────
+        # --- CODE BACKEND ĐỒNG BỘ RÚT GỌN - CHỐNG BỊ VỠ LAYOUT ---
+        # --- BỘ LỌC ĐA NĂNG ĐỒNG BỘ CÔNG THỨC TOÁN CHO TOÀN BỘ CÁC PHẦN ---        
         for index, q in enumerate(questions_list, 1):
-            user_ans = q.get("user_answer", "Không trả lời")
+            current_part = q.get("part_name", "Chi tiết bài làm")
+            if current_part != last_part:
+                last_part = current_part
+                questions_html += f'<div class="part-header-box"><strong>{current_part.upper()}</strong></div>'
+                
+            user_ans = q.get("user_answer", "Chưa chọn")
             correct_ans = q.get("correct_answer", "")
-            is_correct = "✔ Đúng" in user_ans or user_ans == correct_ans
-            bg_badge = "#e6f4ea" if is_correct else "#fce8e6"
-            text_badge = "#137333" if is_correct else "#c5221f"
             
-            # HTML cho từng câu hỏi với bảng so sánh đáp án
+            choices_layout_html = ""
+            status_line_html = ""
+            
+            student_choice = user_ans.strip().upper()
+            if "CHỌN: " in student_choice:
+                student_choice = student_choice.split("CHỌN: ")[-1].strip()
+            if "CHƯA CHỌN" in student_choice or "A)" in student_choice:
+                student_choice = ""
+
+            clean_correct = correct_ans.strip().upper()
+            if "ĐÁP ÁN ĐÚNG:" in clean_correct:
+                clean_correct = clean_correct.split("ĐÁP ÁN ĐÚNG:")[-1].strip()
+            if not clean_correct:
+                clean_correct = "A"
+
+            # 1. TRÍCH XUẤT VÀ LÀM SẠCH TOÀN BỘ CÔNG THỨC TOÁN Ở ĐÁP ÁN A, B, C, D (ÁP DỤNG MỌI PHẦN)
+            labels = ["A", "B", "C", "D"]
+            keys_map = ["opt_A", "opt_B", "opt_C", "opt_D"]
+            opts_clean = []
+
+            for o_idx, lbl in enumerate(labels):
+                raw_opt_text = q.get(keys_map[o_idx])
+                if raw_opt_text is None:
+                    opt_text = f"Phương án {lbl}"
+                else:
+                    opt_text = str(raw_opt_text).strip()
+                
+                # Làm sạch chuỗi toán vỡ dính liền từ Frontend gửi lên
+                opt_text = opt_text.replace("∫ t2 t1 i(t) dt", "∫<sub>t₁</sub><sup>t₂</sup> i(t)dt")
+                opt_text = opt_text.replace("∫ t2 t1 i(t)dt", "∫<sub>t₁</sub><sup>t₂</sup> i(t)dt")
+                opt_text = opt_text.replace("∫t2 t1 i(t)dt", "∫<sub>t₁</sub><sup>t₂</sup> i(t)dt")
+                opt_text = opt_text.replace("x1 = 4cos(10t)x2 = 4sin(10t)", "x₁ = 4cos(10t); x₂ = 4sin(10t)")
+                opt_text = opt_text.replace("x1 = 4cos(10t) x2 = 4sin(10t)", "x₁ = 4cos(10t); x₂ = 4sin(10t)")
+                opts_clean.append(opt_text)
+
+            # --- TRƯỜNG HỢP 1: CÂU TRẮC NGHIỆM ĐƠN PHẦN I (HOẶC PHẦN II HIỂN THỊ DẠNG Ô TRÒN CHẤN CHỌN) ---
+            # ──────── THƯ VIỆN ĐỒNG BỘ CÔNG THỨC DÙNG CHUNG (BACKEND) ────────
+            if "Phần I" in current_part or clean_correct in ["A", "B", "C", "D"] or "Phần II" in current_part:
+                choices_layout_html += '<table class="web-options-grid"><tr>'
+                for o_idx, lbl in enumerate(labels):
+                    if o_idx == 2:
+                        choices_layout_html += '</tr><tr>'
+                        
+                    is_selected = (student_choice == lbl)
+                    dot_class = "radio-dot checked" if is_selected else "radio-dot"
+                    
+                    # Gọi trực tiếp chuỗi HTML công thức tự chế nguyên bản, không qua bộ lọc dọn dẹp chuỗi thô của Python
+                    raw_opt_text = q.get(keys_map[o_idx])
+                    opt_text = str(raw_opt_text).strip() if raw_opt_text is not None else f"Phương án {lbl}"
+                    
+                    choices_layout_html += f"""
+                    <td>
+                        <span class="{dot_class}"></span>
+                        <span class="opt-label-text"><strong>{lbl}.</strong> {opt_text}</span>
+                    </td>
+                    """
+                choices_layout_html += '</tr></table>'
+                
+                is_correct = (student_choice == clean_correct) or "✔ ĐÚNG" in user_ans.upper()
+                if is_correct:
+                    status_line_html = f'<div class="status-web-line correct-web">✔ Đúng (Đáp án chính xác: {clean_correct})</div>'
+                else:
+                    status_line_html = f'<div class="status-web-line wrong-web">❌ Chưa chính xác (Đáp án đúng: {clean_correct})</div>'
+            
+            # --- TRƯỜNG HỢP 2: CÂU TRẮC NGHIỆM ĐÚNG/SAI PHẦN II ---
+            elif "Phần II" in current_part or " | " in user_ans:
+                p2_data = q.get("p2_data", {}) or {}
+                user_ans_html = ""
+                for k, v in p2_data.items():
+                    u_part = v.get("user", "Chưa chọn")
+                    c_part = v.get("correct", "")
+                    color_u = "#137333" if u_part == c_part else "#c5221f"
+                    user_ans_html += f'<span class="badge-opt"><strong>{k})</strong> Bạn: <span style="color:{color_u}; font-weight:bold;">{u_part}</span> | Bộ: <strong>{c_part}</strong></span>'
+
+                choices_layout_html = f'<div class="opts-flex-container">{user_ans_html}</div>'
+                
+                if "✔" in user_ans or user_ans == correct_ans:
+                    status_line_html = '<div class="status-web-line correct-web">✔ Đúng toàn bộ các ý lựa chọn</div>'
+                else:
+                    status_line_html = '<div class="status-web-line wrong-web">❌ Có ý lựa chọn chưa chính xác</div>'
+            
+            # --- TRƯỜNG HỢP 3: CÂU ĐIỀN NGẮN PHẦN III ---
+            else:
+                is_correct = user_ans.strip() == correct_ans.strip()
+                choices_layout_html = f'<div style="margin: 8px 0; font-size:14px;"><strong>Kết quả điền:</strong> {user_ans}</div>'
+                if is_correct:
+                    status_line_html = f'<div class="status-web-line correct-web">✔ Đúng (Đáp án: {correct_ans})</div>'
+                else:
+                    status_line_html = f'<div class="status-web-line wrong-web">❌ Chưa chính xác (Đáp án đúng: {correct_ans})</div>'
+
+            # Đổ trực tiếp mã HTML câu hỏi thu được từ Frontend (Giữ nguyên vẹn 100% công thức)
             questions_html += f"""
             <div class="question-card">
-                <div class="question-text"><strong>Câu {index}:</strong> {q.get("question_text", "")}</div>
-                <table class="ans-table">
-                    <tr>
-                        <td width="50%">
-                            <div class="ans-label">Đáp án của bạn:</div>
-                            <div class="ans-value" style="background-color: {bg_badge}; color: {text_badge};">{user_ans}</div>
-                        </td>
-                        <td width="50%">
-                            <div class="ans-label">Đáp án đúng:</div>
-                            <div class="ans-value" style="background-color: #e8f0fe; color: #1a73e8;">{correct_ans}</div>
-                        </td>
-                    </tr>
-                </table>
-                {f'<div class="explanation-box"><strong>💡 Giải thích:</strong> {q.get("explanation")}</div>' if q.get("explanation") else ''}
-            </div>"""
-
-        # Cấu hình Layout HTML/CSS chi tiết cho file PDF
+                <div class="question-text">
+                    <strong>Câu {index}:</strong> {q.get("question_text", "")}
+                </div>
+                {choices_layout_html}
+                {status_line_html}
+                {f'<div class="explanation-card"><strong>💡 Hướng dẫn giải chi tiết:</strong><br>{q.get("explanation", "")}</div>' if q.get("explanation") else ''}
+            </div>
+            """
+#============================================================================
         pdf_html = f"""
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
+            <script type="text/javascript" async
+                src="https://cloudflare.com">
+            </script>
             <style>
-                @page {{ size: A4; margin: 20mm 15mm; }}
-                body {{ font-family: sans-serif; color: #202124; line-height: 1.6; }}
-                .brand-header {{ text-align: center; border-bottom: 3px double #1a73e8; padding-bottom: 10px; }}
-                .summary-card {{ background: #f8f9fa; border: 1px solid #dadce0; padding: 15px; border-radius: 8px; }}
-                .question-card {{ border: 1px solid #dadce0; padding: 15px; margin-bottom: 15px; page-break-inside: avoid; }}
-                .ans-table {{ width: 100%; border-collapse: collapse; }}
-                .ans-value {{ padding: 8px; border-radius: 4px; font-weight: bold; text-align: center; }}
-                .explanation-box {{ margin-top: 10px; padding: 10px; background-color: #fdf6e2; border-left: 3px solid #f57c00; }}
+                /* CĂN LỀ CHUẨN ĐỀ THI BỘ GIÁO DỤC: 12mm giúp trang giấy gọn gàng, cân đối */
+                @page {{ size: A4; margin: 12mm 12mm 15mm 12mm; }}
+                body {{ font-family: "Times New Roman", Times, serif; color: #000000; line-height: 1.4; font-size: 14px; }}
+                
+                /* Tiêu đề đầu trang và khung mã đề thi chính quy */
+                .mo-header {{ width: 100%; border-collapse: collapse; margin-bottom: 5px; }}
+                .mo-header td {{ vertical-align: top; font-size: 13px; }}
+                .text-upper {{ text-transform: uppercase; font-weight: bold; }}
+                .line-under {{ text-decoration: underline; padding-bottom: 2px; }}
+                .student-info-bar {{ width: 100%; border-collapse: collapse; margin: 10px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; }}
+                .code-box {{ border: 2px solid #000; padding: 3px 12px; font-weight: bold; font-size: 14px; float: right; letter-spacing: 1px; background: #fff; }}
+                
+                /* Tiêu đề Phần gạch chân đậm bo sát theo phong cách đề thi gốc */
+                .part-header-box {{ border: 1.5px solid #000; padding: 6px 10px; font-size: 13.5px; font-weight: bold; text-align: left; margin: 20px 0 12px 0; background-color: #fcfcfc; page-break-after: avoid; text-transform: uppercase; }}
+                
+                /* Khối câu hỏi trắc nghiệm A4 chống cắt dòng */
+                .question-card {{ margin-bottom: 18px; page-break-inside: avoid; }}
+                .question-text {{ font-size: 14.5px; text-align: justify; margin-bottom: 8px; font-weight: normal; }}
+                
+                /* MA TRẬN GRID ĐÁP ÁN: Ép 2 cột đối xứng tuyệt đối phẳng hàng */
+                .web-options-grid {{ width: 100%; border-collapse: collapse; margin: 6px 0; }}
+                .web-options-grid td {{ width: 50%; padding: 4px 2px; vertical-align: middle; font-size: 14.5px; text-align: justify; }}
+                
+                /* Vẽ ô tròn trắc nghiệm chuẩn chỉ */
+                .radio-dot {{
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    border: 1.5px solid #000000;
+                    border-radius: 50%;
+                    vertical-align: middle;
+                    margin-right: 6px;
+                    background-color: #ffffff;
+                }}
+                .radio-dot.checked {{
+                    background-color: #000000;
+                    box-shadow: inset 0 0 0 2px #ffffff;
+                }}
+                .opt-label-text {{ vertical-align: middle; }}
+                
+                /* Thanh thông báo kết quả và Giải chi tiết */
+                .status-web-line {{ margin: 6px 0; padding: 5px 10px; font-weight: bold; font-size: 13px; border-radius: 3px; }}
+                .correct-web {{ color: #137333; background-color: #e6f4ea; border-left: 4px solid #137333; }}
+                .wrong-web {{ color: #c5221f; background-color: #fce8e6; border-left: 4px solid #c5221f; }}
+                .explanation-card {{ margin-top: 8px; padding: 10px 12px; background-color: #fffdf3; border-left: 4px solid #f2994a; border-radius: 0 4px 4px 0; font-size: 13.5px; border-right: 1px solid #f0e4b2; border-top: 1px solid #f0e4b2; border-bottom: 1px solid #f0e4b2; text-align: justify; }}
+                /* --- KHẮC PHỤC TRIỆT ĐỂ LỖI VỠ CÔNG THỨC PHÂN SỐ DỌC GÂY TRÀN TRANG --- */
+                .frac {{ 
+                    display: inline-table; 
+                    vertical-align: middle; 
+                    text-align: center; 
+                    padding: 0 3px; 
+                    line-height: 1.1; 
+                }}
+                .frac .num {{ 
+                    display: table-row; 
+                    border-bottom: 1px solid #000000; 
+                    padding-bottom: 1px; 
+                    font-style: italic; 
+                }}
+                .frac .den {{ 
+                    display: table-row; 
+                    padding-top: 1px; 
+                    font-style: italic; 
+                }}          
+                /* ──────── THƯ VIỆN LÕI CSS DỰNG CÔNG THỨC TỰ CHẾ CHO PDF ──────── */
+                .frac {{ 
+                    display: inline-table; 
+                    vertical-align: middle; 
+                    text-align: center; 
+                    padding: 0 3px; 
+                    line-height: 1.1; 
+                }}
+                .frac .num {{ 
+                    display: table-row; 
+                    border-bottom: 1px solid #000000; 
+                    padding-bottom: 1px; 
+                    font-style: italic; 
+                }}
+                .frac .den {{ 
+                    display: table-row; 
+                    padding-top: 1px; 
+                    font-style: italic; 
+                }}
+                
+                .integral-container {{ 
+                    display: inline-table; 
+                    vertical-align: middle; 
+                    line-height: 1; 
+                    padding: 0 2px; 
+                }}
+                .integral-symbol {{ 
+                    font-size: 22px; 
+                    font-family: "Times New Roman", serif; 
+                    display: table-cell; 
+                    vertical-align: middle; 
+                }}
+                .integral-limits {{ 
+                    display: inline-block; 
+                    vertical-align: middle; 
+                    font-size: 9px; 
+                    line-height: 1.0; 
+                    margin-left: -2px; 
+                }}
+                .integral-upper {{ display: block; }}
+                .integral-lower {{ display: block; }}                      
             </style>
         </head>
         <body>
-            <div class="brand-header"><h2>VIETDRAGON LEARNING CENTER</h2></div>
-            <div class="summary-card">
-                <p><strong>Học sinh:</strong> {data.name}</p>
-                <p><strong>Tổng điểm:</strong> {r.get("total_score", 0)}/10</p>
+            <table class="mo-header">
+                <tr>
+                    <td width="45%" align="center">
+                        <span class="text-upper">BỘ GIÁO DỤC VÀ ĐÀO TẠO</span><br>
+                        <span class="text-upper line-under">ĐỀ THI CHÍNH THỨC</span>
+                    </td>
+                    <td width="55%" align="center">
+                        <span class="text-upper" style="font-size: 14px;">KỲ THI TỐT NGHIỆP TRUNG HỌC PHỔ THÔNG NĂM 2026</span><br>
+                        <strong>Môn thi: VẬT LÝ</strong><br>
+                        <span style="font-style: italic;">Thời gian làm bài: 50 phút, không kể thời gian phát đề</span>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="width: 100%; overflow: hidden; margin-top: 10px;">
+                <div class="code-box">Mã đề: 0214</div>
+                <div style="font-size: 14px; padding-top: 5px;">
+                    <strong>Họ, tên thí sinh:</strong> {data.name}<br>
+                    <strong>Tổng điểm đạt được:</strong> <span style="color:#d93025; font-weight:bold; font-size:16px;">{r.get("total_score", 0)} / 10 điểm</span>
+                </div>
             </div>
-            <h3>CHI TIẾT BÀI THI</h3>
+
+            <table class="student-info-bar">
+                <tr>
+                    <td style="font-size: 12px; color: #555;">Thống kê tổng hợp số câu đúng chi tiết: Phần I: {r.get("score_p1", 0)} câu | Phần II: {r.get("score_p2", 0)} câu | Phần III: {r.get("score_p3", 0)} câu</td>
+                </tr>
+            </table>
+
             {questions_html}
         </body>
-        </html>"""  
-     # --END- ĐOẠN CODE NÂNG CẤP GIAO DIỆN PDF SANG TRỌNG TRONG MAIN.PY ---      
-        import pdfkit
+        </html>
+        """
+
         options = {'encoding': "UTF-8", 'javascript-delay': '2500', 'no-outline': None}
-        pdfkit.from_string(pdf_html, pdf_filename, options=options)
-        from email.mime.multipart import MIMEMultipart
-        from email.mime.text import MIMEText
-        from email.mime.base import MIMEBase
-        from email import encoders
-        from email.header import Header
-        import aiosmtplib
-        import unicodedata
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, lambda: pdfkit.from_string(pdf_html, pdf_filename, options=options))
+
         msg = MIMEMultipart('mixed')
         msg['From'] = f"VietDragon <{SENDER_EMAIL}>"
         msg['To'] = data.email
         msg['Subject'] = Header(f"KẾT QUẢ THI - {data.name}", 'utf-8').encode()
-        msg.attach(MIMEText("Chào bạn, vui lòng xem tệp đính kèm.", 'plain', 'utf-8'))
+        msg.attach(MIMEText("Chào bạn, VietDragon gửi bạn phiếu kết quả thi thử nghiệm.", 'plain', 'utf-8'))
+        
         with open(pdf_filename, "rb") as f:
             part = MIMEBase("application", "pdf")
             part.set_payload(f.read())
@@ -259,13 +468,13 @@ async def send_result_email(data: EmailSubmit):
         safe_filename = unicodedata.normalize('NFKD', pdf_filename).encode('ascii', 'ignore').decode('utf-8')
         part.add_header("Content-Disposition", f'attachment; filename="{safe_filename}"')
         msg.attach(part)
-        await aiosmtplib.send(msg, hostname=SMTP_SERVER, port=SMTP_PORT, username=SENDER_EMAIL, password=SENDER_PASSWORD, start_tls=True)
-        return {"success": True, "message": "Đã gửi email thành công!"}
+
+        await asyncio.wait_for(aiosmtplib.send(msg, hostname=SMTP_SERVER, port=SMTP_PORT, username=SENDER_EMAIL, password=SENDER_PASSWORD, start_tls=True), timeout=15.0)
+        return {"success": True, "message": "Đã tạo file PDF chuẩn Bộ GD và gửi Mail thành công!"}
     except Exception as e:
         return {"success": False, "message": str(e)}
     finally:
-        import os
         if os.path.exists(pdf_filename):
             os.remove(pdf_filename)
-# ------End---------- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
+# --End---- ĐỒNG BỘ DỮ LIỆU VÀ XỬ LÝ GỬI EMAIL MÔN VẬT LÝ ----------------
 

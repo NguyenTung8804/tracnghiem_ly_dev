@@ -414,7 +414,22 @@ async def send_result_email(data: EmailSubmit):
                     margin-left: -2px; 
                 }}
                 .integral-upper {{ display: block; }}
-                .integral-lower {{ display: block; }}                      
+                .integral-lower {{ display: block; }}       
+                /* ──────── THƯ VIỆN CSS ĐỊNH DẠNG MŨ GÓC CHO PDF ──────── */
+                .hat, .angle-hat {{
+                    position: relative;
+                    display: inline-block;
+                    padding-top: 4px;
+                }}
+                .hat::before, .angle-hat::before {{
+                    content: "^";
+                    position: absolute;
+                    top: -6px;
+                    left: 50%;
+                    transform: translateX(-50%) scaleX(1.5);
+                    font-size: 11px;
+                    font-weight: bold;
+                }}                               
             </style>
         </head>
         <body>

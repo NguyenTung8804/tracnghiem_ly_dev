@@ -1124,39 +1124,64 @@ p3Blocks.forEach(b => {
                             // Gọi API chuyển dữ liệu sang Python backend xử lý SMTP gửi thư thực tế
      //-----------------Nội dung đề thi gửi email----------------------                       
         // 1. Tự động trích xuất mảng câu hỏi chi tiết từ sMap và dữ liệu làm bài batchAnswers
-        const formattedQuestions = resData.details.map((item) => {
-            let userAns = batchAnswers[String(item.id)] || "Không trả lời";
-            let correctAns = item.dap_an_dung || "";
-            let explanationText = item.giai_chi_tiet || "";
-            let questionText = "";
+const formattedQuestions = resData.details.map((item) => {
+    let userAns = batchAnswers[String(item.id)] || "Chưa chọn";
+    let correctAns = item.dap_an_dung || "";
+    let explanationText = item.giai_chi_tiet || "";
+    
+    let questionText = "Nội dung câu hỏi đang cập nhật";
+    let txtA = "Đáp án A", txtB = "Đáp án B", txtC = "Đáp án C", txtD = "Đáp án D";
+    let partText = "Phần I. Câu hỏi trắc nghiệm nhiều phương án lựa chọn";
 
-            // Lấy nội dung câu hỏi gốc từ giao diện để giữ nguyên công thức toán tự chế
-            const questionNode = document.querySelector(`.question-block[data-id="${item.id}"] .question-text`);
-            if (questionNode) {
-                questionText = questionNode.innerHTML.replace(/<strong>Câu \d+:<\/strong>/i, "").trim();
-            }
+    // Tìm khối câu hỏi đang hiển thị thực tế trên giao diện màn hình
+    const qBlock = document.querySelector(`.question-block[data-id="${item.id}"]`);
+    if (qBlock) {
+        // 1. Lấy nội dung câu hỏi đã vẽ đẹp trên web (bỏ chữ Câu X:)
+        const qTextNode = qBlock.querySelector('.question-text');
+        if (qTextNode) {
+            questionText = qTextNode.innerHTML.replace(/<strong>Câu \d+:<\/strong>/i, "").trim();
+        }
+        
+        // 2. Lấy chính xác văn bản hiển thị của 4 phương án A, B, C, D trên màn hình
+        // ──────── THƯ VIỆN ĐỒNG BỘ CÔNG THỨC DÙNG CHUNG (FRONTEND) ────────
+        const labelNodes = qBlock.querySelectorAll('label, .option-item, .choice-text');
+        if (labelNodes.length >= 4) {
+            // Nhặt trọn vẹn mã .innerHTML chứa công thức tự chế, chỉ bóc tách bỏ lớp ô tròn radio trên web
+            txtA = labelNodes[0].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtB = labelNodes[1].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtC = labelNodes[2].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtD = labelNodes[3].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+        }
+    }
 
-            // Đồng bộ định dạng đáp án Đúng/Sai (Phần II) để xuất PDF đẹp mắt
-            if (item.sub_feedback) {
-                let p2UserParts = [];
-                let p2CorrectParts = [];
-                ['a', 'b', 'c', 'd'].forEach(k => {
-                    let uPart = batchAnswers[`q_${item.id}_${k}`] || "Chưa chọn";
-                    let cPart = item.sub_feedback[k]?.correct || "";
-                    p2UserParts.push(`${k}) ${uPart === "Đ" ? "Đúng" : uPart === "S" ? "Sai" : uPart}`);
-                    p2CorrectParts.push(`${k}) ${cPart}`);
-                });
-                userAns = p2UserParts.join(" | ");
-                correctAns = p2CorrectParts.join(" | ");
-            }
-
-            return {
-                question_text: questionText,
-                user_answer: userAns,
-                correct_answer: correctAns,
-                explanation: explanationText
+    // Xử lý định dạng riêng cho Phần II (Đúng / Sai)
+    let p2SubFeedback = null;
+    if (item.sub_feedback) {
+        partText = "Phần II. Câu hỏi trắc nghiệm đúng sai";
+        p2SubFeedback = {};
+        ['a', 'b', 'c', 'd'].forEach(k => {
+            p2SubFeedback[k] = {
+                user: batchAnswers[`q_${item.id}_${k}`] || "Chưa chọn",
+                correct: item.sub_feedback[k]?.correct || ""
             };
         });
+    } else if (item.is_p3) {
+        partText = "Phần III. Câu hỏi trắc nghiệm trả lời ngắn";
+    }
+
+    return {
+        part_name: partText,
+        question_text: questionText,
+        user_answer: userAns,
+        correct_answer: correctAns,
+        explanation: explanationText,
+        opt_A: txtA,
+        opt_B: txtB,
+        opt_C: txtC,
+        opt_D: txtD,
+        p2_data: p2SubFeedback
+    };
+});
 
         // 2. Tiến hành gọi API gửi Email kết quả đầy đủ nội dung bài làm
         fetch("/api/send-result-email", {

@@ -155,7 +155,6 @@ async def submit_exam(data: ExamSubmit):
         detailed_results.append({
             "id": q["id"],
             "noi_dung": q["noi_dung"],
-            "question_text": q["noi_dung"],
             "dap_an_dung": str(q["dap_an_dung"]),
             "is_correct": is_correct_block,
             "giai_chi_tiet": q["giai_chi_tiet"],
@@ -190,7 +189,6 @@ async def send_result_email(data: EmailSubmit):
         
         # ──────── THUẬT TOÁN ĐỒNG BỘ LOCAL MATH INTERPRETER SANG PYTHON ────────
         # --- CODE BACKEND ĐỒNG BỘ RÚT GỌN - CHỐNG BỊ VỠ LAYOUT ---
-        # --- BỘ LỌC ĐA NĂNG ĐỒNG BỘ CÔNG THỨC TOÁN CHO TOÀN BỘ CÁC PHẦN ---        
         for index, q in enumerate(questions_list, 1):
             current_part = q.get("part_name", "Chi tiết bài làm")
             if current_part != last_part:
@@ -215,36 +213,26 @@ async def send_result_email(data: EmailSubmit):
             if not clean_correct:
                 clean_correct = "A"
 
-            # 1. TRÍCH XUẤT VÀ SỬ DỤNG TRỌN VẸN HTML CÔNG THỨC ĐÃ DỊCH TỪ FRONTEND
-            labels = ["A", "B", "C", "D"]
-            keys_map = ["opt_A", "opt_B", "opt_C", "opt_D"]
-            opts_clean = []
-
-            for o_idx, lbl in enumerate(labels):
-                raw_opt_text = q.get(keys_map[o_idx])
-                if raw_opt_text is None:
-                    opt_text = f"Phương án {lbl}"
-                else:
-                    opt_text = str(raw_opt_text).strip()
-                opts_clean.append(opt_text)
-
             # --- TRƯỜNG HỢP 1: CÂU TRẮC NGHIỆM ĐƠN PHẦN I ---
             if "Phần I" in current_part or clean_correct in ["A", "B", "C", "D"]:
-                choices_layout_html += '<table class="web-options-grid"><tr>'
+                labels = ["A", "B", "C", "D"]
+                keys_map = ["opt_A", "opt_B", "opt_C", "opt_D"]
+                
+                choices_layout_html += '<div class="web-options-grid">'
                 for o_idx, lbl in enumerate(labels):
-                    if o_idx == 2:
-                        choices_layout_html += '</tr><tr>'
-                        
                     is_selected = (student_choice == lbl)
                     dot_class = "radio-dot checked" if is_selected else "radio-dot"
                     
+                    # Lấy trực tiếp text đáp án sạch chứa công thức đã render từ Frontend gửi lên
+                    opt_text = q.get(keys_map[o_idx], f"Phương án {lbl}")
+                    
                     choices_layout_html += f"""
-                    <td>
+                    <div class="web-option-item">
                         <span class="{dot_class}"></span>
-                        <span class="opt-label-text"><strong>{lbl}.</strong> {opts_clean[o_idx]}</span>
-                    </td>
+                        <span class="opt-label-text"><strong>{lbl}.</strong> {opt_text}</span>
+                    </div>
                     """
-                choices_layout_html += '</tr></table>'
+                choices_layout_html += '</div>'
                 
                 is_correct = (student_choice == clean_correct) or "✔ ĐÚNG" in user_ans.upper()
                 if is_correct:
@@ -299,137 +287,84 @@ async def send_result_email(data: EmailSubmit):
                 src="https://cloudflare.com">
             </script>
             <style>
-                /* CĂN LỀ CHUẨN ĐỀ THI BỘ GIÁO DỤC: 12mm giúp trang giấy gọn gàng, cân đối */
-                @page {{ size: A4; margin: 12mm 12mm 15mm 12mm; }}
-                body {{ font-family: "Times New Roman", Times, serif; color: #000000; line-height: 1.4; font-size: 14px; }}
-                
-                /* Tiêu đề đầu trang và khung mã đề thi chính quy */
-                .mo-header {{ width: 100%; border-collapse: collapse; margin-bottom: 5px; }}
+                @page {{ size: A4; margin: 20mm 15mm; }}
+                body {{ font-family: "Times New Roman", Times, serif; color: #1f2023; line-height: 1.5; font-size: 14px; }}
+                .mo-header {{ width: 100%; border-collapse: collapse; margin-bottom: 10px; }}
                 .mo-header td {{ vertical-align: top; font-size: 13px; }}
                 .text-upper {{ text-transform: uppercase; font-weight: bold; }}
-                .line-under {{ text-decoration: underline; padding-bottom: 2px; }}
-                .student-info-bar {{ width: 100%; border-collapse: collapse; margin: 10px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; }}
-                .code-box {{ border: 2px solid #000; padding: 3px 12px; font-weight: bold; font-size: 14px; float: right; letter-spacing: 1px; background: #fff; }}
-                
-                /* Tiêu đề Phần gạch chân đậm bo sát theo phong cách đề thi gốc */
-                .part-header-box {{ border: 1.5px solid #000; padding: 6px 10px; font-size: 13.5px; font-weight: bold; text-align: left; margin: 20px 0 12px 0; background-color: #fcfcfc; page-break-after: avoid; text-transform: uppercase; }}
-                
-                /* Khối câu hỏi trắc nghiệm A4 chống cắt dòng */
-                .question-card {{ margin-bottom: 18px; page-break-inside: avoid; }}
-                .question-text {{ font-size: 14.5px; text-align: justify; margin-bottom: 8px; font-weight: normal; }}
-                
-                /* MA TRẬN GRID ĐÁP ÁN: Ép 2 cột đối xứng tuyệt đối phẳng hàng */
-                .web-options-grid {{ width: 100%; border-collapse: collapse; margin: 6px 0; }}
-                .web-options-grid td {{ width: 50%; padding: 4px 2px; vertical-align: middle; font-size: 14.5px; text-align: justify; }}
-                
-                /* Vẽ ô tròn trắc nghiệm chuẩn chỉ */
+                .line-under {{ text-decoration: underline; }}
+                .student-info-bar {{ width: 100%; border-collapse: collapse; margin: 15px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 5px 0; }}
+                .code-box {{ border: 2px solid #000; padding: 4px 10px; font-weight: bold; font-size: 14px; float: right; letter-spacing: 1px; }}
+                .part-header-box {{ border: 1.5px solid #000; padding: 8px; font-size: 13px; text-align: left; margin: 25px 0 15px 0; background-color: #fcfcfc; page-break-after: avoid; }}
+                .question-card {{ margin-bottom: 22px; page-break-inside: avoid; }}
+                .question-text {{ font-size: 14.5px; text-align: justify; margin-bottom: 10px; }}
+                .ans-compare-table {{ width: 100%; border-collapse: collapse; margin: 8px 0; }}
+                .ans-compare-table td {{ padding: 0 6px; }}
+                .ans-title {{ font-size: 12px; color: #555555; font-weight: bold; margin-bottom: 3px; }}
+                .ans-box {{ padding: 8px; border: 1px dashed #ccc; border-radius: 4px; font-weight: bold; font-size: 13.5px; text-align: center; }}
+                .explanation-card {{ margin-top: 12px; padding: 12px; background-color: #fffdf3; border-left: 4px solid #f2994a; border-radius: 0 4px 4px 0; font-size: 13.5px; color: #333; border-right: 1px solid #f0e4b2; border-top: 1px solid #f0e4b2; border-bottom: 1px solid #f0e4b2; }}
+                .opts-flex-container {{ 
+                    display: block; 
+                    text-align: left; 
+                    padding: 2px 0;
+                }}
+                .badge-opt {{ 
+                    display: inline-block; 
+                    background: #ffffff; 
+                    border: 1px solid #dadce0; 
+                    padding: 3px 6px; 
+                    margin: 3px 4px; 
+                    border-radius: 4px; 
+                    font-size: 12px;
+                }}
+                .single-ans-text {{
+                    font-size: 15px;
+                    text-align: center;
+                }}
+                .web-options-grid {{
+                    margin: 8px 0;
+                }}
+                .web-option-item {{
+                    display: inline-block;
+                    width: 22%;
+                    margin-right: 2%;
+                    font-size: 13.5px;
+                }}                
                 .radio-dot {{
                     display: inline-block;
                     width: 12px;
                     height: 12px;
-                    border: 1.5px solid #000000;
+                    border: 2px solid #5f6368;
                     border-radius: 50%;
                     vertical-align: middle;
                     margin-right: 6px;
                     background-color: #ffffff;
                 }}
                 .radio-dot.checked {{
-                    background-color: #000000;
+                    background-color: #202124;
+                    border-color: #202124;
                     box-shadow: inset 0 0 0 2px #ffffff;
                 }}
-                .opt-label-text {{ vertical-align: middle; }}
-                
-                /* Thanh thông báo kết quả và Giải chi tiết */
-                .status-web-line {{ margin: 6px 0; padding: 5px 10px; font-weight: bold; font-size: 13px; border-radius: 3px; }}
-                .correct-web {{ color: #137333; background-color: #e6f4ea; border-left: 4px solid #137333; }}
-                .wrong-web {{ color: #c5221f; background-color: #fce8e6; border-left: 4px solid #c5221f; }}
-                .explanation-card {{ margin-top: 8px; padding: 10px 12px; background-color: #fffdf3; border-left: 4px solid #f2994a; border-radius: 0 4px 4px 0; font-size: 13.5px; border-right: 1px solid #f0e4b2; border-top: 1px solid #f0e4b2; border-bottom: 1px solid #f0e4b2; text-align: justify; }}
-                /* --- KHẮC PHỤC TRIỆT ĐỂ LỖI VỠ CÔNG THỨC PHÂN SỐ DỌC GÂY TRÀN TRANG --- */
-                .frac {{ 
-                    display: inline-table; 
-                    vertical-align: middle; 
-                    text-align: center; 
-                    padding: 0 3px; 
-                    line-height: 1.1; 
+                .opt-label-text {{
+                    vertical-align: middle;
                 }}
-                .frac .num {{ 
-                    display: table-row; 
-                    border-bottom: 1px solid #000000; 
-                    padding-bottom: 1px; 
-                    font-style: italic; 
-                }}
-                .frac .den {{ 
-                    display: table-row; 
-                    padding-top: 1px; 
-                    font-style: italic; 
-                }}          
-                /* ──────── THƯ VIỆN LÕI CSS DỰNG CÔNG THỨC TỰ CHẾ CHO PDF ──────── */
-                .frac {{ 
-                    display: inline-table; 
-                    vertical-align: middle; 
-                    text-align: center; 
-                    padding: 0 3px; 
-                    line-height: 1.1; 
-                }}
-                .frac .num {{ 
-                    display: table-row; 
-                    border-bottom: 1px solid #000000; 
-                    padding-bottom: 1px; 
-                    font-style: italic; 
-                }}
-                .frac .den {{ 
-                    display: table-row; 
-                    padding-top: 1px; 
-                    font-style: italic; 
-                }}                
-                .integral-container {{ 
-                    display: inline-table; 
-                    vertical-align: middle; 
-                    line-height: 1; 
-                    padding: 0 2px; 
-                }}
-                .integral-symbol {{ 
-                    font-size: 22px; 
-                    font-family: "Times New Roman", serif; 
-                    display: table-cell; 
-                    vertical-align: middle; 
-                }}
-                .integral-limits {{ 
-                    display: inline-block; 
-                    vertical-align: middle; 
-                    font-size: 9px; 
-                    line-height: 1.0; 
-                    margin-left: -2px; 
-                }}
-                .integral-upper {{ display: block; }}
-                .integral-lower {{ display: block; }}       
-                /* ──────── THƯ VIỆN CSS NÂNG CẤP VÀ LỜI GIẢI ──────── */
-                .hat, .angle-hat {{
-                    position: relative;
-                    display: inline-block;
-                    padding-top: 2px;
-                }}
-                .hat::before, .angle-hat::before {{
-                    content: "^";
-                    position: absolute;
-                    top: -5px;
-                    left: 50%;
-                    transform: translateX(-50%) scaleX(1.3);
-                    font-size: 11px;
+                .status-web-line {{
+                    margin: 10px 0;
+                    padding: 6px 12px;
                     font-weight: bold;
+                    font-size: 13px;
+                    border-radius: 4px;
                 }}
-                /* Định dạng hộp giải chi tiết, chống tràn mép */
-                .explanation-card {{ 
-                    margin-top: 10px; 
-                    padding: 12px; 
-                    background-color: #fffdf3; 
-                    border-left: 4px solid #f2994a; 
-                    border-radius: 0 4px 4px 0; 
-                    border: 1px solid #f0e4b2;
-                    border-left-width: 4px;
-                    text-align: justify;
-                    page-break-inside: avoid;
-                }}                         
+                .correct-web {{
+                    color: #137333;
+                    background-color: #e6f4ea;
+                    border-left: 4px solid #137333;
+                }}
+                .wrong-web {{
+                    color: #c5221f;
+                    background-color: #fce8e6;
+                    border-left: 4px solid #c5221f;
+                }}                
             </style>
         </head>
         <body>

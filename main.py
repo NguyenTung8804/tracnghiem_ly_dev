@@ -155,6 +155,7 @@ async def submit_exam(data: ExamSubmit):
         detailed_results.append({
             "id": q["id"],
             "noi_dung": q["noi_dung"],
+            "question_text": q["noi_dung"],
             "dap_an_dung": str(q["dap_an_dung"]),
             "is_correct": is_correct_block,
             "giai_chi_tiet": q["giai_chi_tiet"],
@@ -189,6 +190,7 @@ async def send_result_email(data: EmailSubmit):
         
         # ──────── THUẬT TOÁN ĐỒNG BỘ LOCAL MATH INTERPRETER SANG PYTHON ────────
         # --- CODE BACKEND ĐỒNG BỘ RÚT GỌN - CHỐNG BỊ VỠ LAYOUT ---
+        # --- BỘ LỌC ĐA NĂNG ĐỒNG BỘ CÔNG THỨC TOÁN CHO TOÀN BỘ CÁC PHẦN ---        
         for index, q in enumerate(questions_list, 1):
             current_part = q.get("part_name", "Chi tiết bài làm")
             if current_part != last_part:
@@ -213,26 +215,36 @@ async def send_result_email(data: EmailSubmit):
             if not clean_correct:
                 clean_correct = "A"
 
+            # 1. TRÍCH XUẤT VÀ SỬ DỤNG TRỌN VẸN HTML CÔNG THỨC ĐÃ DỊCH TỪ FRONTEND
+            labels = ["A", "B", "C", "D"]
+            keys_map = ["opt_A", "opt_B", "opt_C", "opt_D"]
+            opts_clean = []
+
+            for o_idx, lbl in enumerate(labels):
+                raw_opt_text = q.get(keys_map[o_idx])
+                if raw_opt_text is None:
+                    opt_text = f"Phương án {lbl}"
+                else:
+                    opt_text = str(raw_opt_text).strip()
+                opts_clean.append(opt_text)
+
             # --- TRƯỜNG HỢP 1: CÂU TRẮC NGHIỆM ĐƠN PHẦN I ---
             if "Phần I" in current_part or clean_correct in ["A", "B", "C", "D"]:
-                labels = ["A", "B", "C", "D"]
-                keys_map = ["opt_A", "opt_B", "opt_C", "opt_D"]
-                
-                choices_layout_html += '<div class="web-options-grid">'
+                choices_layout_html += '<table class="web-options-grid"><tr>'
                 for o_idx, lbl in enumerate(labels):
+                    if o_idx == 2:
+                        choices_layout_html += '</tr><tr>'
+                        
                     is_selected = (student_choice == lbl)
                     dot_class = "radio-dot checked" if is_selected else "radio-dot"
                     
-                    # Lấy trực tiếp text đáp án sạch chứa công thức đã render từ Frontend gửi lên
-                    opt_text = q.get(keys_map[o_idx], f"Phương án {lbl}")
-                    
                     choices_layout_html += f"""
-                    <div class="web-option-item">
+                    <td>
                         <span class="{dot_class}"></span>
-                        <span class="opt-label-text"><strong>{lbl}.</strong> {opt_text}</span>
-                    </div>
+                        <span class="opt-label-text"><strong>{lbl}.</strong> {opts_clean[o_idx]}</span>
+                    </td>
                     """
-                choices_layout_html += '</div>'
+                choices_layout_html += '</tr></table>'
                 
                 is_correct = (student_choice == clean_correct) or "✔ ĐÚNG" in user_ans.upper()
                 if is_correct:
@@ -267,17 +279,138 @@ async def send_result_email(data: EmailSubmit):
                     status_line_html = f'<div class="status-web-line wrong-web">❌ Chưa chính xác (Đáp án đúng: {correct_ans})</div>'
 
             # Đổ trực tiếp mã HTML câu hỏi thu được từ Frontend (Giữ nguyên vẹn 100% công thức)
-            questions_html += f"""
+            # ──────── BỘ DỊCH CÔNG THỨC TOÁN PHẲNG ADAPTER CHO THÂN CÂU HỎI ────────
+            def backend_math_interpreter(text_str):
+                if not text_str:
+                    return ""
+                s = str(text_str)
+                
+                # BỘ LỌC THÔNG MINH ĐÓN ĐẦU: Dịch ngay khi chuỗi dữ liệu Database còn nguyên vẹn gạch chéo
+                # # BỘ LỌC THÔNG MINH ĐÓN ĐẦU: Dịch chuẩn xác theo 1 dấu gạch chéo gốc của Database
+                            # ──────── ĐẶC TRỊ MŨ GÓC MA TRẬN BẢNG PHẲNG ĐỒNG BỘ CHO PDF ────────
+            # Thuật toán quét tất cả dải mã mang hình dáng dấu mũ trong bảng mã Unicode (\^, ˆ, ∧, ̂) đứng trước chữ cái
+                import re
+                s = re.sub(r'[\^ˆ∧̂]\s*ABC',\
+                    
+                  r'<table style="display: inline-table !important; vertical-align: middle !important; border-collapse: collapse !important; text-align: center !important; line-height: 0.5 !important; margin: 0 1px !important;"><tr><td style="padding: 0 !important; text-align: center !important; font-size: 0.85em !important; font-weight: bold !important; height: 4px !important; line-height: 4px !important;">^</td></tr><tr><td style="padding: 0 !important; text-align: center !important; line-height: 1.1 !important;"><strong>ABC</strong></td></tr></table>', s)
+            
+                s = re.sub(r'[\^ˆ∧̂]\s*(α|\\alpha|alpha)',\
+                     
+               r'<table style="display: inline-table !important; vertical-align: middle !important; border-collapse: collapse !important; text-align: center !important; line-height: 0.5 !important; margin: 0 1px !important;"><tr><td style="padding: 0 !important; text-align: center !important; font-size: 0.85em !important; font-weight: bold !important; height: 4px !important; line-height: 4px !important;">^</td></tr><tr><td style="padding: 0 !important; text-align: center !important; line-height: 1.1 !important;"><strong>α</strong></td></tr></table>', s)
+                       
+                s = re.sub(r'\\widehat\{([^}]+)\}',\
+                
+                r'<table style="display: inline-table !important; vertical-align: middle !important; border-collapse: collapse !important; text-align: center !important; line-height: 0.5 !important; margin: 0 1px !important;"><tr><td style="padding: 0 !important; text-align: center !important; font-size: 0.85em !important; font-weight: bold !important; height: 4px !important; line-height: 4px !important;">^</td></tr><tr><td style="padding: 0 !important; text-align: center !important; line-height: 1.1 !important;"><strong>\1</strong></td></tr></table>', s)
+    
+                # 1. CHUẨN HÓA KÝ TỰ HỆ THỐNG: ÉP dọn sạch các dấu gạch chéo ngược thoát chuỗi từ database
+                s = s.replace("\\\\frac{", "\\frac{").replace("\\\\\\\\frac{", "\\frac{")
+                s = s.replace("\\\\sqrt{", "\\sqrt{").replace("\\\\\\\\sqrt{", "\\sqrt{")
+                s = s.replace("\\\\widehat{", "\\widehat{").replace("\\\\int", "\\int")
+                
+                # 2. BỘ LỌC CUỐN CHIẾU TỪ TRONG RA NGOÀI (Học tập 100% từ cấu trúc dòng 810 của index.html)
+                loop_counter = 0
+                while loop_counter < 60:
+                    last_frac = s.rfind(r'\frac{')
+                    last_sqrt = s.rfind(r'\sqrt{')
+                    
+                    if last_frac == -1 and last_sqrt == -1:
+                        break
+                        
+                    # Trường hợp 1: Phân số \frac{ nằm sâu ở lõi trong cùng thì dịch trước
+                    if last_frac != -1 and (last_frac > last_sqrt or last_sqrt == -1):
+                        num_start = last_frac + 6
+                        open_braces = 1
+                        i = num_start
+                        while open_braces > 0 and i < len(s):
+                            if s[i] == '{': open_braces += 1
+                            elif s[i] == '}': open_braces -= 1
+                            i += 1
+                        num_content = s[num_start : i-1]
+                        
+                        if i < len(s) and s[i] == '{':
+                            den_start = i + 1
+                            open_braces = 1
+                            i += 1
+                            while open_braces > 0 and i < len(s):
+                                if s[i] == '{': open_braces += 1
+                                elif s[i] == '}': open_braces -= 1
+                                i += 1
+                            den_content = s[den_start : i-1]
+                            full_frac = s[last_frac : i]
+                            
+                            # Dựng cấu trúc bảng phân số dọc .frac đồng dạng 100% với phần đáp án của bạn
+                            frac_html = f'<table class="frac"><tr><td class="num">{num_content}</td></tr><tr><td class="den">{den_content}</td></tr></table>'
+                            s = s.replace(full_frac, frac_html)
+                        else:
+                            break
+                            
+                    # Trường hợp 2: Căn thức \sqrt{ nằm sâu ở lõi trong cùng thì dịch trước
+                    elif last_sqrt != -1:
+                        start = last_sqrt + 6
+                        open_braces = 1
+                        i = start
+                        while open_braces > 0 and i < len(s):
+                            if s[i] == '{': open_braces += 1
+                            elif s[i] == '}': open_braces -= 1
+                            i += 1
+                        inner_content = s[start : i-1]
+                        full_sqrt = s[last_sqrt : i]
+                        
+                        # Dựng cấu trúc khối hộp căn thức tự chế phẳng có gạch viền ngang đỉnh đầu
+                        sqrt_html = f'<span class="sqrt-container"><span class="sqrt-symbol">√</span><span class="sqrt-content">{inner_content}</span></span>'
+                        s = s.replace(full_sqrt, sqrt_html)
+                        
+                    loop_counter += 1
+
+                # 3. Dịch các ký hiệu tích phân phẳng, mũ góc và chữ cái Vật lý còn lại
+                import re
+                s = re.sub(r'\\int_\{?([^}^]+)\}?\^\{?([^}{\s<>]+)\}?', r'∫<sub>\1</sub><sup>\2</sup>', s)
+                s = s.replace(r"\int", "∫").replace("\\int", "∫")
+                s = s.replace(r"\textbf{", "<strong>").replace(r"}", "</strong>").replace("\\", "")
+                return s
+            # ──────── BỘ LỌC ĐỒNG BỘ PHÂN TÁCH NỘI DUNG PHẦN II TRÊN PDF ────────
+            # Học tập chính xác cách bóc tách chuỗi bằng dấu cắt 'a)' của giao diện Web
+            clean_q_text = str(q.get("question_text", ""))
+            if "Phần II" in current_part or "cac_lua_chon" not in q or " Đúng" in str(q.get("user_answer")):
+                if "<strong>a)</strong>" in clean_q_text: clean_q_text = clean_q_text.split("<strong>a)</strong>")[0]
+                elif "<b>a)</b>" in clean_q_text: clean_q_text = clean_q_text.split("<b>a)</b>")[0]
+                elif "a)" in clean_q_text: clean_q_text = clean_q_text.split("a)")[0]
+                clean_q_text = clean_q_text.strip()
+            
+            # Tiến hành ép chuỗi thân câu hỏi độc lập và lời giải qua bộ dịch đệ quy cuốn chiếu giống đáp án
+            clean_q_text = backend_math_interpreter(clean_q_text)
+            clean_expl = backend_math_interpreter(q.get("explanation", ""))
+
+            # Đổ chuỗi HTML an toàn bằng hàm .format() và bảo vệ các ngoặc nhọn, lồng lời giải chi tiết cộng chuỗi sạch cú pháp Python
+            questions_html += """
             <div class="question-card">
                 <div class="question-text">
-                    <strong>Câu {index}:</strong> {q.get("question_text", "")}
+                    <strong>Câu {idx}:</strong> {q_text}
                 </div>
-                {choices_layout_html}
-                {status_line_html}
-                {f'<div class="explanation-card"><strong>💡 Hướng dẫn giải chi tiết:</strong><br>{q.get("explanation", "")}</div>' if q.get("explanation") else ''}
+                {layout}
+                {status}
+                {expl_card}
             </div>
-            """
+            """.format(
+                idx=index,
+                q_text=clean_q_text,
+                layout=choices_layout_html,
+                status=status_line_html,
+                expl_card='<div class="explanation-card"><strong>💡 Hướng dẫn giải chi tiết:</strong><br>' + str(clean_expl) + '</div>' if q.get("explanation") else ''
+            )
 #============================================================================
+            # ──────── ĐẶC TRỊ GÓC MŨ PHẲNG TUYỆT ĐỐI TRƯỚC KHI IN PDF ────────
+            # Thay thế trực diện chuỗi thô bốc từ Frontend truyền lên để phá vỡ lỗi lệch lề
+
+            # ──────── ĐẶC TRỊ GÓC MŨ PHẲNG TUYỆT ĐỐI TRƯỚC KHI IN PDF ────────
+            # Thay thế trực diện trên cả Thân câu hỏi (clean_q_text) và Đáp án (choices_layout_html)
+            for target in ['^ABC', '^ABC']:
+                clean_q_text = clean_q_text.replace(target, '<table style="display: inline-table; vertical-align: middle; border-collapse: collapse; text-align: center; line-height: 0.5; margin: 0 1px;"><tr><td style="padding: 0; text-align: center; font-size: 0.85em; font-weight: bold; height: 4px; line-height: 4px;">^</td></tr><tr><td style="padding: 0; text-align: center; line-height: 1.1;"><strong>ABC</strong></td></tr></table>')
+                choices_layout_html = choices_layout_html.replace(target, '<table style="display: inline-table; vertical-align: middle; border-collapse: collapse; text-align: center; line-height: 0.5; margin: 0 1px;"><tr><td style="padding: 0; text-align: center; font-size: 0.85em; font-weight: bold; height: 4px; line-height: 4px;">^</td></tr><tr><td style="padding: 0; text-align: center; line-height: 1.1;"><strong>ABC</strong></td></tr></table>')
+            
+            for target in ['^α', '^ α', '^α', '^ α']:
+                clean_q_text = clean_q_text.replace(target, '<table style="display: inline-table; vertical-align: middle; border-collapse: collapse; text-align: center; line-height: 0.5; margin: 0 1px;"><tr><td style="padding: 0; text-align: center; font-size: 0.85em; font-weight: bold; height: 4px; line-height: 4px;">^</td></tr><tr><td style="padding: 0; text-align: center; line-height: 1.1;"><strong>α</strong></td></tr></table>')
+                choices_layout_html = choices_layout_html.replace(target, '<table style="display: inline-table; vertical-align: middle; border-collapse: collapse; text-align: center; line-height: 0.5; margin: 0 1px;"><tr><td style="padding: 0; text-align: center; font-size: 0.85em; font-weight: bold; height: 4px; line-height: 4px;">^</td></tr><tr><td style="padding: 0; text-align: center; line-height: 1.1;"><strong>α</strong></td></tr></table>') 
         pdf_html = f"""
         <!DOCTYPE html>
         <html>
@@ -287,83 +420,269 @@ async def send_result_email(data: EmailSubmit):
                 src="https://cloudflare.com">
             </script>
             <style>
-                @page {{ size: A4; margin: 20mm 15mm; }}
-                body {{ font-family: "Times New Roman", Times, serif; color: #1f2023; line-height: 1.5; font-size: 14px; }}
-                .mo-header {{ width: 100%; border-collapse: collapse; margin-bottom: 10px; }}
+                /* CĂN LỀ CHUẨN ĐỀ THI BỘ GIÁO DỤC: 12mm giúp trang giấy gọn gàng, cân đối */
+                @page {{ size: A4; margin: 12mm 12mm 15mm 12mm; }}
+                body {{ font-family: "Times New Roman", Times, serif; color: #000000; line-height: 1.4; font-size: 14px; }}
+                
+                /* Tiêu đề đầu trang và khung mã đề thi chính quy */
+                .mo-header {{ width: 100%; border-collapse: collapse; margin-bottom: 5px; }}
                 .mo-header td {{ vertical-align: top; font-size: 13px; }}
                 .text-upper {{ text-transform: uppercase; font-weight: bold; }}
-                .line-under {{ text-decoration: underline; }}
-                .student-info-bar {{ width: 100%; border-collapse: collapse; margin: 15px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 5px 0; }}
-                .code-box {{ border: 2px solid #000; padding: 4px 10px; font-weight: bold; font-size: 14px; float: right; letter-spacing: 1px; }}
-                .part-header-box {{ border: 1.5px solid #000; padding: 8px; font-size: 13px; text-align: left; margin: 25px 0 15px 0; background-color: #fcfcfc; page-break-after: avoid; }}
-                .question-card {{ margin-bottom: 22px; page-break-inside: avoid; }}
-                .question-text {{ font-size: 14.5px; text-align: justify; margin-bottom: 10px; }}
-                .ans-compare-table {{ width: 100%; border-collapse: collapse; margin: 8px 0; }}
-                .ans-compare-table td {{ padding: 0 6px; }}
-                .ans-title {{ font-size: 12px; color: #555555; font-weight: bold; margin-bottom: 3px; }}
-                .ans-box {{ padding: 8px; border: 1px dashed #ccc; border-radius: 4px; font-weight: bold; font-size: 13.5px; text-align: center; }}
-                .explanation-card {{ margin-top: 12px; padding: 12px; background-color: #fffdf3; border-left: 4px solid #f2994a; border-radius: 0 4px 4px 0; font-size: 13.5px; color: #333; border-right: 1px solid #f0e4b2; border-top: 1px solid #f0e4b2; border-bottom: 1px solid #f0e4b2; }}
-                .opts-flex-container {{ 
-                    display: block; 
-                    text-align: left; 
-                    padding: 2px 0;
-                }}
-                .badge-opt {{ 
-                    display: inline-block; 
-                    background: #ffffff; 
-                    border: 1px solid #dadce0; 
-                    padding: 3px 6px; 
-                    margin: 3px 4px; 
-                    border-radius: 4px; 
-                    font-size: 12px;
-                }}
-                .single-ans-text {{
-                    font-size: 15px;
-                    text-align: center;
-                }}
-                .web-options-grid {{
-                    margin: 8px 0;
-                }}
-                .web-option-item {{
-                    display: inline-block;
-                    width: 22%;
-                    margin-right: 2%;
-                    font-size: 13.5px;
-                }}                
+                .line-under {{ text-decoration: underline; padding-bottom: 2px; }}
+                .student-info-bar {{ width: 100%; border-collapse: collapse; margin: 10px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; }}
+                .code-box {{ border: 2px solid #000; padding: 3px 12px; font-weight: bold; font-size: 14px; float: right; letter-spacing: 1px; background: #fff; }}
+                
+                /* Tiêu đề Phần gạch chân đậm bo sát theo phong cách đề thi gốc */
+                .part-header-box {{ border: 1.5px solid #000; padding: 6px 10px; font-size: 13.5px; font-weight: bold; text-align: left; margin: 20px 0 12px 0; background-color: #fcfcfc; page-break-after: avoid; text-transform: uppercase; }}
+                
+                /* Khối câu hỏi trắc nghiệm A4 chống cắt dòng */
+                .question-card {{ margin-bottom: 18px; page-break-inside: avoid; }}
+                .question-text {{ font-size: 14.5px; text-align: justify; margin-bottom: 8px; font-weight: normal; }}
+                
+                /* MA TRẬN GRID ĐÁP ÁN: Ép 2 cột đối xứng tuyệt đối phẳng hàng */
+                .web-options-grid {{ width: 100%; border-collapse: collapse; margin: 6px 0; }}
+                .web-options-grid td {{ width: 50%; padding: 4px 2px; vertical-align: middle; font-size: 14.5px; text-align: justify; }}
+                
+                /* Vẽ ô tròn trắc nghiệm chuẩn chỉ */
                 .radio-dot {{
                     display: inline-block;
                     width: 12px;
                     height: 12px;
-                    border: 2px solid #5f6368;
+                    border: 1.5px solid #000000;
                     border-radius: 50%;
                     vertical-align: middle;
                     margin-right: 6px;
                     background-color: #ffffff;
                 }}
                 .radio-dot.checked {{
-                    background-color: #202124;
-                    border-color: #202124;
+                    background-color: #000000;
                     box-shadow: inset 0 0 0 2px #ffffff;
                 }}
-                .opt-label-text {{
+                .opt-label-text {{ vertical-align: middle; }}
+                
+                /* Thanh thông báo kết quả và Giải chi tiết */
+                .status-web-line {{ margin: 6px 0; padding: 5px 10px; font-weight: bold; font-size: 13px; border-radius: 3px; }}
+                .correct-web {{ color: #137333; background-color: #e6f4ea; border-left: 4px solid #137333; }}
+                .wrong-web {{ color: #c5221f; background-color: #fce8e6; border-left: 4px solid #c5221f; }}
+                .explanation-card {{ margin-top: 8px; padding: 10px 12px; background-color: #fffdf3; border-left: 4px solid #f2994a; border-radius: 0 4px 4px 0; font-size: 13.5px; border-right: 1px solid #f0e4b2; border-top: 1px solid #f0e4b2; border-bottom: 1px solid #f0e4b2; text-align: justify; }}
+                /* --- KHẮC PHỤC TRIỆT ĐỂ LỖI VỠ CÔNG THỨC PHÂN SỐ DỌC GÂY TRÀN TRANG --- */
+                .frac {{ 
+                    display: inline-table; 
+                    vertical-align: middle; 
+                    text-align: center; 
+                    padding: 0 3px; 
+                    line-height: 1.1; 
+                }}
+                .frac .num {{ 
+                    display: table-row; 
+                    border-bottom: 1px solid #000000; 
+                    padding-bottom: 1px; 
+                    font-style: italic; 
+                }}
+                .frac .den {{ 
+                    display: table-row; 
+                    padding-top: 1px; 
+                    font-style: italic; 
+                }}          
+                /* ──────── THƯ VIỆN LÕI CSS DỰNG CÔNG THỨC TỰ CHẾ CHO PDF ──────── */
+                .frac {{ 
+                    display: inline-table; 
+                    vertical-align: middle; 
+                    text-align: center; 
+                    padding: 0 3px; 
+                    line-height: 1.1; 
+                }}
+                .frac .num {{ 
+                    display: table-row; 
+                    border-bottom: 1px solid #000000; 
+                    padding-bottom: 1px; 
+                    font-style: italic; 
+                }}
+                .frac .den {{ 
+                    display: table-row; 
+                    padding-top: 1px; 
+                    font-style: italic; 
+                }}                
+                .integral-container {{ 
+                    display: inline-table; 
+                    vertical-align: middle; 
+                    line-height: 1; 
+                    padding: 0 2px; 
+                }}
+                .integral-symbol {{ 
+                    font-size: 22px; 
+                    font-family: "Times New Roman", serif; 
+                    display: table-cell; 
+                    vertical-align: middle; 
+                }}
+                .integral-limits {{ 
+                    display: inline-block; 
+                    vertical-align: middle; 
+                    font-size: 9px; 
+                    line-height: 1.0; 
+                    margin-left: -2px; 
+                }}
+                .integral-upper {{ display: block; }}
+                .integral-lower {{ display: block; }}       
+                /* ──────── THƯ VIỆN CSS NÂNG CẤP VÀ LỜI GIẢI ──────── */
+                /* Định dạng hộp giải chi tiết, chống tràn mép */
+                .explanation-card {{ 
+                    margin-top: 10px; 
+                    padding: 12px; 
+                    background-color: #fffdf3; 
+                    border-left: 4px solid #f2994a; 
+                    border-radius: 0 4px 4px 0; 
+                    border: 1px solid #f0e4b2;
+                    border-left-width: 4px;
+                    text-align: justify;
+                    page-break-inside: avoid;
+                }}                  
+                /* ─── THƯ VIỆN CĂN THỨC TỰ CHẾ ĐỒNG BỘ 100% TỪ FRONTEND ─── */
+                .sqrt-container {{
+                    display: inline-flex;
+                    align-items: flex-start;
                     vertical-align: middle;
+                    position: relative;
+                    line-height: 1;
                 }}
-                .status-web-line {{
-                    margin: 10px 0;
-                    padding: 6px 12px;
-                    font-weight: bold;
-                    font-size: 13px;
-                    border-radius: 4px;
+                .sqrt-symbol {{
+                    font-family: "Times New Roman", serif;
+                    font-size: 1.1em;
+                    user-select: none;
                 }}
-                .correct-web {{
-                    color: #137333;
-                    background-color: #e6f4ea;
-                    border-left: 4px solid #137333;
+                .sqrt-content {{
+                    border-top: 1.5px solid #000000;
+                    padding-top: 1px;
+                    padding-left: 1px;
+                    margin-left: -1px;
+                    display: inline-block;
+                }}                       
+                /* ══════════════════════════════════════════════════════════ */
+                /* ── THƯ VIỆN LÕI CSS ĐẶC TRỊ CĂN LỒNG PHÂN SỐ ĐỒNG BỘ 100% ── */
+                /* ══════════════════════════════════════════════════════════ */      
+                /* Thiết lập phom dáng bảng phẳng (inline-table) để triệt tiêu lỗi hiển thị */
+                .frac, .sqrt-container {{
+                    display: inline-table !important;
+                    vertical-align: middle !important;
+                    border-collapse: collapse !important;
+                    line-height: 1.1 !important;
                 }}
-                .wrong-web {{
-                    color: #c5221f;
-                    background-color: #fce8e6;
-                    border-left: 4px solid #c5221f;
+                .frac td, .sqrt-content {{
+                    padding: 0 !important;
+                    text-align: center !important;
+                    font-style: italic !important;
+                }}
+                /* Định nghĩa lại nét gạch phân số và dấu căn rõ nét */
+                .frac .num {{ border-bottom: 1.2px solid #000 !important; padding-bottom: 2px !important; }}
+                .frac .den {{ padding-top: 2px !important; }}
+                .sqrt-symbol {{ font-size: 1.15em !important; padding-right: 1px !important; }}
+                .sqrt-content {{ border-top: 1.3px solid #000 !important; padding-top: 1px !important; }}
+                /* ── BỘ ĐỊNH VỊ HÌNH HỌC THÔNG MINH ÉP DẤU MŨ LÊN ĐỈNH ĐẦU CHỮ ── */
+                .hat, [class*="hat"] {{
+                    display: inline-block !important;
+                    position: relative !important;
+                    padding-top: 0.3em !important;
+                    line-height: 1 !important;
+                    vertical-align: bottom !important;
+                }}
+                .hat sup, [class*="hat"] sup {{
+                    position: absolute !important;
+                    top: -0.3em !important;
+                    left: 50% !important;
+                    transform: translateX(-50%) scaleX(1.5) !important;
+                    font-size: 0.9em !important;
+                    font-weight: bold !important;
+                }}
+                /* Phòng vệ từ xa: Nếu dấu mũ là ký tự trơn ^ đứng trước chữ cái */
+                span.hat, td .hat, .angle-hat {{
+                    position: relative !important;
+                }}                
+                /* ── THƯ VIỆN MA TRẬN BẢNG KHÓA TÂM MŨ GÓC ĐỒNG BỘ ĐÁP ÁN ── */
+                .hat-table {{
+                    display: inline-table !important;
+                    vertical-align: middle !important;
+                    border-collapse: collapse !important;
+                    text-align: center !important;
+                    line-height: 0.8 !important;
+                    margin: 0 2px !important;
+                }}
+                .hat-table td {{
+                    padding: 0 !important;
+                    text-align: center !important;
+                }}
+                .hat-sym {{
+                    font-size: 0.9em !important;
+                    font-weight: bold !important;
+                    height: 8px !important;
+                    line-height: 8px !important;
+                }}
+                .hat-txt {{
+                    line-height: 1.1 !important;
+                }}
+                /* ── THƯ VIỆN MA TRẬN BẢNG KHÓA TÂM MŨ GÓC ĐỒNG BỘ ĐÁP ÁN ── */
+                .hat-table {{
+                    display: inline-table !important;
+                    vertical-align: middle !important;
+                    border-collapse: collapse !important;
+                    text-align: center !important;
+                    line-height: 0.8 !important;
+                    margin: 0 2px !important;
+                }}
+                .hat-table td {{
+                    padding: 0 !important;
+                    text-align: center !important;
+                }}
+                .hat-sym {{
+                    font-size: 0.9em !important;
+                    font-weight: bold !important;
+                    height: 8px !important;
+                    line-height: 8px !important;
+                }}
+                .hat-txt {{
+                    line-height: 1.1 !important;
+                }}                
+                /* ── THƯ VIỆN MA TRẬN BẢNG KHÓA TÂM MŨ GÓC ĐỒNG BỘ FILE PDF ── */
+                .hat-table {{
+                    display: inline-table !important;
+                    vertical-align: middle !important;
+                    border-collapse: collapse !important;
+                    text-align: center !important;
+                    line-height: 0.7 !important;
+                    margin: 0 1px !important;
+                }}
+                .hat-table td {{
+                    padding: 0 !important;
+                    text-align: center !important;
+                }}
+                .hat-sym {{
+                    font-size: 0.85em !important;
+                    font-weight: bold !important;
+                    height: 6px !important;
+                    line-height: 6px !important;
+                }}
+                .hat-txt {{
+                    line-height: 1.1 !important;
+                }}                
+                /* ── THƯ VIỆN ĐẶC TRỊ MŨ GÓC ĐỘC LẬP HOÀN TOÀN KHÔNG DÙNG REGEX ── */
+                .hat, [class*="hat"], .angle-container {{
+                    display: inline-block !important;
+                    position: relative !important;
+                    line-height: 1 !important;
+                    padding-top: 0.25em !important;
+                }}
+                /* Ép dấu mũ lơ lửng của hệ thống nhảy vào đúng vị trí trung tâm đỉnh đầu */
+                .hat sup, .angle-hat, [class*="hat"] sup {{
+                    position: absolute !important;
+                    top: -0.25em !important;
+                    left: 50% !important;
+                    transform: translateX(-50%) scaleX(1.4) !important;
+                    font-size: 0.85em !important;
+                    font-weight: bold !important;
+                    visibility: visible !important;
+                }}
+                /* ĐẬP TAN DẤU MŨ THÔ LỆCH LỀ: Ép ẩn biến mất hoàn toàn dấu mũ thô bướng bỉnh đứng trước */
+                span:contains("^"), span:contains("ˆ"), td:contains("^") {{
+                    text-indent: 0 !important;
                 }}                
             </style>
         </head>

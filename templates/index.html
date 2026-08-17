@@ -1143,14 +1143,12 @@ const formattedQuestions = resData.details.map((item) => {
         }
         
         // 2. Lấy chính xác văn bản hiển thị của 4 phương án A, B, C, D trên màn hình
-        // ──────── THƯ VIỆN ĐỒNG BỘ CÔNG THỨC DÙNG CHUNG (FRONTEND) ────────
         const labelNodes = qBlock.querySelectorAll('label, .option-item, .choice-text');
         if (labelNodes.length >= 4) {
-            // Nhặt trọn vẹn mã .innerHTML chứa công thức tự chế, chỉ bóc tách bỏ lớp ô tròn radio trên web
-            txtA = labelNodes[0].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
-            txtB = labelNodes[1].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
-            txtC = labelNodes[2].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
-            txtD = labelNodes[3].innerHTML.replace(/<span[^>]*class="[^"]*radio-dot[^"]*"[^>]*>.*?<\/span>/gi, "").replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtA = labelNodes[0].innerText.replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtB = labelNodes[1].innerText.replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtC = labelNodes[2].innerText.replace(/^[A-D1-4][\.),]\s*/i, "").trim();
+            txtD = labelNodes[3].innerText.replace(/^[A-D1-4][\.),]\s*/i, "").trim();
         }
     }
 

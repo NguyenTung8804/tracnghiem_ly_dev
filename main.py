@@ -238,10 +238,19 @@ async def send_result_email(data: EmailSubmit):
                     is_selected = (student_choice == lbl)
                     dot_class = "radio-dot checked" if is_selected else "radio-dot"
                     
+            # ──────── LỌC SẠCH BÁCH RÁC CHỮ NHÂN ĐÔI THEO PHONG CÁCH CŨ ────────
+                    current_opt_text = str(opts_clean[o_idx])
+                    import re
+                    current_opt_text = re.sub(r'<[^>]*>', '', current_opt_text)
+            # Quét sạch bất kỳ chữ cái nào (A-D) đứng độc lập kèm dấu chấm bám ngay sau dấu tròn
+                    current_opt_text = re.sub(r'[○●]\s*[A-Za-z]\.\s*', '', current_opt_text)
+                    current_opt_text = re.sub(r'^[A-Za-z]\.\s*', '', current_opt_text)
+                    current_opt_text = re.sub(r'[○●]', '', current_opt_text).strip()
+
                     choices_layout_html += f"""
                     <td>
                         <span class="{dot_class}"></span>
-                        <span class="opt-label-text"><strong>{lbl}.</strong> {opts_clean[o_idx]}</span>
+                        <span class="opt-label-text">{current_opt_text}</span>
                     </td>
                     """
                 choices_layout_html += '</tr></table>'
@@ -253,17 +262,85 @@ async def send_result_email(data: EmailSubmit):
                     status_line_html = f'<div class="status-web-line wrong-web">❌ Chưa chính xác (Đáp án đúng: {clean_correct})</div>'
             
             # --- TRƯỜNG HỢP 2: CÂU TRẮC NGHIỆM ĐÚNG/SAI PHẦN II ---
-            elif "Phần II" in current_part or " | " in user_ans:
-                p2_data = q.get("p2_data", {}) or {}
-                user_ans_html = ""
-                for k, v in p2_data.items():
-                    u_part = v.get("user", "Chưa chọn")
-                    c_part = v.get("correct", "")
-                    color_u = "#137333" if u_part == c_part else "#c5221f"
-                    user_ans_html += f'<span class="badge-opt"><strong>{k})</strong> Bạn: <span style="color:{color_u}; font-weight:bold;">{u_part}</span> | Bộ: <strong>{c_part}</strong></span>'
-
-                choices_layout_html = f'<div class="opts-flex-container">{user_ans_html}</div>'
+#===============================================================
+            elif p2_data and len(p2_data) >= 4:
+                # Bắt trúng đích Câu hỏi Đúng/Sai Phần II dựa vào độ dài dữ liệu chấm điểm
+                # CHIẾN THUẬT ĐỘT PHÁ: Bóc tách nội dung chữ các ý từ trường Hướng dẫn giải chi tiết
+                explain_text = str(q.get("huong_dan_giai", "") or q.get("explain", ""))
+                parts_p2 = {'a': '', 'b': '', 'c': '', 'd': ''}
                 
+                try:
+                    if 'a)' in explain_text:
+                        rem_a = explain_text.split('a)', 1)[1]
+                        parts_p2['a'] = rem_a.split('b)', 1)[0].strip() if 'b)' in rem_a else rem_a.strip()
+                    if 'b)' in explain_text:
+                        rem_b = explain_text.split('b)', 1)[1]
+                        parts_p2['b'] = rem_b.split('c)', 1)[0].strip() if 'c)' in rem_b else rem_b.strip()
+                    if 'c)' in explain_text:
+                        rem_c = explain_text.split('c)', 1)[1]
+                        parts_p2['c'] = rem_c.split('d)', 1)[0].strip() if 'd)' in rem_c else rem_c.strip()
+                    if 'd)' in explain_text:
+                        parts_p2['d'] = explain_text.split('d)', 1)[1].strip()
+                except Exception:
+                    pass
+                
+                # Dựng hộp bảng điểm Phần II ma trận phẳng vuông vắn tăm tắp tuyệt đẹp
+                user_ans_html = '<div style="margin-top:8px!important; font-weight:bold!important; color:#1a73e8!important; font-size:14px!important;">PHẦN II: Câu hỏi trắc nghiệm Đúng/Sai</div>'
+                user_ans_html += '<table style="width:100%!important;border-collapse:collapse!important;margin-top:6px!important;font-size:13px!important;border:1px solid #dee2e6!important;">'
+                user_ans_html += '<thead>'
+                user_ans_html += '<tr style="background-color:#f8f9fa!important;border-bottom:2px solid #dee2e6!important;text-align:center!important;font-weight:bold!important;">'
+                user_ans_html += '<th style="padding:6px!important;width:40px!important;border:1px solid #dee2e6!important;">Ý</th>'
+                user_ans_html += '<th style="padding:6px!important;text-align:left!important;border:1px solid #dee2e6!important;">Nội dung phát biểu phương án trắc nghiệm</th>'
+                user_ans_html += '<th style="padding:6px!important;width:75px!important;border:1px solid #dee2e6!important;">Bạn chọn</th>'
+                user_ans_html += '<th style="padding:6px!important;width:75px!important;border:1px solid #dee2e6!important;">Đáp án</th>'
+                user_ans_html += '<th style="padding:6px!important;width:110px!important;border:1px solid #dee2e6!important;background-color:#fff3cd!important;">Đánh giá</th>'
+                user_ans_html += '</tr>'
+                user_ans_html += '</thead>'
+                user_ans_html += '<tbody>'
+                
+                # Duyệt qua 4 nhãn chữ cái để đổ dữ liệu vào từng hàng của bảng
+                for lbl_idx, lbl in enumerate(['a', 'b', 'c', 'd']):
+                    raw_v = p2_data.get(lbl, {}) if isinstance(p2_data, dict) else {}
+                    if not raw_v and isinstance(p2_data, dict):
+                        raw_v = p2_data.get("Đáp án " + lbl.upper(), {})
+                    
+                    u_part = str(raw_v.get("user", "Chưa chọn"))
+                    c_part = str(raw_v.get("correct", ""))
+                    
+                    # Lấy nội dung chữ phẳng đã bóc tách được từ trường giải chi tiết
+                    opt_text_p2 = parts_p2.get(lbl, "")
+                    
+                    # Làm sạch các từ chỉ thị thừa ở đầu câu giải chi tiết (như "Sai vì", "Đúng vì") để trả lại phát biểu trơn
+                    for prefix in ["Sai vì ", "Đúng vì ", "Sai do ", "Đúng do ", "Sai ", "Đúng "]:
+                        if opt_text_p2.startswith(prefix):
+                            opt_text_p2 = opt_text_p2[len(prefix):].strip()
+                    # Viết hoa lại chữ cái đầu tiên của câu cho ngay ngắn chỉn chu
+                    if opt_text_p2:
+                        opt_text_p2 = opt_text_p2[0].upper() + opt_text_p2[1:]
+                    else:
+                        opt_text_p2 = "Phát biểu ý " + lbl.upper() + " của câu hỏi tương ứng."
+                    
+                    if u_part == "Chưa chọn" or not u_part:
+                        status_text = '<span style="color:#666!important;">Chưa chọn</span>'
+                        color_u = "#666"
+                    elif u_part.lower() == c_part.lower():
+                        status_text = '<span style="color:#137333!important;font-weight:bold!important;">✓ Đúng</span>'
+                        color_u = "#137333"
+                    else:
+                        status_text = '<span style="color:#c5221f!important;font-weight:bold!important;">✗ Sai</span>'
+                        color_u = "#c5221f"
+                    
+                    user_ans_html += '<tr style="border-bottom:1px solid #dee2e6!important;text-align:center!important;">'
+                    user_ans_html += '<td style="padding:8px!important;font-weight:bold!important;border:1px solid #dee2e6!important;background-color:#f8f9fa!important;">' + lbl.lower() + ')</td>'
+                    user_ans_html += '<td style="padding:8px!important;text-align:left!important;border:1px solid #dee2e6!important;">' + opt_text_p2 + '</td>'
+                    user_ans_html += '<td style="padding:8px!important;font-weight:bold!important;color:' + color_u + '!important;border:1px solid #dee2e6!important;">' + u_part + '</td>'
+                    user_ans_html += '<td style="padding:8px!important;font-weight:bold!important;color:#137333!important;border:1px solid #dee2e6!important;">' + c_part + '</td>'
+                    user_ans_html += '<td style="padding:8px!important;border:1px solid #dee2e6!important;background-color:#fffdf4!important;">' + status_text + '</td>'
+                    user_ans_html += '</tr>'
+                    
+                user_ans_html += "</tbody></table>"
+                choices_layout_html = '<div style="width:100%!important;margin-bottom:10px!important;">' + user_ans_html + '</div>'
+#=========================================================                
                 if "✔" in user_ans or user_ans == correct_ans:
                     status_line_html = '<div class="status-web-line correct-web">✔ Đúng toàn bộ các ý lựa chọn</div>'
                 else:

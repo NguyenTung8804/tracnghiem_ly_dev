@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRUNG TÂM PHÊ DUYỆT TÀI CHÍNH ĐỀ THI - VIETDRAGON LEARNING</title>
+</head>
+<body style="background: #f1f2f6; margin: 0; padding: 20px;">
+
+    <!-- 🪐 HỆ THỐNG DUYỆT ĐỀ THI TRẢ PHÍ ĐỘC LẬP DÀNH RIÊNG CHO CHỦ SỞ HỮU -->
+    <div style="max-width: 1100px; margin: 40px auto; font-family: 'Times New Roman', serif; padding: 10px; box-sizing: border-box;">
+        <div style="border: 2px solid #ff4757; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); background: #fff; overflow: hidden;">
+            <div style="background: #ff4757; color: white; padding: 15px 25px; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center;">
+                <span>🔒 TRUNG TÂM PHÊ DUYỆT TÀI CHÍNH ĐỀ THI TRẢ PHÍ - VIETDRAGON MANAGER</span>
+                <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">Quyền Hạn: Tối Cao</span>
+            </div>
+            <div style="padding: 25px; background: #fafafa;">
+                <p style="color: #57606f; font-size: 14px; margin-top: 0; margin-bottom: 20px; line-height: 1.6; border-left: 4px solid #ff4757; padding-left: 12px;">
+                    <b>Mã lệnh điều hành:</b> Giáo viên đối soát lịch sử biến động số dư tài khoản ngân hàng Techcombank. Nếu thấy dòng tiền khớp chằn chặn với dải <b>Mã giao dịch ngân hàng</b> dưới đây, hãy bấm nút kích nổ <b>"Duyệt Cấp Quyền"</b> để hệ thống tự động mở khóa phòng thi và bắn Email thông báo cho học sinh vào thi ngay lập tức.
+                </p>
+                
+                <div style="width: 100%; overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; background: #fff; font-size: 14px; text-align: center; border: 1px solid #dee2e6; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <thead>
+                            <tr style="background: #2f3542; color: white;">
+                                <th style="padding: 14px; border: 1px solid #dee2e6;">Thời gian nộp</th>
+                                <th style="padding: 14px; border: 1px solid #dee2e6;">Mã đề thi</th>
+                                <th style="padding: 14px; border: 1px solid #dee2e6;">Email học sinh</th>
+                                <th style="padding: 14px; border: 1px solid #dee2e6;">Mã giao dịch ngân hàng</th>
+                                <th style="padding: 14px; border: 1px solid #dee2e6;">Hành động chốt hạ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblPendingRequests">
+                            <tr>
+                                <td colspan="5" style="padding: 25px; color: #747d8c; font-style: italic;">🔄 Hệ thống đang kích nổ ra-đa cào quét dữ liệu user_access.json cục bộ...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🪐 BỘ NÃO JAVASCRIPT THUẦN ĐIỀU KHIỂN ĐỘC LẬP TỐC ĐỘ 0 MILIGIÂY -->
+    <script>
+        function loadPendingRequests() {
+            fetch('/api/get_pending_requests')
+            .then(res => res.json())
+            .then(resData => {
+                const tbody = document.getElementById('tblPendingRequests');
+                if (!tbody) return;
+
+                if (resData.status === "success" && resData.data && resData.data.length > 0) {
+                    let htmlRows = "";
+                    resData.data.forEach(item => {
+                        htmlRows += `
+                            <tr id="req-row-${item.id}" style="border-bottom: 1px solid #dee2e6; transition: background 0.2s;">
+                                <td style="padding: 14px; border: 1px solid #dee2e6; color: #747d8c; font-weight: bold;">${item.thoi_gian}</td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6;"><span style="background: #ff6b81; color: white; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">Đề số ${item.de_so}</span></td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6; font-weight: bold; color: #2f3542;">${item.email}</td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6; font-weight: bold; color: #ff4757; letter-spacing: 1px; font-size: 15px;">${item.ma_giao_dich}</td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6;">
+                                    <button type="button" style="background: #2ed573; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(46,213,115,0.2); font-size: 13px;" onclick="approveStudentAccess('${item.id}', '${item.email}', '${item.de_so}')">✅ Duyệt Cấp Quyền</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = htmlRows;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="padding: 30px; color: #a4b0be; font-style: italic; font-size: 15px;">🍃 Hiện tại không có yêu cầu chuyển khoản nào đang chờ duyệt. Kho dữ liệu tài chính phẳng sạch tinh khiết!</td></tr>`;
+                }
+            })
+            .catch(err => console.error("Lỗi nạp danh sách: " + err));
+        }
+
+        // Khai hỏa nạp tươi dữ liệu ngay khi mở trang
+        loadPendingRequests();
+
+        function approveStudentAccess(reqId, studentEmail, deSo) {
+            if (!confirm(`Bạn có chắc chắn muốn phê duyệt cấp quyền vào Đề số ${deSo} cho học sinh [${studentEmail}] không?`)) {
+                return;
+            }
+
+            fetch('/api/approve_access', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: reqId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    const row = document.getElementById(`req-row-${reqId}`);
+                    if (row) row.remove();
+                    loadPendingRequests();
+                }
+            })
+            .catch(err => alert("Lỗi phê duyệt hệ thống: " + err));
+        }
+    </script>
+</body>
+</html>
+

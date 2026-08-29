@@ -9,7 +9,7 @@
             showProcessingMessages: false, messageStyle: "none"
         });
     </script>
-    <script type="text/javascript" async src="https://cloudflare.com"></script>
+<!--    <script type="text/javascript" async src="https://cloudflare.com"></script> -->
     <style>
         :root { --primary-color: #1a365d; --accent-color: #2b6cb0; --text-color: #2d3748; --bg-color: #f7fafc; }
         body { font-family: "Times New Roman", serif; font-size: 19px; line-height: 1.6; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
@@ -417,15 +417,23 @@ input.input-wrong {
 </head>
 <body>
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
-    {% set VERSION = "3.5.5" %}      <!-- Xuất file pdf và gửi email-->
-    {% set BUILD_TIME = "17/08/2026 19:30" %}
+    {% set VERSION = "3.5.6" %}      <!-- Xuất file pdf và gửi email-->
+    {% set BUILD_TIME = "23/08/2026 19:30" %}
      <!-- 🎯END CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     <div class="navbar">
-        <div class="brand">
-    <span>VIETDRAGON LEARNING CENTER</span> 
-    <span class="version-badge">v{{ VERSION }}</span>
-    <span class="timestamp-badge">📅 Built: {{ BUILD_TIME }}</span>
+        <!-- 🐉 HỆ THỐNG: NHÃN HIỆU THƯƠNG HIỆU CHÍNH THỨC CỦA TRANG WEB -->
+        <div class="brand" style="line-height: 1.4; padding: 6px 0;">
+            <div style="display: inline-block; vertical-align: middle;">
+                <span style="font-weight: 800; font-size: 18px; letter-spacing: 0.8px; color: #ffffff;">🐉 VIETDRAGON IDB</span>
+                <br>
+                <span style="font-size: 13px; font-weight: 600; color: #e2e8f0; letter-spacing: 0.3px;">
+                    NGÂN HÀNG DỮ LIỆU ĐỀ THI THÔNG MINH | Intelligent Data Bank
+                </span>
+            </div>
+            <span class="version-badge" style="vertical-align: middle; margin-left: 15px; font-weight: bold;">v{{ VERSION }}</span>
+            <span class="timestamp-badge" style="vertical-align: middle; font-weight: bold;">📅 Built: {{ BUILD_TIME }}</span>
         </div>
+        <!-- 🐉 END NHÃN HIỆU THƯƠNG HIỆU -->
         <div class="timer-badge" id="timer">Thời gian: 50:00</div>
     </div>
     <div class="container">
@@ -569,6 +577,15 @@ input.input-wrong {
          <!--End Hộp thoại thông báo hết giờ ẩn sẵn -->  
         <div class="result-box" id="resultBox"></div>
     </div>
+    <!-- 🐉 HỆ THỐNG: CHÂN TRANG BẢN QUYỀN TRƯỜNG TỒN KHÔNG SỐ NĂM CỦA TRANG WEB -->
+    <footer style="text-align: center; padding: 30px 20px; margin-top: 50px; border-top: 1px solid #e2e8f0; color: #718096; font-size: 14px; font-family: 'Times New Roman', serif; line-height: 1.5;">
+        © <strong>VIETDRAGON INTELLIGENT DATA BANK (VIETDRAGON IDB)</strong>. All rights reserved.
+        <br>
+        <span style="font-size: 13px; color: #a0aec0; font-weight: 500;">
+            Hệ thống Khảo thí & Dữ liệu lớn Thông minh | Intelligent Assessment & Big Data System
+        </span>
+    </footer>
+    <!-- 🐉 END CHÂN TRANG BẢN QUYỀN -->    
     <input type="hidden" id="globalDeSo" value="{{ de_so }}">
     {% raw %}
     <script>
@@ -885,6 +902,69 @@ function coreMathInterpreter(text, isFinalPhase = false) {
         }
         window.addEventListener("DOMContentLoaded", processEntirePageMath);
 
+// 🛡️ LÁ CHẮN PHÒNG THI: CHẶN ĐỨNG HÀNH VI ẤN ENTER / SHIFT+ENTER GÂY NỘP BÀI OAN UỔNG Ở Ô ĐIỀN SỐ
+document.getElementById("quizForm")?.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Triệt hạ luồng gửi ngầm vật lý của trình duyệt lập tức
+        return false;
+    }
+//======================lưu câu rả lời học sinh khi load lại trang=============
+    // 🪐 BỘ NÃO KHÓA XÍCH VÀ PHỤC HỒI ĐÁP ÁN: TRÌ HOÃN THÔNG MINH THEO HIẾN KẾ CỦA BẠN
+    function getDynamicAnswersKey() {
+        let activeDeSo = document.getElementById("globalDeSo")?.value || (typeof currentDeSo !== "undefined" ? currentDeSo : "1");
+        return "student_answers_de_" + activeDeSo;
+    }
+
+    function saveCurrentAnswersToStorage() {
+        let answers = {};
+        // 1. Cào quét tất cả các nút trắc nghiệm đang được tích chọn (Phần I và Phần II)
+        document.querySelectorAll('#quizForm input').forEach(input => {
+            if (input.checked) {
+                let key = input.id || input.name;
+                if (key) answers[key] = input.value;
+            }
+        });
+        // 2. Cào quét tất cả các ô chữ viết tay điền số thô (Phần III)
+        document.querySelectorAll('#quizForm input, #quizForm textarea').forEach(input => {
+            let typeUpper = input.type ? input.type.toUpperCase() : "";
+            if ((typeUpper === "TEXT" || input.tagName === "TEXTAREA") && input.value.trim()) {
+                let key = input.id || input.name;
+                if (key) answers[key] = input.value;
+            }
+        });
+        localStorage.setItem(getDynamicAnswersKey(), JSON.stringify(answers));
+    }
+
+    // 🪐 LẮNG NGHE TOÀN CỤC: Bất kể câu hỏi vẽ ra lúc nào, học sinh chạm tay gõ số hay tích chọn là lưu ngầm ngay
+    window.addEventListener("input", (e) => { e.target.closest("#quizForm") && saveCurrentAnswersToStorage(); });
+    window.addEventListener("change", (e) => { e.target.closest("#quizForm") && saveCurrentAnswersToStorage(); });
+    window.addEventListener("click", (e) => { e.target.closest("#quizForm") && saveCurrentAnswersToStorage(); });
+
+    function restoreAnswersFromStorage() {
+        let savedAnswers = localStorage.getItem(getDynamicAnswersKey());
+        if (!savedAnswers) return;
+
+        try {
+            let answers = JSON.parse(savedAnswers);
+            Object.keys(answers).forEach(key => {
+                let val = answers[key];
+                
+                // Phun ngược đáp án vào nút Radio Phần I và Phần II dựa theo Id hoặc Name
+                let radio = document.getElementById(key) || document.querySelector(`#quizForm input[name="${key}"][value="${val}"]`);
+                if (radio) radio.checked = true;
+                
+                // Phun ngược đáp án vào ô điền số Phần III
+                let textInput = document.getElementById(key) || document.querySelector(`#quizForm input[name="${key}"]`);
+                if (textInput) textInput.value = val;
+            });
+        } catch(e) { console.error("Lỗi hồi sinh đáp án:", e); }
+    }
+
+    // 🔥 CHIẾN LƯỢC TỐI CAO ĐIỀU CHỈNH THỜI GIAN: Chờ chằn chặn 1500ms để đề thi vẽ xong hoàn toàn mới điền đáp án!
+    setTimeout(restoreAnswersFromStorage, 1500);
+});
+//=================End=====lưu câu rả lời học sinh khi load lại trang=============
+
 document.getElementById("quizForm").onsubmit = function (e) {
     e.preventDefault();
     
@@ -1093,16 +1173,67 @@ p3Blocks.forEach(b => {
                     `;
                     resultBox.scrollIntoView({ behavior: 'smooth' });
 
+                    // 🐉 HỆ THỐNG: HOẠT HỌA BAY LÁ THƯ & KHÓA MÀN HÌNH TỰ ĐỘNG KHI GỬI EMAIL
                     // === VỊ TRÍ 2: THÊM JAVASCRIPT XỬ LÝ TƯƠNG TÁC TẠI ĐÂY ===
                     const btnMoForm = document.getElementById("btnMoFormEmail");
                     const formEmail = document.getElementById("formGuiEmail");
                     const btnXacNhan = document.getElementById("btnXacNhanGuiEmail");
                     const msgStatus = document.getElementById("msgEmailStatus");
 
+                    const styleAnim = document.createElement('style');
+                    styleAnim.innerHTML = `
+                        .email-overlay {
+                            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                            background: rgba(15, 23, 42, 0.85); z-index: 999999;
+                            display: flex; flex-direction: column; justify-content: center; align-items: center;
+                            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+                        }
+                        .email-overlay.active { opacity: 1; pointer-events: auto; }
+                        .animation-box { position: relative; width: 240px; height: 120px; display: flex; justify-content: center; align-items: center; }
+                        .paper-plane {
+                            font-size: 45px; position: absolute; left: 10px; top: 35px;
+                            animation: flyLetter 1.8s infinite linear; filter: drop-shadow(0 0 12px #3182ce);
+                        }
+                        .mailbox-target { font-size: 55px; position: absolute; right: 10px; top: 25px; animation: bounceBox 2s infinite ease-in-out; }
+                        .success-checkmark {
+                            font-size: 80px; color: #48bb78; display: none;
+                            animation: popCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+                            filter: drop-shadow(0 0 20px #48bb78); z-index: 10;
+                        }
+                        @keyframes flyLetter {
+                            0% { left: 10px; transform: translateY(0) rotate(-10deg) scale(0.9); opacity: 0; }
+                            15% { opacity: 1; }
+                            85% { opacity: 1; }
+                            100% { left: 160px; transform: translateY(-25px) rotate(20deg) scale(1.1); opacity: 0; }
+                        }
+                        @keyframes bounceBox { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+                        @keyframes popCheck { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+                        .status-txt {
+                            color: #ffffff; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px;
+                            font-weight: 600; text-align: center; margin-top: 25px; letter-spacing: 0.6px; max-width: 80%; line-height: 1.5;
+                        }
+                        .pulse-text { animation: pulseTxt 1.5s infinite ease-in-out; }
+                        @keyframes pulseTxt { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+                    `;
+                    document.head.appendChild(styleAnim);
+
+                    const overlayDiv = document.createElement('div');
+                    overlayDiv.id = "emailSendingOverlay";
+                    overlayDiv.className = "email-overlay";
+                    overlayDiv.innerHTML = `
+                        <div class="animation-box">
+                            <div id="animPlane" class="paper-plane">✉️</div>
+                            <div id="animMailbox" class="mailbox-target">📬</div>
+                            <div id="animCheck" class="success-checkmark">✨✅✨</div>
+                        </div>
+                        <div id="overlayStatusTxt" class="status-txt pulse-text">Hệ thống đang gửi email cho bạn, xin vui lòng chờ trong giây lát...</div>
+                    `;
+                    document.body.appendChild(overlayDiv);
+
                     if (btnMoForm && formEmail) {
                         btnMoForm.addEventListener("click", function() {
-                            formEmail.style.display = "block"; // Hiện form nhập liệu
-                            btnMoForm.style.display = "none";  // Ẩn nút mở ban đầu
+                            formEmail.style.display = "block";
+                            btnMoForm.style.display = "none";
                         });
                     }
 
@@ -1111,17 +1242,41 @@ p3Blocks.forEach(b => {
                             const studentName = document.getElementById("emailStudentName").value.trim();
                             const studentEmail = document.getElementById("emailStudentAddress").value.trim();
 
+                            // 🎯 MÀNG LỌC THÔNG MINH: CHẶN ĐỨNG EMAIL SAI ĐỊNH DẠNG NGAY TẠI CỬA NGÕ FIELD
                             if (!studentName || !studentEmail) {
                                 msgStatus.style.color = "#e53e3e";
-                                msgStatus.textContent = "❌ Vui lòng điền đầy đủ Tên và Email!";
+                                msgStatus.textContent = "❌ Vui lòng điền đầy đủ Họ tên và Địa chỉ Email!";
                                 return;
                             }
+
+                            // Cỗ máy Regex quét dải ký tự chống gõ thiếu @gmail.com, gõ sai @gma...
+                            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                            if (!emailRegex.test(studentEmail)) {
+                                msgStatus.style.color = "#e53e3e";
+                                msgStatus.textContent = "❌ Định dạng Email không hợp lệ (Ví dụ thiếu '.com' hoặc '.vn')! Vui lòng sửa lại.";
+                                document.getElementById("emailStudentAddress").focus(); // Tự động đưa con trỏ chuột vào ô lỗi
+                                return; // Chặn đứng luồng gửi, TUYỆT ĐỐI KHÔNG KHÓA FORM
+                            }
+
+                            const overlay = document.getElementById("emailSendingOverlay");
+                            const animPlane = document.getElementById("animPlane");
+                            const animMailbox = document.getElementById("animMailbox");
+                            const animCheck = document.getElementById("animCheck");
+                            const statusTxt = document.getElementById("overlayStatusTxt");
+
+                            overlay.classList.add("active");
+                            animPlane.style.display = "block";
+                            animMailbox.style.display = "block";
+                            animCheck.style.display = "none";
+                            statusTxt.className = "status-txt pulse-text";
+                            statusTxt.textContent = "Hệ thống đang gửi email cho bạn, xin vui lòng chờ trong giây lát...";
 
                             msgStatus.style.color = "#3182ce";
                             msgStatus.textContent = "⏳ Đang kết nối máy chủ gửi Email...";
                             btnXacNhan.disabled = true;
+                    // 🐉 END HOẠT HỌA BAY LÁ THƯ
 
-                            // Gọi API chuyển dữ liệu sang Python backend xử lý SMTP gửi thư thực tế
+     // Gọi API chuyển dữ liệu sang Python backend xử lý SMTP gửi thư thực tế
      //-----------------Nội dung đề thi gửi email----------------------                       
         // 1. Tự động trích xuất mảng câu hỏi chi tiết từ sMap và dữ liệu làm bài batchAnswers
 const formattedQuestions = resData.details.map((item) => {
@@ -1183,7 +1338,10 @@ const formattedQuestions = resData.details.map((item) => {
     };
 });
 
-        // 2. Tiến hành gọi API gửi Email kết quả đầy đủ nội dung bài làm
+        // 🛡️ PHƯƠNG ÁN DỰ PHÒNG: THIẾT LẬP BẪY THỜI GIAN VƯỢT NGƯỠNG CHỐNG TREO LUỒNG EMAIL (TIMEOUT 15S)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // Ép buộc hủy yêu cầu nếu mạng nghẽn quá 15 giây
+
         fetch("/api/send-result-email", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1195,26 +1353,95 @@ const formattedQuestions = resData.details.map((item) => {
                     score_p1: resData.score_p1,
                     score_p2: resData.score_p2,
                     score_p3: resData.score_p3,
-                    questions: formattedQuestions // Đưa mảng câu hỏi chi tiết vào trong object result
+                    questions: formattedQuestions // Đưa mảng câu hỏi chi tiết vào trong object kết quả sạch
                 }
-            })
+            }),
+            signal: controller.signal // Nẹp cờ hiệu bẻ gãy dòng chạy vật lý khi quá giờ
         })
         .then(response => response.json())
         .then(mailRes => {
+            clearTimeout(timeoutId); // Gỡ bỏ quả bom hẹn giờ ngay khi máy chủ phản hồi kịp lúc
+            
             if (mailRes.success) {
                 msgStatus.style.color = "#38a169";
-                msgStatus.textContent = "✅ Đã gửi email thành công! Hãy kiểm tra hộp thư.";
+                msgStatus.textContent = "   Đã gửi email thành công! Hãy kiểm tra hộp thư.";
+
+                // 🧹 DỌN SẠCH KHO PHÒNG THI: Trảm sạch bộ đệm giờ và đáp án dở của đề này khi đã nộp bài thành công
+                localStorage.removeItem("exam_time_left_de_" + currentDeSo);
+                localStorage.removeItem("student_answers_de_" + currentDeSo);
+                
+                // ⚖️ HỆ THỐNG: KÍCH HOẠT DẤU TÍCH XANH BÙNG NỔ VÀ TỰ ĐỘNG NHẢ KHÓA MÀN HÌNH CHỐT HẠ
+                document.getElementById("animPlane").style.display = "none";
+                document.getElementById("animMailbox").style.display = "none";
+                document.getElementById("animCheck").style.display = "block";
+                document.getElementById("overlayStatusTxt").className = "status-txt";
+                document.getElementById("overlayStatusTxt").innerHTML = "<span style='color:#48bb78;'>🎉 GỬI EMAIL THÀNH CÔNG!</span>";
+
+                // Tự động tắt lớp phủ khóa màn hình sau 2.5 giây để học sinh xem lại bài làm
+                setTimeout(() => {
+                    document.getElementById("emailSendingOverlay").classList.remove("active");
+                }, 2500);
+
+                // 🔒 HỆ THỐNG: KHÓA CỨNG Ô NHẬP LIỆU & ĐỔI NÚT XÁC NHẬN THÀNH MÀU XÁM TRƯỜNG TỒN
+                document.getElementById("emailStudentName").disabled = true;
+                document.getElementById("emailStudentAddress").disabled = true;
+                
+                btnXacNhan.disabled = true;
+                btnXacNhan.textContent = "✓ Email đã được gửi thành công";
+                btnXacNhan.style.background = "#718096";
+                btnXacNhan.style.borderColor = "#718096";
+                btnXacNhan.style.cursor = "not-allowed";
+
+                // 🪐 ĐÚC ĐỘNG CẶP ĐÔI NÚT ĐIỀU HƯỚNG MỚI ĐỨNG SONG HÀNH DƯỚI NÚT XÁM CŨ
+                // 1. Dựng chiếc nút "🚀 LÀM TIẾP ĐỀ THI (ĐỀ SỐ 2)" màu cam cháy rực rỡ
+                let btnTiepTuc = document.getElementById("btnLamTiepDe2");
+                if (!btnTiepTuc) {
+                    btnTiepTuc = document.createElement("button");
+                    btnTiepTuc.id = "btnLamTiepDe2";
+                    btnTiepTuc.type = "button";
+                    btnTiepTuc.style.cssText = "width: 100%; margin-top: 12px; background: linear-gradient(135deg, #dd6b20, #ed8936); color: white; font-weight: bold; padding: 12px; border-radius: 6px; border: 1px solid #dd6b20; cursor: pointer; transition: all 0.3s; font-family: 'Segoe UI', sans-serif; font-size: 14px; letter-spacing: 0.5px;";
+                    btnTiepTuc.innerHTML = "🚀 LÀM TIẾP ĐỀ THI (ĐỀ SỐ 2)";
+                    btnXacNhan.parentNode.appendChild(btnTiepTuc);
+                }
+                btnTiepTuc.onclick = function() {
+                    window.location.href = "/thi?de_so=2"; // Chuyển trục mượt mà sang cấu trúc dynamic parameter của kho đề
+                };
+                
+                // 2. Dựng chiếc nút "🏠 QUAY VỀ TRANG CHỦ" màu xanh Navy thương hiệu
+                let btnTrangChu = document.getElementById("btnQuayVeTrangChu");
+                if (!btnTrangChu) {
+                    btnTrangChu = document.createElement("button");
+                    btnTrangChu.id = "btnQuayVeTrangChu";
+                    btnTrangChu.type = "button";
+                    btnTrangChu.style.cssText = "width: 100%; margin-top: 10px; background: #1a365d; color: white; font-weight: bold; padding: 12px; border-radius: 6px; border: 1px solid #1a365d; cursor: pointer; transition: all 0.3s; font-family: 'Segoe UI', sans-serif; font-size: 14px; letter-spacing: 0.5px;";
+                    btnTrangChu.innerHTML = "🏠 QUAY VỀ TRANG CHỦ";
+                    btnXacNhan.parentNode.appendChild(btnTrangChu);
+                }
+                btnTrangChu.onclick = function() {
+                    window.location.href = "/"; // Quay về trang chủ
+                };
+
+                // ✨ ÉP MATHJAX BÓP CÒ SÚNG QUÉT LẠI ĐỂ KHÔNG BỊ LỖI CHỮ THÔ LA-TEX
+                if (window.MathJax && window.MathJax.typeset) { window.MathJax.typeset(); }
             } else {
+                // Kịch bản khi Server báo lỗi dữ liệu
+                document.getElementById("emailSendingOverlay").classList.remove("active"); // Tắt màn hình tối ngay
                 msgStatus.style.color = "#e53e3e";
-                msgStatus.textContent = "❌ Thất bại: " + mailRes.message;
-                btnXacNhan.disabled = false;
+                msgStatus.textContent = "❌ Gửi thư thất bại: " + mailRes.message;
+                btnXacNhan.disabled = false; // Nhả nút mở đường cho học sinh gửi lại cứu vãn tình thế
             }
         })
         .catch(err => {
-            console.error("Lỗi gửi mail:", err);
+            clearTimeout(timeoutId);
+            document.getElementById("emailSendingOverlay").classList.remove("active"); // Gỡ bỏ mờ tối khi sập mạng
             msgStatus.style.color = "#e53e3e";
-            msgStatus.textContent = "❌ Lỗi hệ thống đường truyền, thử lại sau!";
-            btnXacNhan.disabled = false;
+            
+            if (err.name === 'AbortError') {
+                msgStatus.textContent = "❌ Lỗi: Thời gian gửi quá lâu (Quá 15 giây)! Server nghẽn, vui lòng bấm GỬI LẠI.";
+            } else {
+                msgStatus.textContent = "❌ Lỗi kết nối mạng: Không thể kết nối Backend! Vui lòng thử tiến hành GỬI LẠI.";
+            }
+            btnXacNhan.disabled = false; // Khôi phục nút bấm mở đường gửi lại chuẩn chóc
         });
      //------------Rnd-----Nội dung đề thi gửi email----------------------                       
                         });
@@ -1225,26 +1452,37 @@ const formattedQuestions = resData.details.map((item) => {
         };
             //---End--Hộp kết quả và nút bấm gửi Email
    //  -----Hết giờ tự động nộp bài thi và hiển thị kết quả  
-    let duration = 15; // Giữ 15 giây để test hiệu ứng, sau này sửa thành 50 * 60
+    // 🪐 BIẾN TOÀN CỤC: Nhặt tươi số đề động từ Backend Python truyền sang qua URL (?de_so=)
+    const currentDeSo = new URLSearchParams(window.location.search).get("de_so") || "1";
+
+    // 🪐 KHU VỰC THỬ NGHIỆM TỐI CAO CỦA BẠN (SỬA 15 GIÂY HOẶC 50 PHÚT TẠI ĐÂY)
+    let IS_TESTING = false; // Đổi thành true để ép về 15s test, đổi thành false để chạy 50 phút thực tế
+    let totalExamTime = IS_TESTING ? 15 : 50 * 60; 
+    let savedTime = localStorage.getItem("exam_time_left_de_" + currentDeSo);
+    duration = (savedTime !== null && !IS_TESTING) ? parseInt(savedTime) : totalExamTime;
     const timer = document.getElementById("timer");
-    
+
     window.timerInterval = setInterval(() => {
-        let m = Math.floor(duration / 60), s = duration % 60; 
-        timer.textContent = "Thời gian: " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; 
-        
-        // Hiệu ứng cảnh báo nhấp nháy đỏ khi dưới 10 giây
-        if (duration <= 10) { 
-            timer.style.color = "red"; 
+        let m = Math.floor(duration / 60), s = duration % 60;
+        timer.textContent = "Thời gian: " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+
+        // 🔥 NẸP CHẶT THỜI GIAN: Ghi lưu số giây liên tục vào ổ cứng trình duyệt theo từng đề thi độc lập
+        localStorage.setItem("exam_time_left_de_" + currentDeSo, duration);
+        duration--;
+
+        // // Hiệu ứng cảnh báo nhấp nháy đỏ khi dưới 10 giây
+        if (duration <= 10) {
+            timer.style.color = "red";
             timer.style.fontWeight = "bold";
             timer.style.visibility = (timer.style.visibility === "hidden") ? "visible" : "hidden";
         } else {
-            timer.style.color = ""; 
+            timer.style.color = "";
             timer.style.visibility = "visible";
         }
 
-        // --- KHI HẾT GIỜ: GIẢ LẬP HÀNH VI BẤM NÚT NỘP BÀI ---
-        // --- KHI HẾT GIỜ: KÍCH HOẠT HỘP THOẠI TỰ CHẾ HIỆN ĐẠI ---
-        if (--duration < 0) { 
+        // // --- KHI HẾT GIỜ: GIẢ LẬP HÀNH VI VÌ BẤM NÚT NỘP BÀI ---
+        // // --- KHI HẾT GIỜ: KÍCH HOẠT HỘP THOẠI TỰ CHẾ HIỆN ĐẠI ---
+        if (duration < 0) {
             clearInterval(window.timerInterval);// Dừng đồng hồ
             timer.style.visibility = "visible"; 
             timer.textContent = "HẾT GIỜ!";

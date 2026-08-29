@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIETDRAGON IDB - QUẢN LÝ ĐỀ THI BẤT TỬ</title>
+    <!-- 🪐 GIẢI PHÓNG ĐƯỜNG TRUYỀN: Trảm sạch bong link CDN Bootstrap và bộ dịch MathJax chạy ngầm gây nghẽn mạng -->
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; margin: 0; color: #2f3542; }
+        .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .text-center { text-align: center; }
+        .text-primary { color: #1e90ff; }
+        .text-danger { color: #ff4757; }
+        .text-warning { color: #ffa500; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mt-5 { margin-top: 3rem; }
+        .row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
+        .col-md-3 { flex: 0 0 25%; max-width: 25%; padding: 0 15px; box-sizing: border-box; }
+        .col-md-12 { flex: 0 0 100%; max-width: 100%; padding: 0 15px; box-sizing: border-box; }
+        .form-label { display: inline-block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-control, .form-select { display: block; width: 100%; padding: 0.375rem 0.75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; border: 1px solid #ced4da; border-radius: 0.25rem; box-sizing: border-box; }
+        .fw-bold { font-weight: 700; }
+        .border-danger { border-color: #ff4757; }
+        .bg-light { background-color: #f8f9fa!important; padding: 15px; border-radius: 4px; }
+        .section-header { border-left: 5px solid #ff4757; padding-left: 10px; margin: 30px 0 15px 0; font-weight: bold; font-size: 1.2rem; }
+        .q-box { border-left: 3px solid #70a1ff; background: #fff; margin-bottom: 20px; padding: 20px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; border-radius: 0.25rem; transition: color .15s ease-in-out; text-decoration: none; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: .875rem; border-radius: 0.2rem; }
+        .btn-lg { padding: 0.5rem 1rem; font-size: 1.25rem; border-radius: 0.3rem; }
+        .btn-outline-primary { color: #007bff; border-color: #007bff; background: none; }
+        .btn-outline-success { color: #28a745; border-color: #28a745; background: none; }
+        .btn-outline-warning { color: #ffc107; border-color: #ffc107; background: none; }
+        .btn-danger { color: #fff; background-color: #dc3545; border-color: #dc3545; }
+        .shadow { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+        .w-100 { width: 100%!important; }
+        .mt-1 { margin-top: .25rem!important; }
+        .mt-2 { margin-top: .5rem!important; }
+        .mb-1 { margin-bottom: .25rem!important; }
+        .mb-3 { margin-bottom: 1rem!important; }
+        .text-end { text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="container bg-white p-4 rounded card">
+        <h2 class="text-center text-primary mb-4">🪐 VIETDRAGON IDB - MA TRẬN SOẠN THẢO ĐỀ THI</h2>
+        
+        <!-- THÔNG TIN CHUNG CỦA ĐỀ -->
+        <div class="row g-3 bg-light p-3 rounded mb-4">
+            <div class="col-md-3">
+                <label class="form-label fw-bold text-danger">Chọn nhanh Mã đề số (de_so)</label>
+                <!-- 🔥 KHAI HỎA GỐC ĐỊA CHỈ IP: Ép trình duyệt buộc phải nạp trang tươi mới sầm sập theo đúng cổng Host 127.0.0.1:8080 -->
+                <select id="txtDeSo" class="form-select fw-bold border-danger" onchange="window.location.href='http://127.0.0.1:8080/admin?de_so=' + this.value">
+                    {% for i in range(1, 12) %}
+                    <option value="{{ i }}">Đề số {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Khối lớp (khoi_lop)</label>
+                <input type="text" id="txtKhoiLop" class="form-control" value="12">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Loại đề (loai_de)</label>
+                <input type="text" id="txtLoaiDe" class="form-control" value="Thi Đại Học">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Năm học (nam_hoc)</label>
+                <input type="text" id="txtNamHoc" class="form-control" value="2026">
+            </div>
+        </div>
+
+        <!-- PHẦN I: TRẮC NGHIỆM 4 LỰA CHỌN -->
+        <div class="section-header">PHẦN I: TRẮC NGHIỆM 4 LỰA CHỌN</div>
+        <div id="areaPhan1">
+            {% for q in questions if q.cac_lua_chon != "Đúng, Sai" and q.cac_lua_chon != "Điền số" %}
+            <div class="q-box row g-3 card p-3 shadow-sm" data-q-type="Phan1">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-primary">Mã số ID câu hỏi</label>
+                    <input type="text" class="form-control txtQId" style="width: 150px;" value="{{ q.id }}">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Nội dung câu hỏi</label>
+                    <textarea class="form-control txtQNoiDung" style="width: 100%; height: 280px; display: block;">{{ q.noi_dung }}</textarea>
+                </div>
+                {% set options = q.cac_lua_chon.split(',') %}
+                <!-- 🔥 XẾP DỌC 100% CHIỀU NGANG: Thay chữ Mục bằng Đáp án, ép mỗi phương án chiếm trọn 1 dòng col-md-12 -->
+                <div class="col-md-12 row g-2 mt-2" style="margin-left: 0; margin-right: 0;">
+                    <div class="col-md-12 mb-2">
+                        <label class="form-label fw-bold text-muted">Đáp án A</label>
+                        <input type="text" class="form-control txtA w-100 mb-1" value="{{ options[0]|replace('A. ','') if options|length > 0 else '' }}">
+                        <input type="radio" name="correct_{{ q.id }}" value="A" {% if q.dap_an_dung == 'A' %}checked{% endif %}> Chọn A đúng
+                    </div>
+                    <div class="col-md-12 mb-2">
+                        <label class="form-label fw-bold text-muted">Đáp án B</label>
+                        <input type="text" class="form-control txtB w-100 mb-1" value="{{ options[1]|replace('B. ','') if options|length > 1 else '' }}">
+                        <input type="radio" name="correct_{{ q.id }}" value="B" {% if q.dap_an_dung == 'B' %}checked{% endif %}> Chọn B đúng
+                    </div>
+                    <div class="col-md-12 mb-2">
+                        <label class="form-label fw-bold text-muted">Đáp án C</label>
+                        <input type="text" class="form-control txtC w-100 mb-1" value="{{ options[2]|replace('C. ','') if options|length > 2 else '' }}">
+                        <input type="radio" name="correct_{{ q.id }}" value="C" {% if q.dap_an_dung == 'C' %}checked{% endif %}> Chọn C đúng
+                    </div>
+                    <div class="col-md-12 mb-2">
+                        <label class="form-label fw-bold text-muted">Đáp án D</label>
+                        <input type="text" class="form-control txtD w-100 mb-1" value="{{ options[3]|replace('D. ','') if options|length > 3 else '' }}">
+                        <input type="radio" name="correct_{{ q.id }}" value="D" {% if q.dap_an_dung == 'D' %}checked{% endif %}> Chọn D đúng
+                    </div>
+                </div>
+                <div class="col-md-12 mt-2">
+                    <label class="form-label text-muted fw-bold">Giải chi tiết câu hỏi</label>
+                    <textarea class="form-control txtQGiaiChiTiet" style="width: 100%; height: 280px; display: block;">{{ q.giai_chi_tiet }}</textarea>
+                </div>
+                <div class="col-md-12 text-end"><button class="btn btn-xs btn-danger shadow-sm" onclick="this.parentElement.parentElement.remove()">Xóa câu này</button></div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="btn btn-sm btn-outline-primary mb-3" onclick="addQuestionBox('Phan1')">+ Thêm Câu Hỏi Phần I</button>
+
+        <!-- PHẦN II: TRẮC NGHIỆM ĐÚNG / SAI -->
+        <div class="section-header">PHẦN II: TRẮC NGHIỆM ĐÚNG / SAI</div>
+        <div id="areaPhan2">
+            {% for q in questions if q.cac_lua_chon == "Đúng, Sai" %}
+            <div class="q-box row g-3 card p-3 shadow-sm" data-q-type="Đúng, Sai">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-primary">Mã số ID câu hỏi</label>
+                    <input type="text" class="form-control txtQId" style="width: 150px;" value="{{ q.id }}">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Nội dung câu hỏi</label>
+                    <textarea class="form-control txtQNoiDung" style="width: 100%; height: 280px; display: block;">{{ q.noi_dung }}</textarea>
+                </div>
+                {% set ansParts = q.dap_an_dung.split(',') %}
+                <div class="col-md-12 bg-light p-3 rounded mt-2 row g-3">
+                    <div class="col-md-3"><strong>Ý a:</strong><select class="form-select form-select-sm w-100 mt-1 selA"><option value="Đ" {% if ansParts[0]|trim == 'Đ' %}selected{% endif %}>Đúng</option><option value="S" {% if ansParts[0]|trim == 'S' %}selected{% endif %}>Sai</option></select></div>
+                    <div class="col-md-3"><strong>Ý b:</strong><select class="form-select form-select-sm w-100 mt-1 selB"><option value="Đ" {% if ansParts[1]|trim == 'Đ' %}selected{% endif %}>Đúng</option><option value="S" {% if ansParts[1]|trim == 'S' %}selected{% endif %}>Sai</option></select></div>
+                    <div class="col-md-3"><strong>Ý g:</strong><select class="form-select form-select-sm w-100 mt-1 selC"><option value="Đ" {% if ansParts[2]|trim == 'Đ' %}selected{% endif %}>Đúng</option><option value="S" {% if ansParts[2]|trim == 'S' %}selected{% endif %}>Sai</option></select></div>
+                    <div class="col-md-3"><strong>Ý d:</strong><select class="form-select form-select-sm w-100 mt-1 selD"><option value="Đ" {% if ansParts[3]|trim == 'Đ' %}selected{% endif %}>Đúng</option><option value="S" {% if ansParts[3]|trim == 'S' %}selected{% endif %}>Sai</option></select></div>
+                </div>
+                <div class="col-md-12 mt-2">
+                    <label class="form-label text-muted fw-bold">Giải chi tiết câu hỏi</label>
+                    <textarea class="form-control txtQGiaiChiTiet" style="width: 100%; height: 280px; display: block;">{{ q.giai_chi_tiet }}</textarea>
+                </div>
+                <div class="col-md-12 text-end"><button class="btn btn-xs btn-danger shadow-sm" onclick="this.parentElement.parentElement.remove()">Xóa câu này</button></div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="btn btn-sm btn-outline-success mb-3" onclick="addQuestionBox('Đúng, Sai')">+ Thêm Câu Hỏi Phần II</button>
+
+        <!-- PHẦN III: TRẮC NGHIỆM ĐIỀN SỐ -->
+        <div class="section-header">PHẦN III: TRẮC NGHIỆM ĐIỀN SỐ</div>
+        <div id="areaPhan3">
+            {% for q in questions if q.cac_lua_chon == "Điền số" %}
+            <div class="q-box row g-3 card p-3 shadow-sm" data-q-type="Điền số">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-primary">Mã số ID câu hỏi</label>
+                    <input type="text" class="form-control txtQId" style="width: 150px;" value="{{ q.id }}">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Nội dung câu hỏi</label>
+                    <textarea class="form-control txtQNoiDung" style="width: 100%; height: 280px; display: block;">{{ q.noi_dung }}</textarea>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <label class="form-label fw-bold text-warning">Giá trị con số đáp án Phần III</label>
+                    <input type="text" class="form-control txtP3Ans w-100" value="{{ q.dap_an_dung }}">
+                </div>
+                <div class="col-md-12 mt-2">
+                    <label class="form-label text-muted fw-bold">Giải chi tiết câu hỏi</label>
+                    <textarea class="form-control txtQGiaiChiTiet" style="width: 100%; height: 140px; display: block;">{{ q.giai_chi_tiet }}</textarea>
+                </div>
+                <div class="col-md-12 text-end"><button class="btn btn-xs btn-danger shadow-sm" onclick="this.parentElement.parentElement.remove()">Xóa câu này</button></div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="btn btn-sm btn-outline-warning mb-3" onclick="addQuestionBox('Điền số')">+ Thêm Câu Hỏi Phần III</button>
+
+        <!-- NÚT CHỐT HẠ GHI FILE BACKEND -->
+        <!-- NÚT ĐIỀU KHIỂN CHỐT HẠ SONG HÀNH - GIỮ NGUYÊN VẸN GIAO DIỆN CHUNG VÀ CÁC BIẾN CŨ -->
+        <div class="text-center mt-5" style="display: flex; justify-content: center; gap: 20px; margin-top: 3rem;">
+            <button type="button" class="btn btn-lg btn-outline-primary px-4 shadow fw-bold" onclick="autoAssignNewIds()">🔄 TỰ ĐỘNG ĐÁNH SỐ ID CÂU MỚI (CHỐT CHẶN CHỐNG TRÙNG)</button>
+            <button type="button" class="btn btn-lg btn-danger px-5 shadow fw-bold" onclick="submitExamToServer()">🚀 KHÓA CHỐT LƯU ĐỀ THI VÀO DATABASE.JSON</button>
+        </div>
+    </div>
+    <script>
+        let qCounter = 1;
+
+        function addQuestionBox(type) {
+            const container = type === 'Phan1' ? document.getElementById('areaPhan1') : 
+                              type === 'Đúng, Sai' ? document.getElementById('areaPhan2') : document.getElementById('areaPhan3');
+            
+            const div = document.createElement('div');
+            div.className = 'q-box row g-3 card p-3 shadow-sm';
+            div.setAttribute('data-q-type', type);
+            
+            let htmlContent = `
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-primary">Mã số ID câu hỏi</label>
+                    <input type="text" class="form-control txtQId" style="width: 150px;" value="${qCounter++}">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Nội dung câu hỏi (Chấp nhận mã toán học \\frac, \\lambda...)</label>
+                    <textarea class="form-control txtQNoiDung" style="width: 100%; height: 140px; display: block;" placeholder="Nhập nội dung..."></textarea>
+                </div>
+            `;
+
+            if (type === 'Phan1') {
+                htmlContent += `
+                    <div class="col-md-12 row g-3 mt-2">
+                        <div class="col-md-3"><label class="form-label fw-bold text-muted">Mục A</label><input type="text" class="form-control txtA w-100 mb-1" placeholder="Đáp án A"><input type="radio" name="correct_${qCounter}" value="A" checked> A đúng</div>
+                        <div class="col-md-3"><label class="form-label fw-bold text-muted">Mục B</label><input type="text" class="form-control txtB w-100 mb-1" placeholder="Đáp án B"><input type="radio" name="correct_${qCounter}" value="B"> B đúng</div>
+                        <div class="col-md-3"><label class="form-label fw-bold text-muted">Mục C</label><input type="text" class="form-control txtC w-100 mb-1" placeholder="Đáp án C"><input type="radio" name="correct_${qCounter}" value="C"> C đúng</div>
+                        <div class="col-md-3"><label class="form-label fw-bold text-muted">Mục D</label><input type="text" class="form-control txtD w-100 mb-1" placeholder="Đáp án D"><input type="radio" name="correct_${qCounter}" value="D"> D đúng</div>
+                    </div>
+                `;
+            } else if (type === 'Đúng, Sai') {
+                // 🔥 NỚI RỘNG CHIỀU NGANG: Loại bỏ style="width:120px" cũ, ép ô chọn phình to rộng rãi hết nấc bằng w-100 của Bootstrap!
+                htmlContent += `
+                    <div class="col-md-12 bg-light p-3 rounded mt-2 row g-3">
+                        <div class="col-md-3"><strong>Ý a:</strong><select class="form-select form-select-sm w-100 mt-1 selA"><option value="Đ">Đúng</option><option value="S">Sai</option></select></div>
+                        <div class="col-md-3"><strong>Ý b:</strong><select class="form-select form-select-sm w-100 mt-1 selB"><option value="Đ">Đúng</option><option value="S" selected>Sai</option></select></div>
+                        <div class="col-md-3"><strong>Ý c:</strong><select class="form-select form-select-sm w-100 mt-1 selC"><option value="Đ" selected>Đúng</option><option value="S">Sai</option></select></div>
+                        <div class="col-md-3"><strong>Ý d:</strong><select class="form-select form-select-sm w-100 mt-1 selD"><option value="Đ">Đúng</option><option value="S" selected>Sai</option></select></div>
+                    </div>
+                `;
+            } else if (type === 'Điền số') {
+                htmlContent += `
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label fw-bold text-warning">Giá trị con số đáp án Phần III (Chiều ngang trải rộng)</label>
+                        <input type="text" class="form-control txtP3Ans w-100" placeholder="Ví dụ: 1.2">
+                    </div>
+                `;
+            }
+
+            htmlContent += `
+                <div class="col-md-12 mt-2">
+                    <label class="form-label text-muted fw-bold">Giải chi tiết câu hỏi</label>
+                    <textarea class="form-control txtQGiaiChiTiet" style="width: 100%; height: 140px; display: block;" placeholder="Nhập lời giải..."></textarea>
+                </div>
+                <div class="col-md-12 text-end"><button class="btn btn-xs btn-danger shadow-sm" onclick="this.parentElement.parentElement.remove()">Xóa câu này</button></div>
+            `;
+            
+            div.innerHTML = htmlContent;
+            container.appendChild(div);
+        }
+
+        // 🪐 SIÊU RA-ĐA CHÂN PHƯƠNG TOÀN CỤC: NẠP MA TRẬN MẢNG TOJSON KHAI THÔNG LONG MẠCH BẤT TỬ
+        function checkDuplicateIds() {
+            // Ép buộc trình duyệt nạp tươi 100% mảng số nguyên bốc trực tiếp từ RAM Python sang qua bộ lọc tojson
+            const otherExamIds = {{ other_ids | tojson }} || [];
+            const currentInputs = document.querySelectorAll('.txtQId');
+            
+            // Lập ma trận đếm số lần xuất hiện của từng ID ngay trên màn hình hiện tại
+            const screenMap = {};
+            currentInputs.forEach(inp => { const v = inp.value.trim(); if(v) screenMap[v] = (screenMap[v] || 0) + 1; });
+
+            // === TEST CONSOLE F12 KÍCH NỔ LẬP TỨC ===
+            console.log("\n" + "🚀" * 10 + " [BẪY NỘI SOI BIẾN SỐ HTML THỰC TẾ] " + "🚀" * 10);
+            console.log("🪐 Kho ID của tất cả các đề khác hiện hình trên RAM Firefox:", otherExamIds);
+            console.log("🪐 Số lượng phần tử ID đề khác nhận được ở Frontend:", otherExamIds.length);
+            console.log("🪐 Ma trận đếm ID xuất hiện trên màn hình hiện tại:", screenMap);
+            console.log("-" * 74);
+
+            let hasDuplicate = false;
+
+            // Quét đối chiếu trực tiếp từng ô ID với kho tổng đề khác bách phát bách trúng
+            currentInputs.forEach((input, index) => {
+                const val = input.value.trim();
+                if (!val) return;
+
+                const currentIdNum = parseInt(val, 10);
+                
+                const isDuplicateOnScreen = screenMap[val] > 1;
+                const isDuplicateWithOtherExams = otherExamIds.includes(currentIdNum);
+
+                console.log(`👉 Ô nhập hàng dọc thứ [${index + 1}]: val="${val}" | Trùng màn hình: ${isDuplicateOnScreen} | Trùng đề khác: ${isDuplicateWithOtherExams}`);
+
+                if (isDuplicateOnScreen || isDuplicateWithOtherExams) {
+                    input.style.borderColor = "#ff4757"; // Nháy viền đỏ rực rỡ
+                    input.style.backgroundColor = "#ffeaa7"; // Đổ nền vàng chanh chú ý
+                    hasDuplicate = true;
+                } else {
+                    input.style.borderColor = "#ced4da"; // Trả về màu xám chuẩn chỉ phẳng lỳ
+                    input.style.backgroundColor = "#fff";
+                }
+            });
+
+            // Khóa hoặc mở khóa nút đỏ lưu đề thi bảo vệ thành trì file dữ liệu JSON cứng
+            const btnSubmit = document.querySelector('button[onclick="submitExamToServer()"]');
+            if (btnSubmit) {
+                if (hasDuplicate) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = "🚨 LỖI TOÀN CỤC: TRÙNG MÃ SỐ ID CÂU VỚI ĐỀ KHÁC TRONG DATABASE!";
+                    btnSubmit.style.backgroundColor = "#6c757d";
+                } else {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = "🚀 KHÓA CHỐT LƯU ĐỀ THI VÀO DATABASE.JSON";
+                    btnSubmit.style.backgroundColor = "#dc3545";
+                }
+            }
+            console.log(`📊 KẾT LUẬN TOÀN CỤC: Có phát hiện trùng câu nào không? -> [${hasDuplicate}]`);
+            console.log("==========================================================================\n");
+        }
+//==========================================================================
+        // 🔄 CƠ CHẾ ĐÁNH ID TỰ ĐỘNG TOÀN CỤC CHÂN PHƯƠNG - ÉP GIEO SỐ TỊNH TIẾN TOÀN DIỆN CHO TẤT CẢ CÁC CÂU
+        function autoAssignNewIds() {
+            // Đón nhận con số gợi ý ID kế tiếp tinh khiết do Python bắn sang từ file cứng database.json
+            let currentMax = parseInt("{{ next_global_id }}") || 1;
+            const currentInputs = document.querySelectorAll('.txtQId');
+            
+            let assignedCount = 0;
+
+            // 👑 THUẬT TOÁN VƯƠNG MIỆN: Ép toàn bộ tất cả các ô ID hiển thị trên màn hình phải xếp hàng dọc tịnh tiến tăng dần đều!
+            currentInputs.forEach(input => {
+                input.value = currentMax;
+                currentMax++;
+                assignedCount++;
+            });
+
+            // Kích nổ ngay ra-đa quét kiểm tra để dọn sạch hoàn toàn các vết nháy đỏ cảnh báo
+            if (typeof checkDuplicateIds === 'function') {
+                checkDuplicateIds();
+            }
+            
+            if (assignedCount > 0) {
+                alert(`🔄 ĐẠI THẮNG VINH QUANG: Hệ thống đã tự động gieo xích tịnh tiến chằn chặn cho toàn bộ ${assignedCount} câu hỏi sướng mắt!`);
+            }
+        }
+//============================================================================
+        function submitExamToServer() {
+            // 1. Đón nhận mảng ID thuộc về các ĐỀ THI KHÁC do Server Python ném sang qua bộ lọc tojson
+            const otherExamIds = {{ other_ids | tojson }} || [];
+            
+            const de_so = parseInt(document.getElementById('txtDeSo').value) || 1;
+            const khoi_lop = parseInt(document.getElementById('txtKhoiLop').value) || 12;
+            const loai_de = document.getElementById('txtLoaiDe').value;
+            const nam_hoc = parseInt(document.getElementById('txtNamHoc').value) || 2026;
+            const questions = [];
+
+            // Thu gom danh sách các ID của những câu đang hiển thị trên màn hình hiện tại để đếm trùng chéo cục bộ
+            const currentInputs = document.querySelectorAll('.txtQId');
+            const currentIds = Array.from(currentInputs).map(inp => inp.value.trim());
+            
+            let hasDuplicate = false;
+
+            // Bước rà soát tối cao: Quét qua tất cả các ô nhập liệu ID trước khi cho phép đóng gói dữ liệu
+            currentInputs.forEach(input => {
+                const val = input.value.trim();
+                if (!val) return;
+
+                const currentIdNum = parseInt(val, 10);
+                
+                // Thuật toán tóm gáy: Trùng khi gõ lặp lại ngay trên màn hình HOẶC con số này đã nằm ở các đề thi khác ngầm bên dưới
+                const isDuplicateOnScreen = currentIds.filter(id => id === val).length > 1;
+                const isDuplicateWithOtherExams = otherExamIds.includes(currentIdNum);
+
+                if (isDuplicateOnScreen || isDuplicateWithOtherExams) {
+                    input.style.borderColor = "#ff4757"; // Nháy viền đỏ rực rỡ các ô trùng
+                    input.style.backgroundColor = "#ffeaa7"; // Đổ nền vàng chanh chú ý
+                    hasDuplicate = true;
+                } else {
+                    input.style.borderColor = "#ced4da"; // Trả về màu xám chuẩn chỉ nếu sạch rác
+                    input.style.backgroundColor = "#fff";
+                }
+            });
+
+            // ❌ LÁ CHẮN ĐANH THÉP: Nếu phát hiện bất kỳ hạt sạn trùng ID nào, lập tức chặn đứng không cho ghi file!
+            if (hasDuplicate) {
+                alert("🚨 LỖI CHÍ MẠNG: Phát hiện mã số ID câu hỏi bị trùng lặp (các ô vi phạm đã được nháy đỏ). Vui lòng chỉnh sửa lại trước khi lưu!");
+                return; // Ngắt dòng chạy, tuyệt đối không bắn request về Backend Python!
+            }
+
+            // 2. Nếu mọi thứ phẳng sạch tinh khiết, tiến hành cào quét đóng gói mảng dữ liệu bắn về Python
+            document.querySelectorAll('.q-box').forEach(box => {
+                const type = box.getAttribute('data-q-type');
+                const id = parseInt(box.querySelector('.txtQId').value);
+                const noi_dung = box.querySelector('.txtQNoiDung').value.trim();
+                const giai_chi_tiet = box.querySelector('.txtQGiaiChiTiet').value.trim();
+                let cac_lua_chon = "", dap_an_dung = "";
+
+                if (type === 'Phan1') {
+                    const txtA = box.querySelector('.txtA').value.trim();
+                    const txtB = box.querySelector('.txtB').value.trim();
+                    const txtC = box.querySelector('.txtC').value.trim();
+                    const txtD = box.querySelector('.txtD').value.trim();
+                    cac_lua_chon = `${txtA},${txtB},${txtC},${txtD}`;
+                    const checkedRadio = box.querySelector('input[type="radio"]:checked');
+                    dap_an_dung = checkedRadio ? checkedRadio.value : "A";
+                } else if (type === 'Đúng, Sai') {
+                    cac_lua_chon = "Đúng, Sai";
+                    const selA = box.querySelector('.selA').value;
+                    const selB = box.querySelector('.selB').value;
+                    const selC = box.querySelector('.selC').value;
+                    const selD = box.querySelector('.selD').value;
+                    dap_an_dung = `${selA},${selB},${selC},${selD}`;
+                } else if (type === 'Điền số') {
+                    cac_lua_chon = "Điền số";
+                    dap_an_dung = box.querySelector('.txtP3Ans').value.trim();
+                }
+
+                if (id && noi_dung) {
+                    questions.push({
+                        id: id, khoi_lop: khoi_lop, loai_de: loai_de, nam_hoc: nam_hoc,
+                        de_so: de_so, cac_lua_chon: cac_lua_chon, noi_dung: noi_dung,
+                        dap_an_dung: dap_an_dung, giai_chi_tiet: giai_chi_tiet
+                    });
+                }
+            });
+
+            if (questions.length === 0) { 
+                alert("Vui lòng không để trống hoàn toàn nội dung đề thi!"); 
+                return; 
+            }
+
+            // Bắn sầm sập về cho Backend Python ghi đè khóa chốt cứng vào ổ đĩa
+            fetch('/api/add_exam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ de_so: de_so, questions: questions })
+            })
+            .then(res => res.json()).then(data => { 
+                alert(data.message); 
+                if(data.status === "success") window.location.reload(); 
+            })
+            .catch(err => alert("Lỗi ghi file hệ thống: " + err));
+        }
+//=============================================================================
+        // 🪐 HÀM ĐỊNH NGHĨA RA-ĐA QUÉT TRÙNG ID THỜI GIAN THỰC ĐỨNG ĐỘC LẬP TẠI DÒNG 347
+        function checkDuplicateIds() {
+            const idInputs = document.querySelectorAll('.txtQId');
+            const idMap = {};
+            let hasDuplicate = false;
+
+            // Bước 1: Quét 1 lượt để đếm số lần xuất hiện của từng ID bám trên màn hình
+            idInputs.forEach(input => {
+                const val = input.value.trim();
+                if (val) {
+                    idMap[val] = (idMap[val] || 0) + 1;
+                }
+            });
+
+            // Bước 2: Nẹp hiệu ứng màu sắc (Trùng thì nháy đỏ viền rực rỡ, sạch rác thì trả về bình thường)
+            idInputs.forEach(input => {
+                const val = input.value.trim();
+                if (idMap[val] > 1) {
+                    input.style.borderColor = "#ff4757"; // Đổi viền đỏ rực rỡ
+                    input.style.backgroundColor = "#ffeaa7"; // Đổ nền vàng chanh chú ý
+                    hasDuplicate = true;
+                } else {
+                    input.style.borderColor = "#ced4da"; // Trả về màu xám chuẩn chỉnh
+                    input.style.backgroundColor = "#fff";
+                }
+            });
+
+            // Bước 3: Khóa hoặc mở nút Khóa chốt lưu đề thi để chặn đứng dữ liệu lỗi bắn về Python
+            const btnSubmit = document.querySelector('button[onclick="submitExamToServer()"]');
+            if (btnSubmit) {
+                if (hasDuplicate) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = "🚨 LỖI THỜI GIAN THỰC: TRÙNG MÃ SỐ ID CÂU HỎI (VUI LÒNG CHỈNH SỬA LẠI)";
+                    btnSubmit.style.backgroundColor = "#6c757d"; // Đổi sang màu xám đóng băng
+                } else {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = "🚀 KHÓA CHỐT LƯU ĐỀ THI VÀO DATABASE.JSON";
+                    btnSubmit.style.backgroundColor = "#dc3545"; // Trả lại màu đỏ rực lửa chiến thắng
+                }
+            }
+        }
+//==============================================================================
+        window.onload = () => {
+            const serverDeSo = "{{ selected_de_so }}";
+            document.getElementById('txtDeSo').value = serverDeSo;
+
+            // Tính toán mã ID đếm tăng tự động tiếp theo dựa trên các câu hỏi Python vừa vẽ sẵn trên giao diện
+            const idInputs = Array.from(document.querySelectorAll('.txtQId')).map(el => parseInt(el.value) || 0);
+            qCounter = idInputs.length > 0 ? Math.max(...idInputs) + 1 : 1;
+            
+            // Nếu là đề thi trống trơn mới tinh khiết, tự gieo sẵn 3 mẫu trống cho giáo viên dễ soạn bài
+            if (idInputs.length === 0) {
+                addQuestionBox('Phan1'); addQuestionBox('Đúng, Sai'); addQuestionBox('Điền số');
+            }
+            // 🔥 NẠP BẪY SỰ KIỆN Ô ID: Gài ra-đa lắng nghe gõ sửa số ID cho tất cả các câu hỏi
+            document.querySelectorAll('.txtQId').forEach(input => {
+                input.addEventListener('input', checkDuplicateIds);
+            });
+            
+            // Ép cỗ máy tự động lắng nghe ô ID gõ phím cho cả các câu hỏi gieo mới tinh khiết sau này
+            const originalAddQuestionBox = window.addQuestionBox;
+            window.addQuestionBox = function(type) {
+                originalAddQuestionBox(type);
+                const inputs = document.querySelectorAll('.txtQId');
+                if (inputs.length > 0) {
+                    inputs[inputs.length - 1].addEventListener('input', checkDuplicateIds);
+                }
+                checkDuplicateIds();
+            };
+
+            checkDuplicateIds(); // Chạy kích nổ quét kiểm thử 1 lượt ngay khi vừa nạp trang xong sướng mắt!
+        };
+    </script>
+</body>
+</html>

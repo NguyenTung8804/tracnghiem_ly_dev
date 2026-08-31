@@ -1455,24 +1455,26 @@ const formattedQuestions = resData.details.map((item) => {
     // 🪐 BIẾN TOÀN CỤC: Nhặt tươi số đề động từ Backend Python truyền sang qua URL (?de_so=)
     const currentDeSo = new URLSearchParams(window.location.search).get("de_so") || "1";
  //===========================Ô NHẬP MÃ=TỪ EMAI=======================   
-    // 🚀 LÁ CHẮN BẢO MẬT VIETDRAGON IDB: Chặn đứng học sinh truy cập trái phép bằng link lậu!
+    // 🚀 LÁ CHẮN BẢO MẬT TỐI CAO TẠI INDEX.HTML: Khóa phòng thi từ gốc, bóp chết vĩnh cửu rủi ro phát tán link lậu!
     const chuoiKyTuGoc = "vietdragon_de_" + currentDeSo;
     let maBaoMatChuan = "";
-    let băm_ngầm = 0;
+    let bam_ngam = 0;
     for (let i = 0; i < chuoiKyTuGoc.length; i++) {
-        băm_ngầm = (băm_ngầm << 5) - băm_ngầm + chuoiKyTuGoc.charCodeAt(i);
-        băm_ngầm |= 0;
+        bam_ngam = (bam_ngam << 5) - bam_ngam + chuoiKyTuGoc.charCodeAt(i);
+        bam_ngam |= 0;
     }
-    maBaoMatChuan = Math.abs(băm_ngầm).toString(16).substring(0, 8);
+    maBaoMatChuan = Math.abs(bam_ngam).toString(16).substring(0, 8);
 
-    let maHocSinhNhap = prompt("🔐 [VIETDRAGON IDB SECURITY] \nPhòng thi đã được khóa bảo mật chống truy cập trái phép!\nVui lòng copy 'MÃ KÍCH HOẠT PHÒNG THI' gửi kèm trong Gmail của bạn để vào làm bài:");
+    // Kích nổ lệnh quăng hộp thoại ép học sinh lội link trực tiếp bắt buộc phải điền mã bẻ khóa gửi từ Gmail
+    let maHocSinhNhap = prompt("🔐 [VIETDRAGON IDB SECURITY] \nPhòng thi này đã được khóa bảo mật đa tầng chống link lậu!\nVui lòng nhập đúng 'MÃ BẢO MẬT PHÒNG THI' gửi trong Gmail của bạn để xác thực vào làm bài:");
 
+    // Ma trận đối soát chốt hạ vách phòng thi: Điền sai hoặc bấm Hủy, đá tuột học sinh bay màu ra trang chủ tức thì!
     if (maHocSinhNhap === null || maHocSinhNhap.trim().toLowerCase() !== maBaoMatChuan.toLowerCase()) {
-        alert("❌ Mã bảo mật không chính xác hoặc đã hết hạn! Truy cập bị từ chối.");
-        window.location.href = "/";
-        return;
+        alert("❌ Xác thực thất bại! Mã bảo mật không chính xác hoặc link truy cập trái phép.");
+        window.location.href = "/"; // Đá văng tuột sầm sập ra ngoài mặt tiền vách ngoài!
+        return; // Khóa chết dòng lệnh, đóng băng toàn bộ cỗ máy đếm giờ bọc bên dưới!
     }
-    alert("🟢 Phê duyệt mã bảo mật thành công! Chúc bạn làm bài thi đạt kết quả cao."); 
+    alert("🟢 Xác thực phòng thi thành công! Hệ thống giải phóng đồng hồ đếm ngược, chúc bạn đạt kết quả cao.");
   //===============END============Ô NHẬP MÃ=TỪ EMAI=======================   
 
     // 🪐 KHU VỰC THỬ NGHIỆM TỐI CAO CỦA BẠN (SỬA 15 GIÂY HOẶC 50 PHÚT TẠI ĐÂY)

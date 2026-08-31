@@ -1454,6 +1454,26 @@ const formattedQuestions = resData.details.map((item) => {
    //  -----Hết giờ tự động nộp bài thi và hiển thị kết quả  
     // 🪐 BIẾN TOÀN CỤC: Nhặt tươi số đề động từ Backend Python truyền sang qua URL (?de_so=)
     const currentDeSo = new URLSearchParams(window.location.search).get("de_so") || "1";
+ //===========================Ô NHẬP MÃ=TỪ EMAI=======================   
+    // 🚀 LÁ CHẮN BẢO MẬT VIETDRAGON IDB: Chặn đứng học sinh truy cập trái phép bằng link lậu!
+    const chuoiKyTuGoc = "vietdragon_de_" + currentDeSo;
+    let maBaoMatChuan = "";
+    let băm_ngầm = 0;
+    for (let i = 0; i < chuoiKyTuGoc.length; i++) {
+        băm_ngầm = (băm_ngầm << 5) - băm_ngầm + chuoiKyTuGoc.charCodeAt(i);
+        băm_ngầm |= 0;
+    }
+    maBaoMatChuan = Math.abs(băm_ngầm).toString(16).substring(0, 8);
+
+    let maHocSinhNhap = prompt("🔐 [VIETDRAGON IDB SECURITY] \nPhòng thi đã được khóa bảo mật chống truy cập trái phép!\nVui lòng copy 'MÃ KÍCH HOẠT PHÒNG THI' gửi kèm trong Gmail của bạn để vào làm bài:");
+
+    if (maHocSinhNhap === null || maHocSinhNhap.trim().toLowerCase() !== maBaoMatChuan.toLowerCase()) {
+        alert("❌ Mã bảo mật không chính xác hoặc đã hết hạn! Truy cập bị từ chối.");
+        window.location.href = "/";
+        return;
+    }
+    alert("🟢 Phê duyệt mã bảo mật thành công! Chúc bạn làm bài thi đạt kết quả cao."); 
+  //===============END============Ô NHẬP MÃ=TỪ EMAI=======================   
 
     // 🪐 KHU VỰC THỬ NGHIỆM TỐI CAO CỦA BẠN (SỬA 15 GIÂY HOẶC 50 PHÚT TẠI ĐÂY)
     let IS_TESTING = false; // Đổi thành true để ép về 15s test, đổi thành false để chạy 50 phút thực tế

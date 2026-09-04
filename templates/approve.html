@@ -38,6 +38,83 @@
                     </table>
                 </div>
             </div>
+            <!-- 🪐 [VIETDRAGON IDB] BỆ KHUNG THANH PHÂN TRANG CHO TRUNG TÂM PHÊ DUYỆT TÀI CHÍNH -->
+            <div id="vdbReqPaginationContainer" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 15px 0 25px 0; font-family: 'Times New Roman', serif; user-select: none;">
+                <button onclick="vdbChangeReqPage(-1)" id="vdbBtnPrevReqPage" style="padding: 8px 14px; background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%); color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 13px; transition: all 0.2s;">◀ Yêu cầu Trước</button>
+                <div style="background: #ffffff; padding: 8px 16px; border-radius: 6px; border: 1px solid #fca5a5; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #991b1b; font-size: 14px;">
+                    🎟️ Trang Chờ: <span id="vdbCurrentReqPageDisplay">1</span> / <span id="vdbTotalReqPageDisplay">1</span>
+                </div>
+                <button onclick="vdbChangeReqPage(1)" id="vdbBtnNextReqPage" style="padding: 8px 14px; background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%); color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 13px; transition: all 0.2s;">Yêu cầu Tiếp ▶</button>
+                <!-- 🪐 HỘP CHỌN SỐ LƯỢNG YÊU CẦU PENDING HIỂN THỊ TRÊN MỘT TRANG -->
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #991b1b; background: #ffffff; padding: 5px 12px; border-radius: 6px; border: 1px solid #fca5a5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 13px;">
+                    <span>👁️ Hiển thị:</span>
+                    <select id="vdbReqRowsPerPageSelect" onchange="vdbUpdateReqPerPage()" style="padding: 3px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold; color: #991b1b; outline: none; cursor: pointer; background: #fff5f5;">
+                        <option value="5">5 mục</option>
+                        <option value="10">10 mục</option>
+                        <option value="20">20 mục</option>
+                        <option value="all" selected>Tất cả</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🐉 BỆ PHÓNG QUẢN TRỊ VÀ ĐIỀU PHỐI KHO ĐỀ THI ĐA MÔN ĐỘNG VIETDRAGON -->
+    <div class="container mt-5 mb-5">
+        <div class="card border-primary shadow-lg">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="background-color: #1a365d !important;">
+                <h4 class="mb-0 fw-bold" style="font-family: 'Times New Roman', serif;">📦 BẢNG ĐIỀU HÀNH VÀ QUẢN LÝ KHO ĐỀ THI ĐA NĂNG</h4>
+                <button type="button" class="btn btn-warning btn-sm fw-bold" onclick="themDongDeThiMoi()">➕ Thêm Đề Thi Mới</button>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small" style="font-family: 'Times New Roman', serif;">Admin có thể chỉnh sửa tách biệt Môn thi, Tên đề, Số câu, Thời gian và Giá tiền trực tiếp trên bảng. Hệ thống tự động sắp xếp Miễn phí lên đầu khi lưu!</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center" id="bangQuanLyDeThi">
+                        <thead class="table-dark" style="background-color: #212529;">
+                            <tr>
+                                <th onclick="vdbToggleSortId()" style="width: 4%; cursor: pointer; user-select: none; position: relative;" title="Bấm vào đây để đảo chiều sắp xếp Mã số đề">Mã Số Đề <span id="vdbSortDirectionIcon" style="font-size: 11px;">🔽</span></th>
+                                <th style="width: 11%;">Môn Thi</th>
+                                <th style="width: 6%;">Năm Thi</th>
+                                <th style="width: 6%;">Lớp</th>
+                                <th style="width: 9%;">Tỉnh Thành</th>
+                                <th style="width: 13%;">Trường</th> <!-- 🚀 CỘT TRƯỜNG ĐÃ ĐƯỢC CHÈN NẸP VÀO GIỮA -->
+                                <th style="width: 17%;">Tên Đề Thi Trắc Nghiệm</th>
+                                <th style="width: 4%;">Số Câu</th>
+                                <th style="width: 4%;">Thời Gian</th>
+                                <th style="width: 8%;">Loại Hình Đề</th>
+                                <th style="width: 7%;">Giá Tiền (đ)</th>
+                                <th style="width: 7%;">Trạng Thái</th>
+                                <th style="width: 4%;">Xem</th>
+                                <th style="width: 6%;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vungChuaDongDeThi">
+                            <!-- Vòng lặp JavaScript sẽ tự động đúc các dòng cấu hình đề thi vào đây -->
+                        </tbody>
+                    </table>
+                <!-- 🪐 [VIETDRAGON IDB] BỆ KHUNG THANH ĐIỀU HƯỚNG PHÂN TRANG HOÀNG GIA SANG TRỌNG -->
+                <div id="vdbPaginationContainer" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; font-family: 'Times New Roman', serif; user-select: none;">
+                    <button onclick="vdbChangePage(-1)" id="vdbBtnPrevPage" style="padding: 10px 18px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #ffffff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;">◀ Trang Trước</button>
+                    <div style="background: #ffffff; padding: 10px 20px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #1e3a8a; font-size: 15px;">
+                        📄 <span id="vdbCurrentPageDisplay">1</span> / <span id="vdbTotalPageDisplay">1</span>
+                    </div>
+                    <button onclick="vdbChangePage(1)" id="vdbBtnNextPage" style="padding: 10px 18px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #ffffff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;">Trang Tiếp ▶</button>
+                    <!-- 🪐 HỘP CHỌN SỐ LƯỢNG ĐỀ HIỂN THỊ TRÊN MỘT TRANG -->
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #1e3a8a; background: #ffffff; padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 14px;">
+                        <span>👁️ Hiển thị:</span>
+                        <select id="vdbRowsPerPageSelect" onchange="vdbUpdateRowsPerPage()" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #1e3a8a; outline: none; cursor: pointer; background: #f8fafc;">
+                            <option value="10" selected>10 đề</option>
+                            <option value="20">20 đề</option>
+                            <option value="50">50 đề</option>
+                            <option value="all">Tất cả</option>
+                        </select>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light d-flex justify-content-end">
+                <button type="button" class="btn btn-success fw-bold px-4" onclick="luuCauHinhKhoDeLenServer()" style="background-color: #198754;">💾 KHÓA CHỐT: ĐỒNG BỘ KHO ĐỀ THI XUỐNG FILE CỨNG</button>
+            </div>
         </div>
     </div>
 
@@ -97,7 +174,539 @@
             })
             .catch(err => alert("Lỗi phê duyệt hệ thống: " + err));
         }
+
+        // 🪐 KHƠI THÔNG LONG MẠCH: Nạp tươi danh sách yêu cầu duyệt tiền nguyên bản của bạn
+        function loadPendingRequests() {
+            fetch('/api/get_pending_requests')
+                .then(res => res.json())
+                .then(resData => {
+                    const tbody = document.getElementById('tblPendingRequests');
+                    if (!tbody) return;
+                    if (resData.status === "success" && resData.data && resData.data.length > 0) {
+                        let htmlRows = "";
+                        resData.data.forEach(item => {
+                            htmlRows += `
+                            <tr id="req-row-${item.id}" style="border-bottom: 1px solid #dee2e6; transition: background 0.2s;">
+                                <td style="padding: 14px; border: 1px solid #dee2e6; color: #747d8c; font-weight: bold;">${item.thoi_gian}</td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6;"><span style="background: #ff6b81; color: white; padding: 5px 12px; border-radius: 4px; font-weight: bold;">Đề số ${item.de_so}</span></td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6; font-weight: bold; color: #2f3542;">${item.email}</td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6; font-weight: bold; color: #ff4757; letter-spacing: 1px; font-size: 15px;">${item.ma_giao_dich}</td>
+                                <td style="padding: 14px; border: 1px solid #dee2e6;">
+                                    <button type="button" style="background: #2ed573; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(46,213,115,0.2); font-size: 13px;" onclick="approveStudentAccess('${item.id}', '${item.email}', '${item.de_so}')">✅ Duyệt Cấp Quyền</button>
+                                </td>
+                            </tr>`;
+                        });
+                        tbody.innerHTML = htmlRows;
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="5" style="padding: 30px; color: #a4b0be; font-style: italic; font-size: 15px;">🏁 Hiện tại không có yêu cầu chuyển khoản nào đang chờ duyệt. Kho dữ liệu tài chính phẳng sạch tinh khiết!</td></tr>`;
+                    }
+                })
+                .catch(err => console.error("Lỗi nạp danh sách: " + err));
+        }
+
+        function approveStudentAccess(reqId, studentEmail, deSo) {
+            if (!confirm(`❓ Bạn có chắc chắn muốn phê duyệt cấp quyền vào Đề thi số ${deSo} cho học sinh [${studentEmail}] không?`)) {
+                return;
+            }
+            fetch('/api/approve_access', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: reqId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    const row = document.getElementById(`req-row-${reqId}`);
+                    if (row) row.remove();
+                    loadPendingRequests();
+                }
+            })
+            .catch(err => alert("Lỗi phê duyệt hệ thống: " + err));
+        }
+
+        // 🪐 1. TỰ ĐỘNG KÍCH NỔ NẠP DANH SÁCH KHI MỞ TRANG QUẢN TRỊ
+        document.addEventListener("DOMContentLoaded", function() {
+            napDanhSachCauHinhDeThi();
+        });
+
+        function napDanhSachCauHinhDeThi() {
+            fetch('/api/get_exams_config')
+            .then(res => res.json())
+            .then(danhSachDe => {
+                const vungChua = document.getElementById("vungChuaDongDeThi");
+                if(vungChua) {
+                    vungChua.innerHTML = "";
+                    // 🚀 KÍCH NỔ ĐÚC HỘP GỢI Ý ĐỘNG TỪ TRONG KHO DỮ LIỆU CŨ
+                    ducDatalistGoiY(danhSachDe);
+                    
+                    danhSachDe.forEach(de => {
+                        vungChua.appendChild(taoDongDeThiHtml(de));
+                // 🚀 LÁ CHẮN BỌC THÉP PHÂN TRANG TỐI CAO: Đúc lại danh sách xong là lập tức gọt phẳng phiu về đúng 10 dòng chằn chặn!
+                if (typeof window.vdbRenderPagination === "function") {
+                    window.vdbRenderPagination();
+                }
+                    });
+                }
+            })
+            .catch(err => alert("Lỗi nạp cấu hình kho đề: " + err));
+        }
+
+//==============HÀM KHỞI TẠO TỰ ĐỘNG THU THẬP DỮ LIỆU ĐỂ TẠO DANH SÁCH GỢI Ý================================================
+        // 🚀 THUẬT TOÁN ĐỘNG HÓA ADMIN: Tự động gom nhặt toàn bộ giá trị đang có trong kho đề để làm danh sách gợi ý
+        function ducDatalistGoiY(danhSachDe) {
+            const tapMon = new Set(["Toán Học", "Vật Lý", "Hóa Học", "Sinh Học", "Ngữ Văn", "Tiếng Anh", "Lịch Sử", "Địa Lý"]);
+            const tapNam = new Set(["2024", "2025", "2026", "2027"]);
+            const tapLop = new Set(["12", "11", "10", "9"]);
+            const tapTinh = new Set(["Hà Nội", "Vinh", "Thanh Hóa", "Vĩnh Phúc"]);
+            const tapTruong = new Set(["Bộ Giáo Dục", "ĐH VINH", "ĐH Quốc gia Hà Nội"]);
+            const tapLoaiDe = new Set(["Đề thi đại học chính thức", "Đề thi thử đại học", "Đề thi hết học kỳ I", "Đề thi hết học kỳ II"]);
+
+            danhSachDe.forEach(de => {
+                if (de.mon_thi) tapMon.add(de.mon_thi);
+                if (de.nam) tapNam.add(de.nam.toString());
+                if (de.lop) tapLop.add(de.lop.toString());
+                if (de.tinh_thanh) tapTinh.add(de.tinh_thanh);
+                if (de.truong) tapTruong.add(de.truong);
+                if (de.ten_de) {
+                    let tenDe = de.ten_de;
+                    if (de.ten_de.includes(" - ")) {
+                        tenDe = de.ten_de.split(" - ")[1].trim();
+                    }
+                    tapLoaiDe.add(tenDe);
+                }
+            });
+
+            // Hàm đúc các hộp datalist ngầm bọc ở vách sau
+            function taoDatalistNgam(id, tapHop) {
+                let html = `<datalist id="${id}">`;
+                Array.from(tapHop).sort().forEach(val => {
+                    html += `<option value="${val}"></option>`;
+                });
+                html += `</datalist>`;
+                return html;
+            }
+
+            // Găm thẳng các hộp gợi ý vào vách đáy bảng body
+            let vungChuaList = document.getElementById("vungChuaDatalist");
+            if (!vungChuaList) {
+                vungChuaList = document.createElement("div");
+                vungChuaList.id = "vungChuaDatalist";
+                document.body.appendChild(vungChuaList);
+            }
+            vungChuaList.innerHTML = 
+                taoDatalistNgam("listMonThi", tapMon) +
+                taoDatalistNgam("listNamThi", tapNam) +
+                taoDatalistNgam("listLopHoc", tapLop) +
+                taoDatalistNgam("listTinhThanh", tapTinh) +
+                taoDatalistNgam("listTruongHoc", tapTruong) +
+                taoDatalistNgam("listTenDeThi", tapLoaiDe);
+        }
+//============END HÀM KHỞI TẠO TỰ ĐỘNG THU THẬP DỮ LIỆU ĐỂ TẠO DANH SÁCH GỢI Ý=============================================
+
+        // 🪐 2. HÀM ĐÚC DÒNG GIAO DIỆN (ĐÃ NẸP CHẶN CLASS gia-tien CHUẨN ĐÉT)
+        function taoDongDeThiHtml(de) {
+            let monThi = de.mon_thi || "Vật Lý";
+            let tenDeRaw = de.ten_de || "Đề thi thử đại học";
+            let tinhThanh = de.tinh_thanh || "Hà Nội";
+            let lopHoc = de.lop || "12";
+            let trangThai = de.trang_thai || "Mở";
+            let truongHoc = de.truong || "Bộ Giáo Dục";
+            
+            let namThi = "2026";
+            if (de.nam !== undefined && de.nam !== null) {
+                namThi = de.nam.toString().trim();
+            }
+            
+            let tenDe = tenDeRaw;
+            if (tenDeRaw.includes(" - ")) {
+                const mangBam = de.ten_de.split(" - ");
+                if (mangBam.length >= 2) {
+                    monThi = mangBam[0].replace("Môn ", "").trim();
+                    tenDe = mangBam[1].trim();
+                }
+            }
+
+            const danhSachTrangThaiChuan = ["Mở", "Đóng"];
+            let optionsTrangThai = "";
+            danhSachTrangThaiChuan.forEach(tt => {
+                optionsTrangThai += `<option value="${tt}" ${trangThai === tt ? 'selected' : ''}>${tt === 'Mở' ? '🟢 Mở' : '🔴 Đóng'}</option>`;
+            });
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="text" class="form-control text-center de-so" value="${de.de_so}" style="font-weight:bold; font-family:'Times New Roman', serif; max-width: 55px; margin: 0 auto; padding: 4px 2px;"></td>
+                <!-- 🚀 BIẾN HÌNH THÀNH Ô NHẬP LIỆU TỰ DO CÓ LIST GỢI Ý ĐỘNG VẠN NĂNG -->
+                <td><input type="text" class="form-control text-center mon-thi" list="listMonThi" value="${monThi}" style="font-family:'Times New Roman', serif; font-weight: bold; color: #2b6cb0; padding: 4px 2px;"></td>
+                <td><input type="text" class="form-control text-center nam-thi" list="listNamThi" value="${namThi}" style="font-family:'Times New Roman', serif; font-weight: bold; color: #ff4757; padding: 4px 2px;"></td>
+                <td><input type="text" class="form-control text-center lop-hoc" list="listLopHoc" value="${lopHoc}" style="font-family:'Times New Roman', serif; font-weight: bold; color: #9c27b0; padding: 4px 2px;"></td>
+                <td><input type="text" class="form-control text-center tinh-thanh" list="listTinhThanh" value="${tinhThanh}" style="font-family:'Times New Roman', serif; font-weight: bold; color: #48bb78; padding: 4px 2px;"></td>
+                <td><input type="text" class="form-control text-center truong-hoc" id="truong_${de.de_so}" list="listTruongHoc" value="${truongHoc}" style="font-family:'Times New Roman', serif; font-weight: bold; color: #e67e22; padding: 4px 2px;"></td>
+                <td><input type="text" class="form-control text-start ten-de" list="listTenDeThi" value="${tenDe}" onchange="xuLyThayDoiTenDe(this)" style="font-family:'Times New Roman', serif; font-weight: bold; color: #2d3748; padding: 4px 6px;"></td>
+                
+                <td><input type="number" class="form-control text-center so-cau" value="${de.socau || de.so_cau || 5}" style="font-family:'Times New Roman', serif; padding: 4px 2px; max-width: 55px; margin: 0 auto;"></td>
+                <td><input type="number" class="form-control text-center thoi-gian" value="${de.thoigian || de.thoi_gian || 50}" style="font-family:'Times New Roman', serif; padding: 4px 2px; max-width: 55px; margin: 0 auto;"></td>
+                <td><select class="form-select loai-de" onchange="xuLyThayDoiLoaiDe(this)" style="font-family:'Times New Roman', serif; padding: 4px 4px;"><option value="mien_phi" ${de.loai_de === 'mien_phi' ? 'selected' : ''}>🎉 Miễn Phí</option><option value="tra_phi" ${de.loai_de === 'tra_phi' ? 'selected' : ''}>🔒 Trả Phí</option></select></td>
+                <td><input type="number" class="form-control text-center gia-tien" value="${de.gia_tien}" ${de.loai_de === 'mien_phi' ? 'disabled' : ''} style="font-family:'Times New Roman', serif; font-weight:bold; padding: 4px 4px; max-width: 95px; margin: 0 auto;"></td>
+                <td><select class="form-select text-center trang-thai" style="font-family:'Times New Roman', serif; font-weight: bold; padding: 4px 4px;">${optionsTrangThai}</select></td>
+                <td><a href="/thi?de_so=${de.de_so}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold" style="padding: 4px 8px; font-size: 13px;">👁️ Xem</a></td>
+                <td><button type="button" class="btn btn-outline-danger btn-sm fw-bold" onclick="this.closest('tr').remove()" style="padding: 4px 8px; font-size: 13px;">🗑️ Xóa</button></td>
+            `;
+            return tr;
+        }
+
+        function xuLyThayDoiTenDe(selectObj) {
+            // 🚀 BẮT ĐÚNG LONG MẠCH: Chọn Đề chính thức -> Ép cứng Trường về Bộ Giáo Dục tức thì!
+            if (selectObj.value === "Đề thi đại học chính thức") {
+                const oTruong = selectObj.closest('tr').querySelector('.truong-hoc');
+                if (oTruong) oTruong.value = "Bộ Giáo Dục";
+            }
+        }
+
+        function xuLyThayDoiLoaiDe(selectObj) {
+            const oTien = selectObj.closest('tr').querySelector('.gia-tien');
+            if (!oTien) return;
+            if (selectObj.value === "mien_phi") {
+                oTien.value = 0; // TỰ ĐỘNG RESET VỀ SỐ 0 LẬP TỨC!
+                oTien.disabled = true;
+            } else {
+                oTien.disabled = false;
+                if (parseInt(oTien.value) === 0 || !oTien.value) oTien.value = 20000; // PHUN MỐC CƠ SỞ 20K
+            }
+        }
+
+        function themDongDeThiMoi() {
+            const vungChua = document.getElementById("vungChuaDongDeThi");
+            if (!vungChua) return;
+            // 🚀 MẶC ĐỊNH KHI THÊM MỚI: Tên đề là Đề chính thức -> Trường tự điền Bộ Giáo Dục phẳng sạch!
+            const deMacDinh = { 
+                de_so: (vungChua.children.length + 1).toString(), mon_thi: "Vật Lý", nam: "2026", lop: "12",
+                tinh_thanh: "Hà Nội", truong: "Bộ Giáo Dục", ten_de: "Đề thi đại học chính thức", 
+                socau: 5, thoigian: 50, loai_de: "mien_phi", gia_tien: 0, trang_thai: "Mở"
+            };
+            // 🚀 ĐIỀU PHỐI DÒNG MỚI THÔNG MINH: Bẫy trạng thái logic đảo chiều để ghim vị trí xuất hiện của đề mới bọc thép!
+            const vdbNewRow = taoDongDeThiHtml(deMacDinh);
+            if (typeof vdbSortAscending !== "undefined" && !vdbSortAscending) {
+                vungChua.insertBefore(vdbNewRow, vungChua.firstChild);
+                console.log("🔼 [Vietdragon Insert] Đang xếp từ Lớn đến Bé -> Đã nẹp dòng đề mới lên vị trí ĐẦU BẢNG!");
+            } else {
+                vungChua.appendChild(vdbNewRow);
+                console.log("🔽 [Vietdragon Insert] Đang xếp từ Nhỏ đến Lớn -> Đã thả dòng đề mới xuống VÁCH ĐÁY BẢNG!");
+            }
+        }
+
+        function luuCauHinhKhoDeLenServer() {
+            const mangDuLieu = [];
+            const cacDong = document.querySelectorAll("#vungChuaDongDeThi tr");
+            
+            cacDong.forEach(dong => {
+                const mon = dong.querySelector(".mon-thi").value.trim();
+                const deTen = dong.querySelector(".ten-de").value.trim();
+                const namChon = dong.querySelector(".nam-thi").value;
+                const lopChon = dong.querySelector(".lop-hoc").value;
+                const tinhChon = dong.querySelector(".tinh-thanh").value;
+                const truongChon = dong.querySelector(".truong-hoc").value; // 🚀 BỐC TRÚNG CHÓC DROPDOWN TRƯỜNG
+                const trangThaiChon = dong.querySelector(".trang-thai").value;
+                
+                mangDuLieu.push({
+                    de_so: dong.querySelector(".de-so").value.trim(),
+                    mon_thi: mon, nam: namChon, lop: lopChon, tinh_thanh: tinhChon, 
+                    truong: truongChon, // 🚀 ĐỒNG BỘ GHI XUỐNG FILE exam_config.json
+                    ten_de: `Môn ${mon} - ${deTen}`, 
+                    socau: parseInt(dong.querySelector(".so-cau").value) || 5,
+                    thoigian: parseInt(dong.querySelector(".thoi-gian").value) || 50,
+                    loai_de: dong.querySelector(".loai-de").value,
+                    gia_tien: parseInt(dong.querySelector(".gia-tien").value) || 0,
+                    trang_thai: trangThaiChon
+                });
+            });
+
+            fetch('/api/save_exams_config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(mangDuLieu)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if(data.status === "success") napDanhSachCauHinhDeThi();
+            })
+            .catch(err => alert("Lỗi đồng bộ cấu hình kho đề: " + err));
+        }
+//==================HÀM ĐẢO CHIỀU SỐ THỨ TỰ ===================
+    // 🪐 THUẬT TOÁN ĐẢO CHIỀU SẮP XẾP ID MÃ ĐỀ TRÊN TRANG QUẢN TRỊ VIETDRAGON IDB
+    let vdbSortAscending = true;
+
+    window.vdbToggleSortId = function() {
+        // Tìm trúng chiếc bảng quản lý kho đề thông qua mã ID duy nhất của bạn dạo trước
+        const theTable = document.getElementById("bangQuanLyDeThi");
+        if (!theTable) return;
+        
+        const theBody = document.getElementById("vungChuaDongDeThi");
+        if (!theBody) return;
+        
+        // Bốc trọn gói toàn bộ các hàng (rows) dữ liệu hiện tại lên bộ nhớ đệm RAM
+        const tatCaHang = Array.from(theBody.querySelectorAll("tr"));
+        
+        // Đảo chiều trạng thái logic
+        vdbSortAscending = !vdbSortAscending;
+        
+        // Cập nhật biểu tượng mũi tên ngoài mặt tiền để hiển thị trực quan cho Admin
+        const theIcon = document.getElementById("vdbSortDirectionIcon");
+        if (theIcon) {
+            theIcon.textContent = vdbSortAscending ? "🔽" : "🔼";
+        }
+        
+        // Tiến hành sắp xếp mảng dữ liệu dựa trên phách số ID
+        tatCaHang.sort(function(hangA, hangB) {
+            const oIdA = hangA.querySelector("td");
+            const oIdB = hangB.querySelector("td");
+            if (!oIdA || !oIdB) return 0;
+            
+            // Lội vào nhặt chữ thô tinh khiết bọc trong ô TD đầu tiên ngoài cùng bên trái
+            // 🎯 LONG MẠCH CHỐT HẠ: Kiểm tra xem ô TD có chứa thẻ input hay không để nhặt thuộc tính .value chính xác!
+            const inputA = oIdA.querySelector("input");
+            const inputB = oIdB.querySelector("input");
+            
+            let idA = inputA ? parseInt(inputA.value.trim()) : parseInt(oIdA.textContent.trim());
+            let idB = inputB ? parseInt(inputB.value.trim()) : parseInt(oIdB.textContent.trim());
+            
+            if (isNaN(idA)) idA = 0;
+            if (isNaN(idB)) idB = 0;
+            
+            if (vdbSortAscending) {
+                return idA - idB; // Xếp lùi dần từ nhỏ đến lớn
+            } else {
+                return idB - idA; // Bứt tốc xếp vọt từ lớn đến nhỏ
+            }
+        });
+        
+        // Thổi bay sạch phách cấu trúc cũ bọc bên trong vùng chứa
+        theBody.innerHTML = "";
+        
+        // Đập ngược trọn gói dải hàng đã được hoán đổi thứ tự vương miện quay trở lại bảng
+        tatCaHang.forEach(function(hang) {
+            theBody.appendChild(hang);
+        });
+        
+        console.log("🪐 [Sort Complete] Đã sắp xếp lại hệ thống kho đề. Trạng thái nhỏ đến lớn: " + vdbSortAscending);
+    };
+//==============END====HÀM ĐẢO CHIỀU SỐ THỨ TỰ ===================
+//====================HÀM PHÂN TRANG==============================
+    // 🪐 THUẬT TOÁN PHÂN TRANG ĐỘNG CAO CẤP: Ép chia nhỏ mỗi trang đúng 10 đề chằn chặn, an toàn 100%!
+    let vdbCurrentPage = 1;
+    let vdbRowsPerPage = 10; // Chuyển từ const sang let để cho phép bộ chọn Dropdown thay đổi số lượng động!
+
+    window.vdbRenderPagination = function() {
+        const theBody = document.getElementById("vungChuaDongDeThi");
+        if (!theBody) return;
+        
+        const tatCaHang = Array.from(theBody.querySelectorAll("tr"));
+        const tongSoHang = tatCaHang.length;
+        const tongSoTrang = Math.ceil(tongSoHang / vdbRowsPerPage) || 1;
+        
+        // Khống chế biên độ trang an toàn tuyệt đối
+        if (vdbCurrentPage > tongSoTrang) vdbCurrentPage = tongSoTrang;
+        if (vdbCurrentPage < 1) vdbCurrentPage = 1;
+        
+        // Quét lội qua từng hàng để thực hiện lá chắn ẩn/hiện thông minh
+        tatCaHang.forEach((hang, chiSo) => {
+            let vịTriDau = (vdbCurrentPage - 1) * vdbRowsPerPage;
+            let vịTriCuoi = vịTriDau + vdbRowsPerPage;
+            
+            if (chiSo >= vịTriDau && chiSo < vịTriCuoi) {
+                hang.style.display = ""; // Hiển thị hàng hợp pháp của trang hiện tại
+            } else {
+                hang.style.display = "none"; // Ẩn hoàn toàn các hàng thuộc trang khác
+            }
+        });
+        
+        // In phách số trang lên mặt tiền giao diện công cụ
+        const textHienTai = document.getElementById("vdbCurrentPageDisplay");
+        const textTongSo = document.getElementById("vdbTotalPageDisplay");
+        if (textHienTai) textHienTai.textContent = vdbCurrentPage;
+        if (textTongSo) textTongSo.textContent = tongSoTrang;
+        
+        // Khóa mờ nút bấm nếu đã chạm kịch biên giới trang đầu hoặc trang cuối
+        const btnPrev = document.getElementById("vdbBtnPrevPage");
+        const btnNext = document.getElementById("vdbBtnNextPage");
+        if (btnPrev) {
+            btnPrev.style.opacity = vdbCurrentPage === 1 ? "0.4" : "1";
+            btnPrev.style.pointerEvents = vdbCurrentPage === 1 ? "none" : "auto";
+        }
+        if (btnNext) {
+            btnNext.style.opacity = vdbCurrentPage === tongSoTrang ? "0.4" : "1";
+            btnNext.style.pointerEvents = vdbCurrentPage === tongSoTrang ? "none" : "auto";
+        }
+    };
+
+    // Hàm bóp cò di chuyển trang khi Admin click chuột bấm nút Tiến/Lùi
+    window.vdbChangePage = function(huongDi) {
+        vdbCurrentPage += huongDi;
+        window.vdbRenderPagination();
+    };
+
+    // Hàm bóp cò bẻ lái số lượng dòng hiển thị khi Admin thay đổi hộp chọn Dropdown ngoài mặt tiền
+    window.vdbUpdateRowsPerPage = function() {
+        const theSelect = document.getElementById("vdbRowsPerPageSelect");
+        if (!theSelect) return;
+        
+        const theBody = document.getElementById("vungChuaDongDeThi");
+        if (!theBody) return;
+        
+        const tongSoHang = theBody.querySelectorAll("tr").length;
+        
+        if (theSelect.value === "all") {
+            vdbRowsPerPage = tongSoHang || 9999; // Nếu chọn Tất cả -> Ép vọt biên độ ôm trọn gói toàn bộ kho đề
+        } else {
+            vdbRowsPerPage = parseInt(theSelect.value) || 10; // Cập nhật số dòng 10, 20, 50 tinh khiết
+        }
+        
+        vdbCurrentPage = 1; // Ép hệ thống nhảy lùi về trang 1 để cấu hình lại layout phẳng sạch từ đầu
+        window.vdbRenderPagination();
+        console.log("🪐 [Vietdragon Rows] Đã thay đổi số lượng hiển thị trên mỗi trang thành: " + theSelect.value);
+    };
+
+    // 🎯 MẮT XÍCH LIÊN THÔNG ĐỒNG BỘ: Cấy nẹp bẫy ranh giới vào đuôi hàm đảo chiều để tự động phân lại trang khi bấm Sort!
+    const vdbGocToggleSortId = window.vdbToggleSortId;
+    window.vdbToggleSortId = function() {
+        if (typeof vdbGocToggleSortId === "function") vdbGocToggleSortId();
+        window.vdbRenderPagination(); // Đảo dòng xong lập tức gọt lại trang hiển thị!
+    };
+
+    // 🎯 MẮT XÍCH LIÊN THÔNG THÊM ĐỀ MỚI: Tự động nhảy về trang đầu hoặc trang cuối để Admin nhìn thấy dòng vừa đúc!
+    const vdbGocThemDongDeThiMoi = window.themDongDeThiMoi;
+    window.themDongDeThiMoi = function() {
+        if (typeof vdbGocThemDongDeThiMoi === "function") vdbGocThemDongDeThiMoi();
+        // Nếu bảng đang xếp lớn-bé (đề mới ở đầu bảng) -> Ép về trang 1. Nếu đang xếp nhỏ-lớn -> Ép nhảy sang trang cuối cùng
+        vdbCurrentPage = (typeof vdbSortAscending !== "undefined" && !vdbSortAscending) ? 1 : 999;
+        window.vdbRenderPagination();
+    };
+
+    // Kích nổ phát hỏa chu trình phân trang tự động ngay tích tắc đầu tiên khi tải trang xong!
+    setTimeout(() => {
+        window.vdbRenderPagination();
+    }, 200);
+//================END====HÀM PHÂN TRANG==============================
+    // 🪐 THUẬT TOÁN PHÂN TRANG ĐỘNG CHO TRUNG TÂM PHÊ DUYỆT TÀI CHÍNH PENDING (MỖI TRANG ĐÚNG 5 DÒNG CHO GỌN ĐẸP)
+    let vdbCurrentReqPage = 1;
+    let vdbReqRowsPerPage = 9999; // 🚀 MẶC ĐỊNH VẠN NĂNG: Ép vọt biên độ lên 9999 dòng để xả trọn gói "Tất cả" yêu cầu pending lúc vào trang!
+
+
+    window.vdbRenderReqPagination = function() {
+        // Tìm trúng chiếc vùng chứa dòng của bảng duyệt tiền pending của bạn
+        const theReqBody = document.getElementById("tblPendingRequests");
+        if (!theReqBody) return;
+        
+        // Bốc trọn gói dải hàng tr bọc trong bảng duyệt tiền pending lên RAM
+        const tatCaHangReq = Array.from(theReqBody.querySelectorAll("tr"));
+        const tongSoHangReq = tatCaHangReq.length;
+        const tongSoTrangReq = Math.ceil(tongSoHangReq / vdbReqRowsPerPage) || 1;
+
+        // 🎯 LÁ CHẮN ĐỒNG BỘ MẶT TIỀN: Nếu đang chọn "Tất cả", ép phách số trang hiển thị luôn là 1 / 1 cho chính quy sang trọng!
+        if (vdbReqRowsPerPage >= 9999) {
+            vdbCurrentReqPage = 1;
+        }
+
+        
+        if (vdbCurrentReqPage > tongSoTrangReq) vdbCurrentReqPage = tongSoTrangReq;
+        if (vdbCurrentReqPage < 1) vdbCurrentReqPage = 1;
+        
+        // Quét lội bộ lọc ẩn/hiện thông minh xé gió
+        tatCaHangReq.forEach((hang, chiSo) => {
+            let vịTriDau = (vdbCurrentReqPage - 1) * vdbReqRowsPerPage;
+            let vịTriCuoi = vịTriDau + vdbReqRowsPerPage;
+            
+            if (chiSo >= vịTriDau && chiSo < vịTriCuoi) {
+                hang.style.display = ""; // Hiển thị hàng hợp pháp của trang hiện tại
+            } else {
+                hang.style.display = "none"; // Ẩn giấu dòng thuộc trang khác vách sau
+            }
+        });
+        
+        // Cập nhật phách in số trang lên mặt tiền bảng đỏ
+        const textHienTai = document.getElementById("vdbCurrentReqPageDisplay");
+        const textTongSo = document.getElementById("vdbTotalReqPageDisplay");
+        if (textHienTai) textHienTai.textContent = vdbCurrentReqPage;
+        if (textTongSo) textTongSo.textContent = tongSoTrangReq;
+        
+        // Khóa mờ nút bấm thông minh
+        const btnPrev = document.getElementById("vdbBtnPrevReqPage");
+        const btnNext = document.getElementById("vdbBtnNextReqPage");
+        if (btnPrev) {
+            btnPrev.style.opacity = vdbCurrentReqPage === 1 ? "0.4" : "1";
+            btnPrev.style.pointerEvents = vdbCurrentReqPage === 1 ? "none" : "auto";
+        }
+        if (btnNext) {
+            btnNext.style.opacity = vdbCurrentReqPage === tongSoTrangReq ? "0.4" : "1";
+            btnNext.style.pointerEvents = vdbCurrentReqPage === tongSoTrangReq ? "none" : "auto";
+        }
+    };
+
+    // Hàm bóp cò di chuyển trang bảng đỏ
+    window.vdbChangeReqPage = function(huongDi) {
+        vdbCurrentReqPage += huongDi;
+        window.vdbRenderReqPagination();
+    };
+
+    // 🪐 HÀM 1: Điều phối số lượng dòng hiển thị độc quyền cho BẢNG ĐỎ DUYỆT TIỀN (Vách trên)
+    window.vdbUpdateReqPerPage = function() {
+        const theSelect = document.getElementById("vdbReqRowsPerPageSelect");
+        if (!theSelect) return;
+        
+        const theReqBody = document.getElementById("tblPendingRequests");
+        if (!theReqBody) return;
+        
+        const tongSoHangReq = theReqBody.querySelectorAll("tr").length;
+        
+        if (theSelect.value === "all") {
+            vdbReqRowsPerPage = tongSoHangReq || 9999;
+        } else {
+            vdbReqRowsPerPage = parseInt(theSelect.value) || 5;
+        }
+        
+        vdbCurrentReqPage = 1;
+        if (typeof window.vdbRenderReqPagination === "function") {
+            window.vdbRenderReqPagination();
+        }
+        console.log("🟢 [Req Sort] Đã gọt dòng Bảng Duyệt Tiền vách trên thành: " + theSelect.value);
+    };
+
+    // 🪐 HÀM 2: Điều phối số lượng dòng hiển thị độc quyền cho BẢNG KHO ĐỀ THI ĐA MÔN (Vách dưới)
+    window.vdbUpdateRowsPerPage = function() {
+        const theSelect = document.getElementById("vdbRowsPerPageSelect");
+        if (!theSelect) return;
+        
+        const theBody = document.getElementById("vungChuaDongDeThi");
+        if (!theBody) return;
+        
+        const tongSoHang = theBody.querySelectorAll("tr").length;
+        
+        if (theSelect.value === "all") {
+            vdbRowsPerPage = tongSoHang || 9999;
+        } else {
+            vdbRowsPerPage = parseInt(theSelect.value) || 10;
+        }
+        
+        vdbCurrentPage = 1;
+        if (typeof window.vdbRenderPagination === "function") {
+            window.vdbRenderPagination();
+        }
+        console.log("🟢 [Exam Sort] Đã gọt dòng Bảng Kho Đề Thi vách dưới thành: " + theSelect.value);
+    };
+    
+    // 🎯 MẮT XÍCH LIÊN THÔNG VÀNG MƯỜI: Cấy nẹp bẫy lệnh vào đuôi hàm load danh sách để tự động gọt trang ngay sau khi AJAX đúc bảng xong!
+    const vdbGocLoadPendingRequests = window.loadPendingRequests;
+    window.loadPendingRequests = function() {
+        if (typeof vdbGocLoadPendingRequests === "function") vdbGocLoadPendingRequests();
+        
+        // Sử dụng chu kỳ trễ siêu tốc để bảo đảm dữ liệu HTML đúc xong là bọc thép phân trang ngay tích tắc!
+        setTimeout(() => {
+            window.vdbRenderReqPagination();
+        }, 150);
+    };
     </script>
 </body>
 </html>
+
 

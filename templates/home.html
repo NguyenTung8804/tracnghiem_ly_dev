@@ -2,29 +2,40 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vietdragon Learning Center - Đề Thi Vật Lý</title>
-</head>
-<body>
+    
+    <!-- 🧠 BỘ NÃO NGẦM PHẲNG SẠCH: Đóng đinh thẻ style nằm chễm chệ bên trong vách ngăn head -->
     <style>
-        :root { --primary-color: #1a365d; --accent-color: #2b6cb0; --bg-color: #f7fafc; }
-        body { font-family: "Times New Roman", serif; background-color: var(--bg-color); margin: 0; padding: 0; text-align: center; }
+        :root { 
+            --primary-color: #1a365d; 
+            --accent-color: #2b6cb0; 
+            --bg-color: #f7fafc; 
+        }
+        body { 
+            font-family: "Times New Roman", serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            text-align: center; 
+        }
         .navbar {
             background-color: var(--primary-color);
             color: white;
             padding: 18px 30px;
             display: flex;
-            flex-direction: column; /* Xếp các dải dòng theo hàng dọc đứng tắp lự */
-            align-items: flex-start; /* Dạt toàn bộ chữ bám sát sang vách lề trái chuẩn chỉ */
+            flex-direction: column;
+            align-items: flex-start;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: left;
         }
         .v-brand-container {
             display: flex;
             align-items: center;
-            gap: 12px; /* Tạo khoảng cách đệm thoáng đãng giữa logo rồng và chữ */
+            gap: 12px;
         }
         .v-brand-logo {
-            font-size: 24px; /* Biểu tượng con rồng xanh rực rỡ */
+            font-size: 24px;
             display: flex;
             align-items: center;
         }
@@ -44,59 +55,265 @@
             font-family: "Times New Roman", serif;
             opacity: 0.9;
             color: white;
-        }        
-        .container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 50px auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
         h2 { color: var(--primary-color); margin-bottom: 10px; }
         .sub-title { font-style: italic; color: #718096; margin-bottom: 40px; }
         .exam-list { display: flex; flex-direction: column; gap: 20px; }
-        .exam-card { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; transition: all 0.3s; text-decoration: none; color: #2d3748; }
-        .exam-card:hover { border-color: var(--accent-color); box-shadow: 0 4px 12px rgba(43,108,176,0.15); transform: translateY(-2px); }
+        .exam-card { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 20px 30px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 8px; 
+            background: #fff; 
+            transition: all 0.3s; 
+            text-decoration: none; 
+            color: #2d3748; 
+        }
+        .exam-card:hover { 
+            border-color: var(--accent-color); 
+            box-shadow: 0 4px 12px rgba(43,108,176,0.15); 
+            transform: translateY(-2px); 
+        }
         .exam-title { font-size: 20px; font-weight: bold; color: var(--primary-color); }
-        .exam-info { font-size: 16px; color: #718096; margin-top: 5px; }
-        .btn-start { background-color: var(--accent-color); color: white; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 16px; }
-        .exam-card:hover .btn-start { background-color: var(--primary-color); }
-    </style>
-    <!-- 🪐 1. PHẦN CSS TỰ CHẾ NÂNG CẤP SIÊU GỌN NHẸ - KHÔNG LO TRÀN MÀN HÌNH -->
-    <style>
-        /* Lớp nền mờ tối dịu che toàn màn hình */
+        .exam-meta { font-size: 15px; color: #718096; margin-top: 5px; }
+        .btn-start { 
+            background-color: #48bb78; 
+            color: white; 
+            padding: 10px 24px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            border: none; 
+            cursor: pointer;
+        }
+        .btn-unlock { 
+            background-color: #e53e3e; 
+            color: white; 
+            padding: 10px 24px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            border: none; 
+            cursor: pointer;
+        }
         .v-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6); display: none; justify-content: center;
             align-items: center; z-index: 9999; backdrop-filter: blur(2px);
         }
-        /* Chiếc hộp Pop-up bo góc mềm mại, nén chặt chiều cao thông minh */
         .v-modal-box {
             background: #fff; width: 100%; max-width: 420px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid #ff4757;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid var(--primary-color);
             overflow: hidden; animation: popIn 0.25s ease-out;
         }
         @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .v-modal-header { background: #ff4757; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .v-modal-header { background: var(--primary-color); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
         .v-modal-title { font-size: 15px; font-weight: bold; margin: 0; }
         .v-modal-close { background: none; border: none; color: white; font-size: 22px; cursor: pointer; line-height: 1; }
-        
-        /* Gọt nhỏ khoảng đệm để dồn các nút bấm lên trên */
-        .v-modal-body { padding: 12px 20px; text-align: center; font-family: "Times New Roman", serif; }
+        .v-modal-body { padding: 15px 20px; text-align: center; }
         .v-modal-footer { background: #f8f9fa; padding: 10px 15px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; }
-        
-        .v-form-group { text-align: left; margin-bottom: 8px; }
+        .v-form-group { text-align: left; margin-bottom: 10px; }
         .v-form-group label { display: block; font-size: 12px; font-weight: bold; color: #495057; margin-bottom: 3px; }
-        .v-form-control { width: 100%; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 13px; }
-        .v-form-control:focus { border-color: #ff4757; outline: none; box-shadow: 0 0 0 3px rgba(255,71,87,0.2); }
+        .v-form-control { width: 100%; padding: 7px 10px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 13px; }
+        .v-form-control:focus { border-color: var(--accent-color); outline: none; }
     </style>
+</head>
+<body>
 
-    <!-- 🪐 2. CẤU TRÚC HTML THÔ TỰ CHẾ KHÍT PHÁCH MỸ THUẬT PHẲNG SẠCH -->
+    <!-- 🐉 THANH HEADER BANNER SONG NGỮ CHUẨN KHÍT 100% THEO THƯƠNG HIỆU MỚI -->
+    <div class="navbar">
+        <div class="v-brand-container">
+            <span class="v-brand-logo">🐉</span>
+            <h1 class="v-brand-title">VIETDRAGON IDB</h1>
+        </div>
+        <div class="v-brand-subtitle">NGÂN HÀNG DỮ LIỆU ĐỀ THI THÔNG MINH | Intelligent Data Bank</div>
+    </div>
+
+    <div class="container">
+        <h2 style="color: #1a365d; font-weight: 800; font-size: 26px; font-family: 'Times New Roman', serif; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Hệ Thống Ngân Hàng Đề Thi Trắc Nghiệm Thông Minh</h2>
+        <p class="sub-title">Vui lòng chọn một đề thi bên dưới để bắt đầu tính giờ làm bài thi thử</p>
+
+        <!-- 🐉 PHÂN KHU HỘP BẺ KHÓA DỰ PHÒNG BẰNG MÃ KÍCH HOẠT VÀO THI -->
+        <div style="background: #fff5f5; border: 2px dashed #e53e3e; padding: 18px 25px; border-radius: 10px; margin-bottom: 35px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <h4 style="margin-top: 0; color: #1a365d; font-weight: bold; font-size: 16px; margin-bottom: 8px;">🔑 BẠN ĐÃ CÓ MÃ KÍCH HOẠT PHÒNG THI?</h4>
+            <p style="margin: 0 0 12px 0; color: #718096; font-size: 13px; line-height: 1.4;">Nếu bạn đã được duyệt tiền và nhận "Mã Vào Thi" qua Email, hãy gõ nhập mã vào đây để mở khóa phòng thi lập tức!</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <input type="text" id="txtMaKichHoat" placeholder="Ví dụ: 616d7cf4" style="padding: 8px 15px; border: 1px solid #ced4da; border-radius: 6px; width: 60%; font-family: monospace; font-size: 14px; font-weight: bold; text-align: center; text-transform: lowercase;">
+                <button type="button" class="btn-unlock" style="padding: 8px 20px; font-size: 14px; margin: 0;" onclick="kichNoBeKhoaPhongThi()">🚀 Mở Khóa Đề</button>
+            </div>
+        </div>
+        <!-- 🐉 Bộ lọc dropdown--------- -->
+        <!-- 🐉 BIẾN HÌNH MẶT TIỀN: HỆ THỐNG BỘ LỌC ĐA TẦNG THÔNG MINH VIETDRAGON IDB (HỆ DỮ LIỆU ĐỘNG VẠN NĂNG) -->
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 22px 25px; border-radius: 16px; margin-bottom: 35px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); max-width: 1200px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; border-bottom: 2px solid #edf2f7; padding-bottom: 8px;">
+                <span style="font-size: 18px;">🔍</span>
+                <h4 style="margin: 0; color: #1a365d; font-weight: 800; font-size: 16px; font-family: 'Times New Roman', serif; text-transform: uppercase; letter-spacing: 0.5px;">Bộ lọc tìm kiếm đề thi thông minh</h4>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; box-sizing: border-box;">
+                <!-- 1. Lọc Môn học -->
+                <div style="display: flex; flex-direction: column; width: 100%;">
+                    <label style="display: block; font-size: 12.5px; font-weight: bold; color: #4a5568; margin-bottom: 5px; font-family: 'Times New Roman', serif;">📘 Môn Học</label>
+                    <select id="filterMonHoc" onchange="kichNoThuatToanLocDong()" style="width: 100%; height: 40px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #2b6cb0; background-color: #f8fafc; font-size: 13px; font-family: 'Times New Roman', serif; box-sizing: border-box; cursor: pointer; text-align: center;">
+                        <option value="tat_ca">✨ Tất Cả</option>
+                    </select>
+                </div>
+
+                <!-- 2. Lọc Khối lớp -->
+                <div style="display: flex; flex-direction: column; width: 100%;">
+                    <label style="display: block; font-size: 12.5px; font-weight: bold; color: #4a5568; margin-bottom: 5px; font-family: 'Times New Roman', serif;">🎒 Khối Lớp</label>
+                    <select id="filterLopHoc" onchange="kichNoThuatToanLocDong()" style="width: 100%; height: 40px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #9c27b0; background-color: #f8fafc; font-size: 13px; font-family: 'Times New Roman', serif; box-sizing: border-box; cursor: pointer; text-align: center;">
+                        <option value="tat_ca">✨ Tất Cả</option>
+                    </select>
+                </div>
+
+                <!-- 3. Lọc Năm học -->
+                <div style="display: flex; flex-direction: column; width: 100%;">
+                    <label style="display: block; font-size: 12.5px; font-weight: bold; color: #4a5568; margin-bottom: 5px; font-family: 'Times New Roman', serif;">📅 Năm Học</label>
+                    <select id="filterNamHoc" onchange="kichNoThuatToanLocDong()" style="width: 100%; height: 40px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #ff4757; background-color: #f8fafc; font-size: 13px; font-family: 'Times New Roman', serif; box-sizing: border-box; cursor: pointer; text-align: center;">
+                        <option value="tat_ca">✨ Tất Cả</option>
+                    </select>
+                </div>
+
+                <!-- 4. Lọc Trường Biên Soạn -->
+                <div id="khuVucLocTruong" style="display: flex; flex-direction: column; width: 100%;">
+                    <label style="display: block; font-size: 12.5px; font-weight: bold; color: #4a5568; margin-bottom: 5px; font-family: 'Times New Roman', serif;">🏫 Trường Học</label>
+                    <select id="filterTruongHoc" onchange="kichNoThuatToanLocDong()" style="width: 100%; height: 40px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #e67e22; background-color: #f8fafc; font-size: 13px; font-family: 'Times New Roman', serif; box-sizing: border-box; cursor: pointer; text-align: center;">
+                        <option value="tat_ca">✨ Tất Cả</option>
+                    </select>
+                </div>
+
+                <!-- 5. Lọc Loại đề thi (ĐÃ ĐỘNG HÓA TOÀN DIỆN KHÔNG CÒN VIẾT CỨNG) -->
+                <div style="display: flex; flex-direction: column; width: 100%;">
+                    <label style="display: block; font-size: 12.5px; font-weight: bold; color: #4a5568; margin-bottom: 5px; font-family: 'Times New Roman', serif;">📝 Loại Đề Thi</label>
+                    <select id="filterLoaiDe" onchange="kichNoThuatToanLocDong()" style="width: 100%; height: 40px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #2d3748; background-color: #f8fafc; font-size: 13px; font-family: 'Times New Roman', serif; box-sizing: border-box; cursor: pointer; text-align: center;">
+                        <option value="tat_ca">✨ Tất Cả</option>
+                    </select>
+                </div>
+
+                <!-- 6. Lọc Giá tiền -->
+                <div style="display: flex; flex-direction: column; width: 100%;">
+                    <label style="display: block; font-size: 12.5px; font-weight: bold; color: #4a5568; margin-bottom: 5px; font-family: 'Times New Roman', serif;">💰 Học Phí / Giá</label>
+                    <select id="filterGiaTien" onchange="kichNoThuatToanLocDong()" style="width: 100%; height: 40px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #38a169; background-color: #f8fafc; font-size: 13px; font-family: 'Times New Roman', serif; box-sizing: border-box; cursor: pointer; text-align: center;">
+                        <option value="tat_ca">✨ Tất Cả</option>
+                        <option value="mien_phi">🎉 Miễn Phí</option>
+                        <option value="tra_phi">🔒 Có Phí</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- 🐉 End Bộ lọc dropdown--------- -->        
+        <div class="exam-list">
+            <!-- 🐉 KHỞI HỎA VÒNG LẶP JINJA2 ĐỘNG: Đã đồng bộ phách biến socau và thoigian viết liền chân phương -->
+            {% for de in danh_sach_de %}
+                <div class="exam-card" 
+                     data-mon="{{ de.get('mon_thi', 'Vật Lý') }}"
+                     data-nam="{{ de.get('nam', '2026') }}"
+                     data-lop="{{ de.get('lop', '12') }}"
+                     data-truong="{{ de.get('truong', 'Bộ Giáo Dục') }}"
+                     data-loaide="{{ de.get('ten_de', 'Đề thi thử đại học') }}"
+                     data-gia="{{ de.get('gia_tien', 0) }}"
+                     style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                     onclick="checkExamAccess('{{ de.de_so }}', '{{ de.gia_tien }}')">
+                    <div style="text-align: left;">
+                        <div class="exam-title" style="font-family: 'Times New Roman', serif; font-weight: bold; color: #1a365d;">
+                            {{ de.ten_de }}
+                            <span style="color: #718096; font-size: 14px; font-weight: normal; margin-left: 5px; font-family: 'Times New Roman', serif;">
+                                ({% if de.truong %}{{ de.truong }}{% else %}Bộ Giáo Dục{% endif %} - Năm {{ de.get('nam', '2026') }})
+                            </span>
+                        </div>
+                        <div class="exam-meta">Số lượng: {{ de.socau }} câu hỏi | Thời gian: {{ de.thoigian }} phút</div>
+                        
+                        <!-- BỘ LỌC ĐIỀU HƯỚNG NHẬN DIỆN BIẾN MIỄN PHÍ VÀ CÁC MỨC GIÁ TRẢ PHÍ -->
+                        {% if de.loai_de == "mien_phi" %}
+                            <div style="color: #48bb78; font-size: 13px; font-weight: bold; margin-top: 5px;">🎉 MIỄN PHÍ</div>
+                        {% else %}
+                            <div style="color: #e53e3e; font-size: 13px; font-weight: bold; margin-top: 5px;">🔒 TRẢ PHÍ ({{ (de.gia_tien // 1000) }}K)</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- NÚT BẤM TỰ ĐỘNG BIẾN HÌNH THEO THUỘC TÍNH ĐỀ -->
+                    {% if de.loai_de == "mien_phi" %}
+                        <button class="btn-start" onclick="event.stopPropagation(); checkExamAccess('{{ de.de_so }}', '{{ de.gia_tien }}')">Vào Thi</button>
+                    {% else %}
+                        <button class="btn-unlock" onclick="event.stopPropagation(); checkExamAccess('{{ de.de_so }}', '{{ de.gia_tien }}')">Mở Khóa</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- 🪐 [VIETDRAGON IDB] BỆ KHUNG THANH ĐIỀU HƯỚNG PHÂN TRANG HOÀNG GIA TRANG CHỦ -->
+    <div id="vdbHomePaginationContainer" style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px; margin: 30px 0; font-family: 'Times New Roman', serif; user-select: none;">
+        <button onclick="vdbChangeHomePage(-1)" id="vdbBtnPrevHomePage" style="padding: 10px 20px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #ffffff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;">◀ Đề Trước</button>
+        
+        <div style="background: #ffffff; padding: 10px 22px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #1e3a8a; font-size: 15px;">
+            📄 Trang Đề: <span id="vdbCurrentHomePageDisplay">1</span> / <span id="vdbTotalHomePageDisplay">1</span>
+        </div>
+        
+        <button onclick="vdbChangeHomePage(1)" id="vdbBtnNextHomePage" style="padding: 10px 20px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #ffffff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;">Đề Tiếp ▶</button>
+
+        <!-- 👁️ HỘP CHỌN CO GIÃN SỐ LƯỢNG ĐỀ HIỂN THỊ ĐA NĂNG -->
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #1e3a8a; background: #ffffff; padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 14px;">
+            <span>👁️ Xem:</span>
+            <select id="vdbHomeRowsSelect" onchange="vdbUpdateHomeRowsPerPage()" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #1e3a8a; outline: none; cursor: pointer; background: #f8fafc;">
+                <option value="10">10 đề</option>
+                <option value="20" selected>20 đề</option>
+                <option value="50">50 đề</option>
+                <option value="all">Tất cả</option>
+            </select>
+        </div>
+    </div>
+    <!-- 🪐 [VIETDRAGON IDB] KIỆT TÁC CHÂN TRANG TRƯỜNG TỒN VĨNH CỬU KẾT NỐI ĐA KÊNH THƯƠNG MẠI -->
+    <footer style="background: linear-gradient(to right, #0f172a, #1e3a8a, #0f172a); color: #94a3b8; padding: 35px 20px; text-align: center; font-family: 'Times New Roman', serif; border-top: 2px solid #3b82f6; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); margin-top: 50px; user-select: none;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;">
+            <!-- Tầng 1: Tên hệ thống tối cao -->
+            <div style="color: #ffffff; font-weight: bold; font-size: 16px; letter-spacing: 1.5px; text-transform: uppercase;">
+                © VIETDRAGON INTELLIGENT DATA BANK (VIETDRAGON IDB). All rights reserved.
+            </div>
+            
+            <!-- Tầng 2: Danh tính Tổng công trình sư điều hành và Khối mạng lưới kết nối đa kênh -->
+            <div style="font-size: 14px; color: #f8fafc; font-weight: 500; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin: 5px 0;">
+                <span>👑 <b>Trưởng nhóm phát triển:</b> TS. Nguyễn Danh Tùng</span>
+                <span>|</span>
+                <span>📧 <b>Email:</b> <a href="mailto:danhtungvvl@gmail.com" style="color: #38bdf8; text-decoration: none;">danhtungvvl@gmail.com</a></span>
+                <span>|</span>
+                <span>💬 <b>Zalo:</b> <span style="color: #38bdf8;">0915477030</span> hoặc <span style="color: #38bdf8;">+79250237741</span></span>
+            </div>
+            
+            <div style="font-size: 13px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px;">
+                <a href="https://facebook.com/tung.d.nguyen.7" target="_blank" style="color: #60a5fa; text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: bold;">
+                    📘 Facebook cá nhân
+                </a>
+                <a href="https://youtube.com/@tungdanhnguyen2625" target="_blank" style="color: #f87171; text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: bold;">
+                    📺 Kênh Youtube Học Thuật
+                </a>
+            </div>
+
+            <!-- Tầng 3: Phụ đề dịch thuật chính quy định vị hệ thống -->
+            <div style="font-size: 12px; color: #38bdf8; font-style: italic; letter-spacing: 0.5px; margin-top: 5px; border-top: 1px solid rgba(148, 163, 184, 0.2); padding-top: 10px;">
+                Hệ thống Khảo thí & Dữ liệu Lập trình Thông minh | Intelligent Assessment & Big Data System
+            </div>
+        </div>
+    </footer>
+    <!-- 🐉 HỘP POP-UP THANH TOÁN QR TỰ CHẾ (NẰM ẨN GỌN GÀNG Ở CHÂN TRANG) -->
     <div id="vPaymentModal" class="v-modal-overlay" onclick="if(event.target===this) closePaymentModal()">
         <div class="v-modal-box">
             <div class="v-modal-header">
-                <h5 class="v-modal-title">🔒 MỞ KHÓA ĐỀ THI TRẢ PHÍ VIETDRAGON</h5>
+                <h5 class="v-modal-title">🔐 MỞ KHÓA PHÒNG THI VIETDRAGON IDB</h5>
                 <button type="button" class="v-modal-close" onclick="closePaymentModal()">&times;</button>
             </div>
             <div class="v-modal-body">
-                <p style="color: #6c757d; font-size: 12px; margin-bottom: 15px;">Vui lòng quét mã QR dưới đây để chuyển khoản học phí. Hệ thống sẽ cấp quyền vào thi sau khi Giáo viên đối soát duyệt thành công!</p>
+                <p style="color: #6c757d; font-size: 12px; margin-top: 0; margin-bottom: 15px;">Vui lòng quét mã QR dưới đây để chuyển khoản học phí. Hệ thống sẽ cấp quyền vào thi sau khi Giáo viên đối soát duyệt thành công!</p>
                 
                 <div style="padding: 6px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; margin-bottom: 10px;">
-                    <!-- 🔥 KHỐNG CHẾ ẢNH QR SIÊU GỌN: Giới hạn chiều cao max-height 160px để kéo toàn bộ Form lên trên màn hình -->
                     <img id="imgQR" src="" style="width: 100%; max-width: 160px; max-height: 160px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" alt="Mã QR Chuyển Khoản">
                     <h3 style="color: #ff4757; font-weight: bold; margin-top: 4px; font-size: 18px; margin-bottom: 0;" id="lblGiaTien">Học phí: 20.000đ</h3>
                 </div>
@@ -112,39 +329,43 @@
                 <input type="hidden" id="payDeSo" value="">
             </div>
             <div class="v-modal-footer">
-                <button type="button" class="btn-start" style="background: #6c757d; color: white; padding: 6px 15px; font-size: 14px; border-radius: 4px;" onclick="closePaymentModal()">Đóng</button>
-                <button type="button" class="btn-start" style="background: #ff4757; color: white; padding: 6px 15px; font-size: 14px; border-radius: 4px;" onclick="sendPaymentRequestToServer()">🚀 GỬI YÊU CẦU MỞ KHÓA</button>
+                <button type="button" class="btn-start" style="background:#6c757d; padding: 6px 15px; font-size: 14px;" onclick="closePaymentModal()">Đóng</button>
+                <button type="button" class="btn-unlock" style="padding: 6px 15px; font-size: 14px;" onclick="sendPaymentRequestToServer()">🚀 GỬI YÊU CẦU MỞ KHÓA</button>
             </div>
         </div>
     </div>
 
-    <!-- 🪐 3. BỘ NÃO JAVASCRIPT THUẦN (VANILLA JS) CHẠY TỐC ĐỘ ÁNH SÁNG -->
+    <!-- 🪐 BỘ NÃO JAVASCRIPT ĐIỀU HƯỚNG SỬA TRÙNG CHẤT LỰ CHÂN PHƯƠNG -->
     <script>
-        function checkExamAccess(deSo, giaTien) {
-            if (parseInt(giaTien) === 0) {
-                // Đề miễn phí -> Cho bay thẳng vào phòng thi vèo một phát sầm sập sướng mắt!
-                window.location.href = "/thi?de_so=" + deSo;
-            } else {
-                // Đề trả phí -> Bật hiển thị lớp nền mờ tối dịu tự chế cục bộ tốc độ 0 miligiây!
-                document.getElementById('vPaymentModal').style.display = 'flex';
-                
-                document.getElementById('payDeSo').value = deSo;
-                document.getElementById('lblGiaTien').innerHTML = `Học phí: ${parseInt(giaTien).toLocaleString('vi-VN')}đ`;
-                
-                // 📸 BỐC ẢNH QR CỤC BỘ TỪ THƯ MỤC TRANG WEB CỦA BẠN CHẮN CHẮN:
-                // Hệ thống tự động nhận diện mã đề số để lội vào thư mục bốc trúng ảnh tương ứng (qr_de_2.png hoặc qr_de_3.png)
-                document.getElementById('imgQR').src = `/static/qr_de_${deSo}.png`;
-                
-                // Lưu ý: Nếu bạn để file ảnh ở ngay thư mục gốc bám sát file main.py, bạn hãy sửa dòng trên thành:
-                // document.getElementById('imgQR').src = `/qr_de_${deSo}.png`;
-            }
-        }
-
         function closePaymentModal() {
             document.getElementById('vPaymentModal').style.display = 'none';
         }
 
-        // 🪐 HÀM GỬI YÊU CẦU ĐỐI SOÁT THANH TOÁN CSS THUẦN KHÔNG SỬ DỤNG THƯ VIỆN BOOTSTRAP THỪA MÃ
+        function checkExamAccess(deSo, giaTien) {
+            const hocPhi = parseInt(giaTien);
+            
+            if (hocPhi === 0) {
+                // Đề miễn phí -> Cho học sinh bay thẳng vào phòng thi vèo một phát sầm sập sướng mắt!
+                // 🚀 LÁ CHẮN TỰ ĐỘNG PHÊ DUYỆT ĐỀ MIỄN PHÍ: Cấp phách lập tức không cần đòi mã Hex!
+                sessionStorage.setItem("ma_da_duyet_" + deSo, "DA_XAC_THUC");
+                window.location.href = "/thi?de_so=" + deSo;
+            } else {
+                // Đề trả phí -> Bật hiển thị lớp nền mờ tối dịu tự chế kịch trần lập tức 0 miligiây!
+                document.getElementById('vPaymentModal').style.display = 'flex';
+                
+                document.getElementById('payDeSo').value = deSo;
+                document.getElementById('lblGiaTien').innerHTML = `Học phí: ${hocPhi.toLocaleString('vi-VN')}đ`;
+                
+                // 🚀 THUẬT TOÁN TOÁN HỌC: Bỏ đi 3 chữ số 0 ở vách đuôi giá tiền (Chia cho 1000)
+                // Ví dụ: 20000đ -> tinh_toan = 20 | 50000đ -> tinh_toan = 50 | 100000đ -> tinh_toan = 100
+                const tinh_toan = hocPhi / 1000;
+                
+                // Ép đường dẫn tự động đúc tên file ảnh: qr_gia_20.png, qr_gia_50.png, qr_gia_100.png...
+                document.getElementById('imgQR').src = `/static/qr_gia_${tinh_toan}.png`;
+                
+                console.log(`📡 Kích nổ Pop-up Đề ${deSo} | Mức giá: ${hocPhi}đ -> Nạp tươi file ảnh: qr_gia_${tinh_toan}.png`);
+            }
+        }
         function sendPaymentRequestToServer() {
             const email = document.getElementById('payEmail').value.trim();
             const ma_giao_dich = document.getElementById('payMaGiaoDich').value.trim();
@@ -155,8 +376,7 @@
                 return;
             }
 
-            // === TEST CONSOLE KÍCH NỔ BẮN DỮ LIỆU ===
-            console.log(`👉 Đang bắn gói tin đối soát về Python: Email=${email} | MaGD=${ma_giao_dich} | De=${de_so}`);
+            console.log(`📡 Đang bắn gói tin đối soát về Python: Email=${email} | MaGD=${ma_giao_dich} | De=${de_so}`);
 
             fetch('/api/request_access', {
                 method: 'POST',
@@ -166,108 +386,219 @@
             .then(res => res.json()).then(data => {
                 alert(data.message);
                 if (data.status === "success" || data.status === "info") {
-                    // 🔥 CHỐT CHẶN VÀNG MƯỜI: Đóng Pop-up tự chế cục bộ siêu tốc độ, xóa sạch bóng dáng rác lỗi bootstrap cũ!
                     closePaymentModal();
-                    
-                    // Tiện tay dọn sạch bóng chữ cũ trong 2 ô nhập liệu để lần sau giáo viên/học sinh gõ lại phẳng sạch
                     document.getElementById('payEmail').value = "";
                     document.getElementById('payMaGiaoDich').value = "";
                 }
             })
             .catch(err => alert("Lỗi kết nối cổng thanh toán: " + err));
         }
-    </script>
 
-    <div class="navbar">
-        <div class="v-brand-container">
-            <span class="v-brand-logo">🐉</span>
-            <h1 class="v-brand-title">VIETDRAGON IDB</h1>
-        </div>
-        <div class="v-brand-subtitle">NGÂN HÀNG DỮ LIỆU ĐỀ THI THÔNG MINH | Intelligent Data Bank</div>
-    </div>
-
-    <div class="container">
-        <h2>KHO ĐỀ THI TỐT NGHIỆP THPT NĂM 2026</h2>
-        <p class="sub-title">Vui lòng chọn một đề thi bên dưới để bắt đầu tính giờ làm bài thử</p>
-
-        <div class="exam-list">
-            <!-- 👑 ĐỀ SỐ 1: GIẢ ĐỊNH MIỄN PHÍ (0đ) -->
-            <div class="exam-card" style="cursor: pointer;" onclick="checkExamAccess('1', '0')">
-                <div style="text-align: left;">
-                    <div class="exam-title">Môn Vật Lý - Đề Thi Thử Số 01</div>
-                    <div class="exam-info">Số lượng: 5 câu hỏi | Thời gian: 50 phút</div>
-                    <span class="badge bg-success text-white px-2 py-1 rounded shadow-sm" style="font-size: 11px; display: inline-block; mt-1;">🎉 MIỄN PHÍ</span>
-                </div>
-                <div class="btn-start">Vào Thi</div>
-            </div>
-
-            <!-- 👑 ĐỀ SỐ 2: GIẢ ĐỊNH TRẢ PHÍ (20.000đ) -->
-            <div class="exam-card" style="cursor: pointer;" onclick="checkExamAccess('2', '20000')">
-                <div style="text-align: left;">
-                    <div class="exam-title">Môn Vật Lý - Đề Thi Thử Số 02</div>
-                    <div class="exam-info">Số lượng: 5 câu hỏi | Thời gian: 50 phút</div>
-                    <span class="badge bg-danger text-white px-2 py-1 rounded shadow-sm" style="font-size: 11px; display: inline-block; mt-1;">🔒 TRẢ PHÍ (20K)</span>
-                </div>
-                <div class="btn-start" style="background-color: #dc3545; border-color: #dc3545; color: white;">Mở Khóa</div>
-            </div>
-
-            <!-- 👑 ĐỀ SỐ 3: GIẢ ĐỊNH TRẢ PHÍ (50.000đ) -->
-            <div class="exam-card" style="cursor: pointer;" onclick="checkExamAccess('3', '50000')">
-                <div style="text-align: left;">
-                    <div class="exam-title">Môn Vật Lý - Đề Thi Thử Số 03</div>
-                    <div class="exam-info">Số lượng: 5 câu hỏi | Thời gian: 50 phút</div>
-                    <span class="badge bg-danger text-white px-2 py-1 rounded shadow-sm" style="font-size: 11px; display: inline-block; mt-1;">🔒 TRẢ PHÍ (50K)</span>
-                </div>
-                <div class="btn-start" style="background-color: #dc3545; border-color: #dc3545; color: white;">Mở Khóa</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🪐 2. BỘ NÃO JAVASCRIPT ĐIỀU HƯỚNG BẮT TRÙNG VÀ BẮN REQUEST VỀ PYTHON -->
-    <script>
-        function checkExamAccess(deSo, giaTien) {
-            if (parseInt(giaTien) === 0) {
-                // Đề miễn phí -> Cho bay thẳng vào phòng thi vèo một phát sầm sập sướng mắt!
-                window.location.href = "/thi?de_so=" + deSo;
-            } else {
-                // Đề trả phí -> Bật hiển thị lớp nền mờ tối dịu tự chế cục bộ tốc độ 0 miligiây!
-                document.getElementById('vPaymentModal').style.display = 'flex';
-                
-                document.getElementById('payDeSo').value = deSo;
-                document.getElementById('lblGiaTien').innerHTML = `Học phí: ${parseInt(giaTien).toLocaleString('vi-VN')}đ`;
-                
-                // 🚀 NẸP KHÓA CHẤT LƯ ĐƯỜNG DẪN: Biên dịch Jinja2 bốc thẳng ảnh cục bộ từ thư mục static lên RAM
-                if (deSo === '2' || deSo == 2) {
-                    document.getElementById('imgQR').src = "{{ url_for('static', path='qr_de_2.png') }}";
-                } else if (deSo === '3' || deSo == 3) {
-                    document.getElementById('imgQR').src = "{{ url_for('static', path='qr_de_3.png') }}";
-                }
-            }
-        }
-
-        function sendPaymentRequestToServer() {
-            const email = document.getElementById('payEmail').value.trim();
-            const ma_giao_dich = document.getElementById('payMaGiaoDich').value.trim();
-            const de_so = document.getElementById('payDeSo').value;
-
-            if (!email || !ma_giao_dich) {
-                alert("🚨 LỖI GÕ THIẾU: Vui lòng nhập đầy đủ Email và Mã giao dịch ngân hàng!");
+        // 🪐 HÀM KÍCH NỔ BẺ KHÓA DỰ PHÒNG BẰNG MÃ VÀO THI (DÁN NỐI ĐUÔI TRONG THỂ SCRIPT VÁCH ĐÁY)
+        function kichNoBeKhoaPhongThi() {
+            const mã = document.getElementById("txtMaKichHoat").value.trim().toLowerCase();
+            if (!mã) {
+                alert("🚨 LỖI GÕ THIẾU: Vui lòng nhập Mã kích hoạt phòng thi của bạn!");
                 return;
             }
 
-            fetch('/api/request_access', {
+            fetch('/api/verify_activation_code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, de_so: de_so, ma_giao_dich: ma_giao_dich })
+                body: JSON.stringify({ ma_kich_hoat: mã })
             })
-            .then(res => res.json()).then(data => {
+            .then(res => res.json())
+            .then(data => {
                 alert(data.message);
-                if (data.status === "success") {
-                    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+                if (data.status === "success" && data.de_so) {
+                    // Bẻ khóa thành công -> Cho học sinh phi thẳng vào phòng thi tương ứng lập tức!
+                  // 🚀 GĂM THẺ THÔNG HÀNH NGẦM: Đóng dấu xác thực để vào phòng thi không bị hỏi lại mã
+                    sessionStorage.setItem("ma_da_duyet_" + data.de_so, "DA_XAC_THUC");
+                    window.location.href = "/thi?de_so=" + data.de_so;
                 }
             })
-            .catch(err => alert("Lỗi kết nối cổng thanh toán: " + err));
+            .catch(err => alert("Lỗi kết nối đối soát mã: " + err));
         }
+
+        // 🚀 THUẬT TOÁN TỰ ĐỘNG QUÉT KHO ĐỀ ĐỂ SINH MỤC CHỌN TRÊN DROPDOWN TRANG CHỦ KHI TRANG VỪA TẢI XONG
+        document.addEventListener("DOMContentLoaded", function() {
+            const cacTheCard = document.querySelectorAll(".exam-card");
+            
+            const tapMon = new Set();
+            const tapLop = new Set();
+            const tapNam = new Set();
+            const tapTruong = new Set();
+            const tapLoaiDe = new Set();
+
+            cacTheCard.forEach(card => {
+                let dMôn = card.getAttribute("data-mon") ? card.getAttribute("data-mon").trim() : "Vật Lý";
+                let dLoạiThô = card.getAttribute("data-loaide") ? card.getAttribute("data-loaide").trim() : "";
+                
+                // 🚀 BỘ LỌC THÔNG MINH VÁCH SAU: Tự động bẻ đôi chuỗi nếu dính chữ "Môn ... - " ngay tại RAM trình duyệt!
+                let dLoạiSạch = dLoạiThô;
+                if (dLoạiThô.includes(" - ")) {
+                    const băm = dLoạiThô.split(" - ");
+                    if (băm.length >= 2) {
+                        dLoạiSạch = băm[1].trim();
+                    }
+                }
+
+                // Cập nhật lại thuộc tính sạch sẽ vào thẻ card để phục vụ thuật toán lọc Live Filter răng rắc
+                card.setAttribute("data-loaide", dLoạiSạch);
+
+                if(card.getAttribute("data-mon")) tapMon.add(card.getAttribute("data-mon").trim());
+                if(card.getAttribute("data-lop")) tapLop.add(card.getAttribute("data-lop").trim());
+                if(card.getAttribute("data-nam")) tapNam.add(card.getAttribute("data-nam").trim());
+                if(dLoạiSạch) tapLoaiDe.add(dLoạiSạch);
+                if(card.getAttribute("data-truong") && card.getAttribute("data-truong").trim() !== "Bộ Giáo Dục") {
+                    tapTruong.add(card.getAttribute("data-truong").trim());
+                }
+            });
+
+            function ducOptionVaoSelect(idSelect, mảngDuLieu) {
+                const sObj = document.getElementById(idSelect);
+                if (!sObj) return;
+                
+                Array.from(mảngDuLieu).sort().forEach(val => {
+                    if (val && val !== "undefined" && val !== "null" && val.trim() !== "") {
+                        const opt = document.createElement("option");
+                        opt.value = val;
+                        opt.textContent = val;
+                        sObj.appendChild(opt);
+                    }
+                });
+            }
+
+            ducOptionVaoSelect("filterMonHoc", tapMon);
+            ducOptionVaoSelect("filterLopHoc", tapLop);
+            ducOptionVaoSelect("filterNamHoc", tapNam);
+            ducOptionVaoSelect("filterTruongHoc", tapTruong);
+            ducOptionVaoSelect("filterLoaiDe", tapLoaiDe);
+        });
+
+        function kichNoThuatToanLocDong() {
+            const mỏMôn = document.getElementById("filterMonHoc").value;
+            const mỏLớp = document.getElementById("filterLopHoc").value;
+            const mỏLoại = document.getElementById("filterLoaiDe").value;
+            const mỏNăm = document.getElementById("filterNamHoc").value;
+            const mỏGiá = document.getElementById("filterGiaTien").value;
+            const mỏTrường = document.getElementById("filterTruongHoc").value;
+
+            // Bộ não đóng mở tự động: Nếu xem Đề chính thức -> Giấu biến ô Trường
+            const khuVucTruong = document.getElementById("khuVucLocTruong");
+            if (khuVucTruong) {
+                if (mỏLoại === "Đề thi đại học chính thức") {
+                    khuVucTruong.style.display = "none";
+                } else {
+                    khuVucTruong.style.display = "flex";
+                }
+            }
+
+            const cacTheCard = document.querySelectorAll(".exam-card");
+
+            cacTheCard.forEach(card => {
+                const dMôn = card.getAttribute("data-mon");
+                const dNăm = card.getAttribute("data-nam");
+                const dLớp = card.getAttribute("data-lop");
+                const dTrường = card.getAttribute("data-truong");
+                const dLoại = card.getAttribute("data-loaide");
+                const dGiá = parseInt(card.getAttribute("data-gia")) || 0;
+
+                const khơpMon = (mỏMôn === "tat_ca" || dMôn === mỏMôn);
+                const khơpLop = (mỏLớp === "tat_ca" || dLớp === mỏLớp);
+                const khơpNam = (mỏNăm === "tat_ca" || dNăm === mỏNăm);
+                const khơpLoai = (mỏLoại === "tat_ca" || dLoại === mỏLoại);
+                const khơpTruong = (mỏLoại === "Đề thi đại học chính thức" || mỏTrường === "tat_ca" || dTrường === mỏTrường);
+                
+                let khơpGia = true;
+                if (mỏGiá === "mien_phi") khơpGia = (dGiá === 0);
+                if (mỏGiá === "tra_phi") khơpGia = (dGiá > 0);
+
+                if (khơpMon && khơpLop && khơpNam && khơpLoai && khơpTruong && khơpGia) {
+                    card.style.setProperty("display", "flex", "important");
+                } else {
+                    card.style.setProperty("display", "none", "important");
+                }
+            });
+        }
+
+    // 🪐 THUẬT TOÁN BỘ NÃO PHÂN TRANG BẢO VỆ LAYOUT GỐC CHO MẶT TIỀN TRANG CHỦ HOME.HTML
+    let vdbHomePage = 1;
+    let vdbHomeRowsPerPage = 20; // 🚀 MẶC ĐỊNH SỐ 20 VƯƠNG MIỆN: Ép nẹp cứng mỗi trang hiển thị đúng mốc 20 đề chằn chặn lúc vừa tải trang!
+
+    window.vdbRenderHomePagination = function() {
+        // 🎯 LÁ CHẮN BẢO VỆ TUYỆT ĐỐI: Dò quét trúng đích danh các khối card đề gốc của bạn bám sát ảnh chụp thực tế nhà bạn
+        // Thuật toán quét trọn gói các thẻ div mang thuộc tính data-gia hoặc class exam-card vách ngoài cùng
+        const tatCaCardDe = Array.from(document.querySelectorAll("[data-gia]"));
+        
+        const tongSoDe = tatCaCardDe.length;
+        const tongSoTrangHome = Math.ceil(tongSoDe / vdbHomeRowsPerPage) || 1;
+        
+        // Khống chế lá chắn kiểm soát biên độ trang an toàn vĩnh cửu
+        if (vdbHomePage > tongSoTrangHome) vdbHomePage = tongSoTrangHome;
+        if (vdbHomePage < 1) vdbHomePage = 1;
+        
+        // LÁ CHẮN ĐỒNG BỘ MẶT TIỀN: Nếu đang chọn "Tất cả", ép phách số trang hiển thị luôn là 1 / 1
+        if (vdbHomeRowsPerPage >= 9999) {
+            vdbHomePage = 1;
+        }
+        
+        // Quét lội qua từng khối card đề thi vách ngoài để gọt ẩn hiện thông minh, TUYỆT ĐỐI không chạm vào ruột bên trong!
+        tatCaCardDe.forEach((khoiDe, chiSo) => {
+            let vịTriDau = (vdbHomePage - 1) * vdbHomeRowsPerPage;
+            let vịTriCuoi = vịTriDau + vdbHomeRowsPerPage;
+            
+            if (chiSo >= vịTriDau && chiSo < vịTriCuoi) {
+                // 🚀 LONG MẠCH: Trả lại thuộc tính flex nguyên bản tối cao của bạn, ép nhãn dạt về biên phải kịch sàn!
+                khoiDe.style.setProperty("display", "flex", "important"); 
+            } else {
+                khoiDe.style.setProperty("display", "none", "important"); 
+            }
+        });
+        
+        // In phách số hiển thị lên mặt tiền công cụ bảng điều hướng vách đáy
+        const textHienTai = document.getElementById("vdbCurrentHomePageDisplay");
+        const textTongSo = document.getElementById("vdbTotalHomePageDisplay");
+        if (textHienTai) textHienTai.textContent = vdbHomePage;
+        if (textTongSo) textTongSo.textContent = tongSoTrangHome;
+        
+        // Khóa mờ nút bấm thông minh chống giật cuộn tiêu điểm trình duyệt
+        const btnPrev = document.getElementById("vdbBtnPrevHomePage");
+        const btnNext = document.getElementById("vdbBtnNextHomePage");
+        if (btnPrev) {
+            btnPrev.style.opacity = vdbHomePage === 1 ? "0.4" : "1";
+            btnPrev.style.pointerEvents = vdbHomePage === 1 ? "none" : "auto";
+        }
+        if (btnNext) {
+            btnNext.style.opacity = vdbHomePage === tongSoTrangHome ? "0.4" : "1";
+            btnNext.style.pointerEvents = vdbHomePage === tongSoTrangHome ? "none" : "auto";
+        }
+    };
+
+    // Hàm điều phối dịch chuyển trang khi học sinh bấm Tiến/Lùi trang chủ
+    window.vdbChangeHomePage = function(huongDi) {
+        vdbHomePage += huongDi;
+        window.vdbRenderHomePagination();
+    };
+
+    // Hàm bóp cò bẻ lái số lượng đề hiển thị khi chọn Dropdown mắt xem ô chọn ngoài mặt tiền
+    window.vdbUpdateHomeRowsPerPage = function() {
+        const theSelect = document.getElementById("vdbHomeRowsSelect");
+        if (!theSelect) return;
+        
+        if (theSelect.value === "all") {
+            vdbHomeRowsPerPage = 9999; // Xả trọn gói vương miện
+        } else {
+            vdbHomeRowsPerPage = parseInt(theSelect.value) || 10; // Cắt mốc 10, 20, 50 chằn chặn theo ý bạn
+        }
+        
+        vdbHomePage = 1; // Ép nhảy lùi về trang đầu để cấu hình lại layout tinh khiết từ đầu
+        window.vdbRenderHomePagination();
+        console.log("🪐 [Layout Restored] Đã đồng bộ phân trang bảo vệ 100% cấu trúc gốc của bạn, số mục: " + theSelect.value);
+    };
+
+    // MỎ NEO KÍCH NỔ: Bảo đảm nổ súng chạy mượt mà ngay tích tắc các thẻ dữ liệu nạp xong xuôi!
+    setTimeout(window.vdbRenderHomePagination, 150);
     </script>
 </body>
 </html>

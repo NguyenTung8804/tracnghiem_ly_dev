@@ -416,6 +416,58 @@ input.input-wrong {
     </style>
 </head>
 <body>
+    <!-- ==============THIẾT KẾ Ô THONG BÁO===================Y -->
+    <!-- 🏛️ [VIETDRAGON IDB] BỆ KHUNG MODAL BẢO MẬT HOÀNG GIA ĐA SẮC MÀU TÍCH HỢP TOAST DYNAMIC -->
+    <div id="vdbSecurityModal" style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); align-items: center; justify-content: center; font-family: 'Times New Roman', serif;">
+        <div id="vdbModalCard" style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 520px; box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(30, 58, 138, 0.05); border: none; animation: modalBounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; box-sizing: border-box; overflow: hidden; transition: all 0.3s;">
+            
+            <!-- 🌅 THANH TIÊU ĐỀ GRADIENT HOÀNG HÔN RỰC LỬA SANG TRỌNG -->
+            <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #dd6b20 100%); padding: 30px 20px; color: #ffffff; position: relative;">
+                <div id="vdbModalIcon" style="font-size: 42px; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); transition: all 0.3s;">🏛️</div>
+                <h3 id="vdbModalTitle" style="margin: 0 0 4px 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">VIETDRAGON IDB</h3>
+                <p id="vdbModalSubtitle" style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Hệ thống khảo thí chính thức quốc gia</p>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(to right, #dd6b20, #ff9f43);"></div>
+            </div>
+
+            <div id="vdbModalBody" style="padding: 30px 35px 35px 35px; box-sizing: border-box;">
+                <!-- 🛡️ HỘP THÔNG BÁO NỀN CAM CHÁY ĐỔ BÓNG MỀM MẠI -->
+                <div id="vdbAlertBox" style="text-align: left; background: #fffaf0; padding: 20px; border-radius: 12px; border-left: 5px solid #dd6b20; margin-bottom: 25px; border-top: 1px solid rgba(221,107,32,0.1); border-right: 1px solid rgba(221,107,32,0.1); border-bottom: 1px solid rgba(221,107,32,0.1); box-sizing: border-box; transition: all 0.3s;">
+                    <p id="vdbAlertTitle" style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #9c4221; display: flex; align-items: center; gap: 6px;">
+                        <span>🔐</span> XÁC THỰC QUYỀN LỢI & BẢO MẬT:
+                    </p>
+                    <p id="vdbAlertText" style="margin: 0; font-size: 14px; color: #4a5568; line-height: 1.6;">Vui lòng sao chép và nhập chính xác <b>MÃ XÁC THỰC PHÒNG THI</b> (Dải mã ID Hex đã được phê duyệt và gửi tự động vào Gmail của bạn).</p>
+                </div>
+                
+                <div id="vdbInputArea">
+                    <p style="margin: 0 0 10px 0; text-align: left; font-size: 14px; color: #1e3a8a; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                        <span>📝</span> Nhập mã thông hành trực tuyến tại đây:
+                    </p>
+                    <input type="text" id="vdbSecurityInput" placeholder="Ví dụ: 407bac87" style="width: 100%; padding: 14px 16px; font-size: 18px; border: 2px solid #cbd5e1; border-radius: 10px; outline: none; transition: all 0.25s; font-family: monospace; font-weight: bold; color: #1e3a8a; letter-spacing: 2px; text-align: center; margin-bottom: 30px; background: #f8fafc; box-sizing: border-box;" onfocus="this.style.borderColor='#3b82f6'; this.style.background='#ffffff'; this.style.boxShadow='0 0 0 4px rgba(59,130,246,0.25)';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                </div>
+                
+                <!-- 🚀 HỆ THỐNG NÚT BẤM 3D ĐỔ BÓNG SIÊU CẤP ĐẸP MẮT -->
+                <div id="vdbActionButtons" style="display: flex; gap: 14px; justify-content: flex-end;">
+                    <button id="vdbBtnCancel" onclick="vdbCancelAccess()" style="padding: 12px 26px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#1e293b';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569';">Hủy bỏ</button>
+                    <button id="vdbBtnVerify" onclick="vdbVerifyAccess()" style="padding: 12px 35px; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #ffffff; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(30,58,138,0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(30,58,138,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30,58,138,0.3)';">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes modalBounceIn {
+        0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+        50% { opacity: 0.8; transform: scale(1.03) translateY(-4px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes modalShakeError {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-10px); }
+        40%, 80% { transform: translateX(10px); }
+    }
+    .vdb-shake { animation: modalShakeError 0.4s ease-in-out !important; }
+    </style>
+    <!-- =========END=====THIẾT KẾ Ô THONG BÁO===================Y -->
     <!-- 🎯 CHỈNH SỬA SỐ PHIÊN BẢN VÀ NGÀY GIỜ CẬP NHẬT TẠI ĐÂY -->
     {% set VERSION = "3.5.6" %}      <!-- Xuất file pdf và gửi email-->
     {% set BUILD_TIME = "23/08/2026 19:30" %}
@@ -587,9 +639,126 @@ input.input-wrong {
     </footer>
     <!-- 🐉 END CHÂN TRANG BẢN QUYỀN -->    
     <input type="hidden" id="globalDeSo" value="{{ de_so }}">
+    <input type="hidden" id="vdbThoiGianGocConfig" value="{{ thoi_gian_goc_phut }}">
     {% raw %}
     <script>
-            //- ----------------     CÔNG THỨC TỰ CHẾ-------------------------
+//===================NHẬP MÃ TỪ EMAIL===========================
+ // 🚀 LÁ CHẮN BẢO MẬT VIETDRAGON IDB: Đúc bộ não điều phối và kích nổ Modal độc quyền thương mại cao cấp!
+    let danhSachIdHopLe = [];
+    
+    (async function() {
+        const URL_tham_so = new URLSearchParams(window.location.search);
+        const ma_de_so_thong_minh = URL_tham_so.get('de_so') || "1";
+        
+        // 🪐 KHỞI CHẠY LỚP KIỂM TRA THÔNG HÀNH: Nếu đi từ trang chủ và đã điền mã rồi thì giải phóng cửa phòng thi 0 miligiây!
+        const theThongHanh = sessionStorage.getItem("ma_da_duyet_" + ma_de_so_thong_minh);
+        if (theThongHanh === "DA_XAC_THUC") {
+            console.log("🟢 [Vietdragon Pass] Học sinh chính ngạch lội từ trang chủ, tự động kích hoạt bộ đếm thời gian.");
+            // 🚀 BÓP CÒ SÚNG TỰ ĐỘNG: Đề miễn phí không hiện Modal thì đồng hồ vẫn bứt tốc nhảy giây sầm sập xé gió lập tức!
+            setTimeout(function() {
+                if (typeof window.batDauDemNguocThoiGian === "function") {
+                    window.batDauDemNguocThoiGian();
+                }
+            }, 100);
+            return;
+        }
+
+        try {
+            const phan_hoi = await fetch("/api/get_access_ids?de_so=" + ma_de_so_thong_minh);
+            if (phan_hoi.ok) {
+                const mangTho = await phan_hoi.json();
+                danhSachIdHopLe = mangTho.map(function(item) {
+                    return String(item).trim().toLowerCase();
+                });
+            }
+        } catch (err) {
+            console.error("🚨 Lỗi kết nối API bảo mật vách sau: ", err);
+        }
+
+        // Kích nổ lệnh quăng bệ khung Modal độc quyền lên chễm chệ giữa màn hình, khóa chặt vách sau!
+        const khungModal = document.getElementById("vdbSecurityModal");
+        if (khungModal) {
+            khungModal.style.display = "flex";
+        }
+    })();
+
+    // 🪐 KHỐI CHỨC NĂNG XỬ LÝ SỰ KIỆN KHI ẤN NÚT XÁC NHẬN TRÊN GIAO DIỆN MODAL MỚI
+    window.vdbVerifyAccess = function() {
+        const oNhapLieu = document.getElementById("vdbSecurityInput");
+        const theCardModal = document.getElementById("vdbModalCard");
+        if (!oNhapLieu || !theCardModal) return;
+        
+        const maHocSinhNhap = oNhapLieu.value.trim().toLowerCase();
+
+        //=============================TEST=================================
+        // 📢 CHUÔNG CHẨN ĐOÁN LỖI: Đối soát trực quan dải phách chữ thực tế bốc từ API
+        // alert("📢 [HỆ THỐNG ĐỐI SOÁT CHẨN ĐOÁN] \n• Mã bạn vừa gõ nhập là: '" + maHocSinhNhap + "'\n• Danh sách mã hợp lệ hệ thống nhận được là: " + JSON.stringify(danhSachIdHopLe));
+        //===================END==========TEST=================================
+
+        if (!danhSachIdHopLe.includes(maHocSinhNhap)) {
+            // 🚨 LUỒNG THẤT BẠI CHUYÊN NGHIỆP: Rung lắc Modal sầm sập và quăng Toast đỏ rực, KHÔNG dùng alert thô sơ!
+            theCardModal.classList.remove("vdb-shake");
+            void theCardModal.offsetWidth; // Kích nổ lệnh ép trình duyệt vẽ lại khung hình
+            theCardModal.classList.add("vdb-shake");
+
+            const hopThongBao = document.getElementById("vdbAlertBox");
+            if (hopThongBao) {
+                hopThongBao.style.background = "#fff5f5";
+                hopThongBao.style.borderColor = "#e53e3e";
+                document.getElementById("vdbAlertTitle").innerHTML = "🛑 XÁC THỰC THẤT BẠI:";
+                document.getElementById("vdbAlertTitle").style.color = "#c53030";
+                document.getElementById("vdbAlertText").innerHTML = "Mã xác thực bạn vừa nhập không khớp với dữ liệu đã phê duyệt! Vui lòng kiểm tra lại Gmail hoặc liên hệ quản trị viên để duyệt cấp quyền.";
+                document.getElementById("vdbAlertText").style.color = "#9b2c2c";
+            }
+            return;
+        }
+        
+        // 🟢 LUỒNG THÀNH CÔNG ĐẲNG CẤP VŨ TRỤ: Biến đổi phách màu hoàng gia sang xanh ngọc bích lộng lẫy!
+        document.getElementById("vdbModalIcon").innerHTML = "✨🟢✨";
+        document.getElementById("vdbModalTitle").innerHTML = "XÁC THỰC THÀNH CÔNG";
+        document.getElementById("vdbModalSubtitle").innerHTML = "Quyền làm bài đã được giải phóng";
+        
+        // Ẩn vùng nhập liệu thô sơ
+        document.getElementById("vdbInputArea").style.display = "none";
+        document.getElementById("vdbBtnCancel").style.display = "none";
+        
+        const hopThongBao = document.getElementById("vdbAlertBox");
+        if (hopThongBao) {
+            hopThongBao.style.background = "#f0fdf4";
+            hopThongBao.style.borderColor = "#22c55e";
+            document.getElementById("vdbAlertTitle").innerHTML = "🎉 CHÚC BẠN LÀM BÀI THI TỐT:";
+            document.getElementById("vdbAlertTitle").style.color = "#166534";
+            document.getElementById("vdbAlertText").innerHTML = "Mã bảo mật hoàn toàn chính xác! Hệ thống đã khơi thông long mạch phòng thi trắc nghiệm Vật lý Online vương miện thành công.";
+            document.getElementById("vdbAlertText").style.color = "#15803d";
+        }
+
+        // Đúc chiếc nút bấm tiến vào phòng thi siêu to khổng lồ
+        const nutXacNhan = document.getElementById("vdbBtnVerify");
+        if (nutXacNhan) {
+            nutXacNhan.innerHTML = "🚀 TIẾN VÀO PHÒNG THI NGAY";
+            nutXacNhan.style.background = "linear-gradient(135deg, #16a34a 0%, #22c55e 100%)";
+            nutXacNhan.style.padding = "14px 40px";
+            nutXacNhan.style.fontSize = "15px";
+            nutXacNhan.style.width = "100%";
+            // Định nghĩa lại sự kiện click chuột: Bấm phát là tan biến Modal, kích hoạt phòng thi lập tức!
+            nutXacNhan.onclick = function() {
+                const khungModal = document.getElementById("vdbSecurityModal");
+                if (khungModal) khungModal.style.display = "none";
+                // 🚀 BÓP CÒ SÚNG GIẢI PHÓNG THỜI GIAN: Gọi bộ đếm vách dưới bứt tốc nhảy giây làm bài lập tức!
+                if (typeof window.batDauDemNguocThoiGian === "function") {
+                    window.batDauDemNguocThoiGian();
+                }
+            };
+        }
+    };
+
+    window.vdbCancelAccess = function() {
+        window.location.href = "/";
+    };
+    //----------LÀM CHÍNH... -NHẬP MÃ TỪ EMAIL---------
+//=============END======NHẬP MÃ TỪ EMAIL===========================
+
+//- ----------------     CÔNG THỨC TỰ CHẾ-------------------------
 // HÀM CHÍNH: Bộ điều phối thông minh, bóc tách cases độc lập
 function localMathInterpreter(text) {
     if (!text) return "";
@@ -1454,82 +1623,87 @@ const formattedQuestions = resData.details.map((item) => {
    //  -----Hết giờ tự động nộp bài thi và hiển thị kết quả  
     // 🪐 BIẾN TOÀN CỤC: Nhặt tươi số đề động từ Backend Python truyền sang qua URL (?de_so=)
     const currentDeSo = new URLSearchParams(window.location.search).get("de_so") || "1";
- //===========================Ô NHẬP MÃ=TỪ EMAI=======================   
-    // 🚀 LÁ CHẮN BẢO MẬT TỐI CAO TẠI INDEX.HTML: Khóa phòng thi từ gốc, bóp chết vĩnh cửu rủi ro phát tán link lậu!
-    const chuoiKyTuGoc = "vietdragon_de_" + currentDeSo;
-    let maBaoMatChuan = "";
-    let bam_ngam = 0;
-    for (let i = 0; i < chuoiKyTuGoc.length; i++) {
-        bam_ngam = (bam_ngam << 5) - bam_ngam + chuoiKyTuGoc.charCodeAt(i);
-        bam_ngam |= 0;
+
+    // 🪐 KHU VỰC THỬ NGHIỆM TỐI CAO CỦA BẠN (SỬA ĐỔI NÂNG CẤP ĐÓNG BĂNG BẢO MẬT KHÉP KÍN 100%)
+    let IS_TESTING = false; 
+    // Thiết lập động hóa thời gian cao cấp: Nhặt phách số phút từ hộp ẩn vách ngoài, bảo toàn 100% LaTeX và IS_TESTING
+    let thoiGianBocTuHopAn = 50;
+    const theInputAnTime = document.getElementById("vdbThoiGianGocConfig");
+    if (theInputAnTime && theInputAnTime.value) {
+        thoiGianBocTuHopAn = parseInt(theInputAnTime.value);
     }
-    maBaoMatChuan = Math.abs(bam_ngam).toString(16).substring(0, 8);
-
-    // Kích nổ lệnh quăng hộp thoại ép học sinh lội link trực tiếp bắt buộc phải điền mã bẻ khóa gửi từ Gmail
-    let maHocSinhNhap = prompt("🔐 [VIETDRAGON IDB SECURITY] \nPhòng thi này đã được khóa bảo mật đa tầng chống link lậu!\nVui lòng nhập đúng 'MÃ BẢO MẬT PHÒNG THI' gửi trong Gmail của bạn để xác thực vào làm bài:");
-
-    // Ma trận đối soát chốt hạ vách phòng thi: Điền sai hoặc bấm Hủy, đá tuột học sinh bay màu ra trang chủ tức thì!
-    if (maHocSinhNhap === null || maHocSinhNhap.trim().toLowerCase() !== maBaoMatChuan.toLowerCase()) {
-        alert("❌ Xác thực thất bại! Mã bảo mật không chính xác hoặc link truy cập trái phép.");
-        window.location.href = "/"; // Đá văng tuột sầm sập ra ngoài mặt tiền vách ngoài!
-        return; // Khóa chết dòng lệnh, đóng băng toàn bộ cỗ máy đếm giờ bọc bên dưới!
-    }
-    alert("🟢 Xác thực phòng thi thành công! Hệ thống giải phóng đồng hồ đếm ngược, chúc bạn đạt kết quả cao.");
-  //===============END============Ô NHẬP MÃ=TỪ EMAI=======================   
-
-    // 🪐 KHU VỰC THỬ NGHIỆM TỐI CAO CỦA BẠN (SỬA 15 GIÂY HOẶC 50 PHÚT TẠI ĐÂY)
-    let IS_TESTING = false; // Đổi thành true để ép về 15s test, đổi thành false để chạy 50 phút thực tế
-    let totalExamTime = IS_TESTING ? 15 : 50 * 60; 
+    let totalExamTime = IS_TESTING ? 15 : thoiGianBocTuHopAn * 60;
+    
     let savedTime = localStorage.getItem("exam_time_left_de_" + currentDeSo);
-    duration = (savedTime !== null && !IS_TESTING) ? parseInt(savedTime) : totalExamTime;
+    let duration = (savedTime && savedTime !== "null" && !IS_TESTING) ? parseInt(savedTime) : totalExamTime;
     const timer = document.getElementById("timer");
 
-    window.timerInterval = setInterval(() => {
-        let m = Math.floor(duration / 60), s = duration % 60;
-        timer.textContent = "Thời gian: " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-
-        // 🔥 NẸP CHẶT THỜI GIAN: Ghi lưu số giây liên tục vào ổ cứng trình duyệt theo từng đề thi độc lập
-        localStorage.setItem("exam_time_left_de_" + currentDeSo, duration);
-        duration--;
-
-        // // Hiệu ứng cảnh báo nhấp nháy đỏ khi dưới 10 giây
-        if (duration <= 10) {
-            timer.style.color = "red";
-            timer.style.fontWeight = "bold";
-            timer.style.visibility = (timer.style.visibility === "hidden") ? "visible" : "hidden";
-        } else {
-            timer.style.color = "";
-            timer.style.visibility = "visible";
+    // Hàm cập nhật in chuỗi thời gian phẳng sạch lên góc phải màn hình
+    function hienThiChuoiThoiGianKhảoThi() {
+        let n = Math.floor(duration / 60);
+        let s = duration % 60;
+        if (timer) {
+            timer.textContent = "Thời gian: " + (n < 10 ? "0" + n : n) + ":" + (s < 10 ? "0" + s : s);
         }
+    }
 
-        // // --- KHI HẾT GIỜ: GIẢ LẬP HÀNH VI VÌ BẤM NÚT NỘP BÀI ---
-        // // --- KHI HẾT GIỜ: KÍCH HOẠT HỘP THOẠI TỰ CHẾ HIỆN ĐẠI ---
-        if (duration < 0) {
-            clearInterval(window.timerInterval);// Dừng đồng hồ
-            timer.style.visibility = "visible"; 
-            timer.textContent = "HẾT GIỜ!";
-            
-            // 1. Hiển thị hộp thoại Modal căn giữa màn hình mượt mà
-            const modal = document.getElementById("timeoutModal");
-            if (modal) modal.classList.add("show");
-            
-            // 2. Lắng nghe sự kiện click vào nút "Xem kết quả thi của bạn"
-            const closeBtn = document.getElementById("closeTimeoutBtn");
-            if (closeBtn) {
-                closeBtn.onclick = function() {
-                    modal.classList.remove("show"); // Ẩn hộp thoại đi
-                    
-                    // Tự động kích hoạt cú click chuột ảo vào nút NỘP BÀI THI có ID 'submit-btn'
-                    const submitButton = document.getElementById("submit-btn");
-                    if (submitButton) {
-                        submitButton.click(); 
-                    } else {
-                        document.getElementById("quizForm").dispatchEvent(new Event('submit'));
-                    }
-                };
+    // 🔒 KHÓA CHỐT ĐÓNG BĂNG: Kích nổ lệnh hiển thị phách giờ lên màn hình ngay khi tải trang để học sinh quan sát,
+    // nhưng CHƯA hề kích hoạt setInterval, ép đồng hồ hóa đá đứng im tuyệt đối lúc đang chờ điền mã xác thực!
+    hienThiChuoiThoiGianKhảoThi();
+
+    // 🪐 HÀM CHÍNH THỨC KÍCH NỔ NHẢY GIÂY CHỈ CHẠY KHI BẤM NÚT "TIẾN VÀO PHÒNG THI NGAY"
+    window.batDauDemNguocThoiGian = function() {
+        if (window.timerInterval) clearInterval(window.timerInterval);
+        
+        window.timerInterval = setInterval(function() {
+            // Nẹp chặt thời gian, ghi lưu liên tục vào ổ cứng trình duyệt chống nhấn F5 gian lận
+            localStorage.setItem("exam_time_left_de_" + currentDeSo, duration);
+            duration--;
+
+            hienThiChuoiThoiGianKhảoThi();
+
+            // Hiệu ứng cảnh báo chữ đỏ nhấp nháy khi còn dưới 10 giây của bạn dạo trước
+            if (duration <= 10) {
+                if (timer) {
+                    timer.style.color = "red";
+                    timer.style.fontWeight = "bold";
+                }
+            } else {
+                if (timer) {
+                    timer.style.color = "";
+                    timer.style.fontWeight = "";
+                }
             }
-        } 
-    }, 1000);
+
+            // MẠCH HẾT GIỜ: Tự động nộp bài và khóa đề thi tức khắc
+            if (duration < 0) {
+                clearInterval(window.timerInterval);
+                localStorage.removeItem("exam_time_left_de_" + currentDeSo); // Xóa phách khi đã hết giờ thực sự
+                if (timer) {
+                    timer.textContent = "HẾT GIỜ!";
+                }
+                
+                // Kích nổ lệnh quăng Modal thông báo hết giờ nhà bạn dạo trước
+                const modal = document.getElementById("timeoutModal");
+                if (modal) modal.classList.add("show");
+                
+                const closeBtn = document.getElementById("closeTimeoutBtn");
+                if (closeBtn) {
+                    closeBtn.onclick = function() {
+                        const m = document.getElementById("timeoutModal");
+                        if (m) m.classList.remove("show");
+                        
+                        const submitButton = document.getElementById("submit-btn");
+                        if (submitButton) {
+                            submitButton.click();
+                        } else {
+                            document.getElementById("quizForm").dispatchEvent(new Event("submit"));
+                        }
+                    };
+                }
+            }
+        }, 1000);
+    };
     // ----End Hết giờ tự động nộp bài thi và hiển thị kết quả        
     </script>
     {% endraw %}

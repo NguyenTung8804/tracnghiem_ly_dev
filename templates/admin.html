@@ -43,13 +43,22 @@
 <body>
     <div class="container bg-white p-4 rounded card">
         <h2 class="text-center text-primary mb-4">🪐 VIETDRAGON IDB - MA TRẬN SOẠN THẢO ĐỀ THI</h2>
-        
+       <!-- 🪐 [VIETDRAGON IDB] LÁ CHẮN THÔNG BÁO TOÀN CỤC KHI TẤT CẢ CÁC ĐỀ THI ĐỒNG LOẠT KHÓA -->
+       <div id="vdbAllLockedWarning" style="display: none; background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%); border-left: 6px solid #e53e3e; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(229,62,62,0.15); margin: 20px 0; font-family: 'Times New Roman', serif; text-align: center;">
+           <h3 style="color: #9b2c2c; margin: 0 0 10px 0; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">🚨 HỆ THỐNG KHÓA TOÀN CỤC ĐÓNG CHẶN CHẶN!</h3>
+           <p style="color: #c53030; margin: 0; font-size: 15px; font-weight: 500; line-height: 1.6;">
+               Hiện tại <b>TẤT CẢ CÁC ĐỀ THI</b> trên hệ thống dữ liệu vách sau đều đã được <b>KHÓA CHỐT HOÀNG GIA</b>.<br>
+               Quý Giáo viên hiện tại <b>không thể chỉnh sửa, thêm mới hoặc tác động</b> vào bất kỳ câu hỏi nào. Vui lòng liên hệ Admin cấp cao để mở khóa trạng thái đề!
+           </p>
+       </div>        
         <!-- THÔNG TIN CHUNG CỦA ĐỀ -->
         <div class="row g-3 bg-light p-3 rounded mb-4">
             <div class="col-md-3">
                 <label class="form-label fw-bold text-danger">Chọn nhanh Mã đề số (de_so)</label>
                 <!-- 🔥 KHAI HỎA GỐC ĐỊA CHỈ IP: Ép trình duyệt buộc phải nạp trang tươi mới sầm sập theo đúng cổng Host 127.0.0.1:8080 -->
-                    <select id="txtDeSo" class="form-select fw-bold border-danger" onchange="window.location.href='/admin?de_so=' + this.value" style="font-family:'Times New Roman', serif; color: #2b6cb0;">
+                    <select id="txtDeSo" class="form-select fw-bold border-danger" style="font-family: 'Times New Roman', serif; color: #2b6cb0;">
+
+
                         <!-- 🚀 BỘ NÃO JAVASCRIPT SẼ TỰ ĐỘNG PHUN CÁC OPTION ĐỀ MỞ VÀO ĐÂY, KHÔNG DÙNG VÒNG LẶP CỨNG NỮA -->
             </select>
             </div>
@@ -66,7 +75,8 @@
                 <input type="text" id="txtNamHoc" class="form-control" value="{{ de_hien_tai.nam }}">
             </div>
         </div>
-
+        <!-- 🪐 [VIETDRAGON IDB] BỆ KHUNG CHA BỌC TOÀN BỘ 3 PHÂN KHU CHỈNH SỬA CÂU HỎI VÁCH DƯỚI -->
+        <div id="vdbMainEditArea" style="display: none;">
         <!-- PHẦN I: TRẮC NGHIỆM 4 LỰA CHỌN -->
         <div class="section-header">PHẦN I: TRẮC NGHIỆM 4 LỰA CHỌN</div>
         <div id="areaPhan1">
@@ -327,7 +337,7 @@
             // 1. Đón nhận mảng ID thuộc về các ĐỀ THI KHÁC do Server Python ném sang qua bộ lọc tojson
             const otherExamIds = {{ other_ids | tojson }} || [];
             
-            const de_so = parseInt(document.getElementById('txtDeSo').value) || 1;
+            const de_so = parseInt(document.getElementById('txtDeSo').value) || 3;
             const khoi_lop = parseInt(document.getElementById('txtKhoiLop').value) || 12;
             const loai_de = document.getElementById('txtLoaiDe').value;
             const nam_hoc = parseInt(document.getElementById('txtNamHoc').value) || 2026;
@@ -493,39 +503,72 @@
 
             checkDuplicateIds(); // Chạy kích nổ quét kiểm thử 1 lượt ngay khi vừa nạp trang xong sướng mắt!
         };
-
-        // 🚀 THUẬT TOÁN TỰ ĐỘNG LỌC MA TRẬN SOẠN THẢO: Chỉ giữ lại các đề có trạng thái "Mở"
+    </div>
+    
+        // 🪐 THUẬT TOÁN TỰ ĐỘNG LỌC MA TRẬN SOẠN THẢO: Chi sấy lọc các đề có trạng thái "Mở"
         document.addEventListener("DOMContentLoaded", function() {
+            // 🚀 MỞ TOANG LONG MẠCH: Định vị trúng đích danh chiếc ô chọn mã đề ngay tầng đầu tiên tải RAM
+            const selectMaDe = document.getElementById("txtDeSo");
+            if (!selectMaDe) return;
+
+            // 🚀 MẮT XÍCH KÍCH NỔ DROP-DOWN: Tự động đổi đường dẫn URL có chứa tham số động ngay khi giáo viên chọn đề!
+            selectMaDe.onchange = function() {
+                if (this.value) {
+                    window.location.href = window.location.pathname + "?de_so=" + this.value;
+                }
+            };
+
             fetch('/api/get_exams_config')
-            .then(res => res.json())
-            .then(danhSachDeGoc => {
-                const selectMaDe = document.getElementById("txtDeSo"); // ĐỊNH VỊ TRÚNG CHÓC ID Ô CHỌN MẶT TIỀN
-                if (!selectMaDe) return;
+                .then(res => res.json())
+                .then(danhSachDeGoc => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const vdbUrlMaDe = urlParams.get('de_so');
+                    const editAreaBox = document.getElementById("vdbMainEditArea");
 
-                // Tự động nhặt phách lấy mã đề hiện tại bốc từ tham số đường dẫn URL trình duyệt
-                const urlParams = new URLSearchParams(window.location.search);
-                const maDeHienTai = urlParams.get('de_so') || "9";
+                    // Tiến hành lọc nhặt trọn gói các đề có trạng thái "Mở" vách sau ổ cứng
+                    const danhSachDeMo = danhSachDeGoc.filter(de => {
+                        return de.trang_thai && de.trang_thai.toString().strip ? de.trang_thai.toString().strip() === "Mở" : de.trang_thai === "Mở";
+                    });
 
-                selectMaDe.innerHTML = ""; // Quét sạch hoàn toàn các option trống dạo trước
+                    if (danhSachDeMo.length === 0) {
+                        // Nếu tất cả các đề đều khóa -> Kích nổ lá chắn cảnh báo rực lửa vách trên lập tức!
+                        const warningBox = document.getElementById("vdbAllLockedWarning");
+                        if (warningBox) warningBox.style.display = "block";
+                        if (editAreaBox) editAreaBox.style.display = "none";
+                        selectMaDe.innerHTML = "<option value=''>--- HỆ THỐNG KHÓA ---</option>";
+                        selectMaDe.disabled = true;
+                    } else {
+                        selectMaDe.disabled = false;
+                        selectMaDe.innerHTML = ""; // Xóa sạch bóng cấu trúc rác ban đầu đi để đúc mới tinh khiết!
+                        
+                        // Tạo một option mặc định ban đầu rỗng tinh khiết để nhắc nhở Giáo viên dùng chuột chọn đề
+                        const defaultOpt = document.createElement("option");
+                        defaultOpt.value = "";
+                        defaultOpt.textContent = "--- Chọn đề thi cần chỉnh sửa ---";
+                        selectMaDe.appendChild(defaultOpt);
+                        
+                        danhSachDeMo.forEach(de => {
+                            const opt = document.createElement("option");
+                            opt.value = de.de_so;
+                            opt.textContent = `Đề số ${de.de_so}`;
+                            
+                            // Nếu trên URL có mã đề sẵn (Do lội sang từ nút Xem trang chủ) -> Khóa chốt chọn luôn
+                            if (vdbUrlMaDe && de.de_so.toString() === vdbUrlMaDe.toString()) {
+                                opt.selected = true;
+                            }
+                            selectMaDe.appendChild(opt);
+                        });
 
-                // LỌC BẢO MẬT ĐA TẦNG: Tuyệt đối chỉ giữ lại các đề thi có trạng thái là "Mở" hoặc gài mặc định
-                const danhSachDeMo = danhSachDeGoc.filter(de => {
-                    const status = de.trang_thai !== undefined && de.trang_thai !== null ? de.trang_thai.toString().trim() : "Mở";
-                    return status === "Mở";
-                });
-
-                // Đúc phanh phách các option an toàn ra giao diện cho giáo viên soạn thảo
-                danhSachDeMo.forEach(de => {
-                    const opt = document.createElement("option");
-                    opt.value = de.de_so;
-                    opt.textContent = `Đề số ${de.de_so}`;
-                    if (de.de_so.toString() === maDeHienTai.toString()) {
-                        opt.selected = true; // Găm chặt định vị đề giáo viên đang mở xem
+                        // 🚀 ĐIỀU PHỐI ĐA TẦNG LAYOUT: Nếu có tham số đề trên URL -> Bung nở trọn gói 3 phân khu vách dưới!
+                        if (vdbUrlMaDe && vdbUrlMaDe !== "") {
+                            if (editAreaBox) editAreaBox.style.display = "block";
+                        } else {
+                            // Nếu lội vào bằng link trơn /admin -> Giấu nhẹm vách dưới kịch trần, giữ layout phẳng sạch gọn gàng!
+                            if (editAreaBox) editAreaBox.style.display = "none";
+                        }
                     }
-                    selectMaDe.appendChild(opt);
-                });
-            })
-            .catch(err => console.error("🚨 Lỗi đồng bộ ma trận soạn thảo: " + err));
+                })
+                .catch(err => console.error("🔴 Lỗi đồng bộ ma trận soạn thảo: " + err));
         });
     </script>
 </body>

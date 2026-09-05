@@ -186,10 +186,126 @@
         <div class="text-center mt-5" style="display: flex; justify-content: center; gap: 20px; margin-top: 3rem;">
             <button type="button" class="btn btn-lg btn-outline-primary px-4 shadow fw-bold" onclick="autoAssignNewIds()">🔄 TỰ ĐỘNG ĐÁNH SỐ ID CÂU MỚI (CHỐT CHẶN CHỐNG TRÙNG)</button>
             <button type="button" class="btn btn-lg btn-danger px-5 shadow fw-bold" onclick="submitExamToServer()">🚀 KHÓA CHỐT LƯU ĐỀ THI VÀO DATABASE.JSON</button>
+                <!-- 🪐 [VIETDRAGON IDB] CHIẾC NÚT BẤM HOÀNG GIA GỬI DUYỆT ĐỀ THI VÀO KHO ĐỆM AI -->
+            <button type="button" id="vdbBtnSubmitDraft" class="btn btn-lg btn-success px-5 shadow fw-bold" style="font-family: 'Times New Roman', serif; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none;" onclick="vdbSubmitDraftExamToBackend()">
+                    🚀 Gửi Duyệt Đề Thi (AI & Chuyên Môn)
+            </button>
         </div>
+    </div>
     </div>
     <script>
         let qCounter = 1;
+
+        // 🪐 [VIETDRAGON IDB] BỘ THẦN KINH FETCH BẮN ĐỀ THI VÀO KHO ĐỆM BẤT ĐỒNG BỘ FASTAPI CHUẨN CLASS MÁY NHÀ
+        window.vdbSubmitDraftExamToBackend = async function() {
+            try {
+                const txtDeSoInput = document.getElementById('txtDeSo');
+                if (!txtDeSoInput || !txtDeSoInput.value) {
+                    alert("🚨 Thất bại: Vui lòng chọn Mã đề thi hợp lệ trước khi gửi duyệt!");
+                    return;
+                }
+                
+                // Thu thập trọn gói toàn bộ ma trận dữ liệu chung bám dọc vách trên của bạn
+                const currentDeSo = txtDeSoInput.value;
+                const monHocInput = document.getElementById("txtMonHoc") || {value: "Hóa Học"};
+                const namInput = document.getElementById("txtNamThi") || {value: "2026"};
+                const lopInput = document.getElementById("txtLop") || {value: "12"};
+                const tinhThanhInput = document.getElementById("txtTinhThanh") || {value: "Hà Nội"};
+                const truongInput = document.getElementById("txtTruong") || {value: "Bộ Giáo Dục"};
+                const tenDeInput = document.getElementById("txtTenDe") || {value: "Đề thi khảo thí chất lượng đỉnh cao"};
+                const soCauInput = document.getElementById("txtSoCau") || {value: "40"};
+                const thoiGianInput = document.getElementById("txtThoiGian") || {value: "50"};
+                const loaiDeInput = document.getElementById("txtLoaiDe") || {value: "tra_phi"};
+                const giaTienInput = document.getElementById("txtGiaTien") || {value: "20000"};
+                
+                // 🎯 MA TRẬN BỐC DỮ LIỆU THỰC TẾ THEO ĐÚNG CÁC CLASS TRÊN MÀN HÌNH CỦA BẠN
+                let rawQuestionsArray = [];
+                const khoiCauHoiList = document.querySelectorAll('.q-box'); // Quét trọn gói các khối câu hỏi của bạn
+                
+                khoiCauHoiList.forEach((khoi, index) => {
+                    const noiDungElement = khoi.querySelector(".txtQNoiDung") || khoi.querySelector("textarea");
+                    const giaiChiTietElement = khoi.querySelector(".txtQGiaiChiTiet");
+                    
+                    if (!noiDungElement) return;
+
+                    // Dò tìm đáp án đúng tương thích theo từng loại phân khu của bạn
+                    let dapAnDung = "A";
+                    const loaiCauHoi = khoi.getAttribute("data-type") || "Phan1";
+                    let cacLuaChon = ["A", "B", "C", "D"];
+                    
+                    if (loaiCauHoi === "Phan1") {
+                        const checkedRadio = khoi.querySelector("input[type='radio']:checked");
+                        if (checkedRadio) dapAnDung = checkedRadio.value.toUpperCase();
+                        
+                        // Thu thập nội dung text của 4 ô đáp án A, B, C, D
+                        let mangLuaChon = [];
+                        const inputsText = khoi.querySelectorAll("input[type='text']:not(.txtQId)");
+                        inputsText.forEach(inp => {
+                            if (inp.value && !inp.classList.contains('txtP3Ans')) {
+                                mangLuaChon.push(inp.value);
+                            }
+                        });
+                        if (mangLuaChon.length >= 4) cacLuaChon = mangLuaChon.slice(0, 4);
+                    } 
+                    else if (loaiCauHoi === "Đúng, Sai") {
+                        cacLuaChon = "Đúng, Sai";
+                        let mangDungSai = [];
+                        const radiosChecked = khoi.querySelectorAll("input[type='radio']:checked");
+                        radiosChecked.forEach(r => mangDungSai.push(r.value));
+                        dapAnDung = mangDungSai.length > 0 ? mangDungSai.join(',') : "Đ,S,Đ,S";
+                    } 
+                    else {
+                        cacLuaChon = "Điền số";
+                        const inputDienSo = khoi.querySelector('.txtP3Ans') || khoi.querySelector("input[type='text']");
+                        dapAnDung = inputDienSo ? inputDienSo.value.trim() : "0";
+                    }
+                    
+                    rawQuestionsArray.push({
+                        "noi_dung": noiDungElement.value,
+                        "cac_lua_chon": cacLuaChon,
+                        "dap_an_dung": dapAnDung,
+                        "giai_chi_tiet": giaiChiTietElement ? giaiChiTietElement.value : ""
+                    });
+                });
+
+                const payload = {
+                    "de_so": currentDeSo,
+                    "mon_hoc": monHocInput.value || "Hóa Học",
+                    "nam": namInput.value || "2026",
+                    "lop": lopInput.value || "12",
+                    "tinh_thanh": tinhThanhInput.value || "Hà Nội",
+                    "truong": truongInput.value || "Bộ Giáo Dục",
+                    "ten_de": tenDeInput.value || "Đề thi soạn thảo thô",
+                    "socau": soCauInput.value || "40",
+                    "thoigian": thoiGianInput.value || "50",
+                    "loai_de": loaiDeInput.value || "tra_phi",
+                    "gia_tien": giaTienInput.value || "20000",
+                    "nguoi_soan": localStorage.getItem("vdbCurrentUsername") || "GiaoVien_SoanThao",
+                    "questions": rawQuestionsArray
+                };
+
+                console.log("🚀 Payload gửi đi vách trước: ", payload);
+
+                // Kích nổ phát hỏa lệnh bắn AJAX Fetch xé gió lên FastAPI Backend
+                const response = await fetch('/api/submit_draft', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success" || response.ok) {
+                    alert("🎉 ĐẠI TOÀN THẮNG: Đề thi đã được bắn vào kho đệm xét duyệt vương miện thành công!");
+                } else {
+                    alert("🛑 Thông báo từ hệ thống: " + (result.message || JSON.stringify(result)));
+                }
+
+            } catch (err) {
+                console.error("🔴 Nghẽn mạch kịch bản bắn đề đệm: " + err);
+                alert("🚨 Lỗi đường truyền: " + err.message);
+            }
+        };
 
         function addQuestionBox(type) {
             const container = type === 'Phan1' ? document.getElementById('areaPhan1') : 
@@ -503,7 +619,7 @@
 
             checkDuplicateIds(); // Chạy kích nổ quét kiểm thử 1 lượt ngay khi vừa nạp trang xong sướng mắt!
         };
-    </div>
+
     
         // 🪐 THUẬT TOÁN TỰ ĐỘNG LỌC MA TRẬN SOẠN THẢO: Chi sấy lọc các đề có trạng thái "Mở"
         document.addEventListener("DOMContentLoaded", function() {
@@ -527,7 +643,7 @@
 
                     // Tiến hành lọc nhặt trọn gói các đề có trạng thái "Mở" vách sau ổ cứng
                     const danhSachDeMo = danhSachDeGoc.filter(de => {
-                        return de.trang_thai && de.trang_thai.toString().strip ? de.trang_thai.toString().strip() === "Mở" : de.trang_thai === "Mở";
+                        return de.trang_thai && de.trang_thai.toString().trim ? de.trang_thai.toString().trim() === "Mở" : de.trang_thai === "Mở";
                     });
 
                     if (danhSachDeMo.length === 0) {

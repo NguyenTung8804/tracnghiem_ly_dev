@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>👑 TRẠM ĐIỀU PHỐI KIỂM DUYỆT KHẢO THÍ - VIETDRAGON IDB</title>
+  <!--   <link href="https://jsdelivr.net" rel="stylesheet">    -->
+    <style>
+        body { font-family: 'Times New Roman', serif; background-color: #f8fafc; color: #1e293b; }
+        .vdb-card { background: white; border-radius: 12px; border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 24px; margin-bottom: 24px; }
+        .q-box { border-left: 5px solid #3b82f6; padding-left: 15px; margin-bottom: 20px; }
+        .q-box[data-type="Đúng, Sai"] { border-left-color: #f59e0b; }
+        .q-box[data-type="Điền số"] { border-left-color: #10b981; }
+    </style>
+</head>
+<body>
+
+    <div class="container py-5">
+        <!-- 📊 THÁP THƯỢNG TẦNG: TIÊU ĐỀ THÔNG TIN CHUNG ĐỘNG BỐC TỪ KHO ĐỆM -->
+        <div class="vdb-card text-white" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+            <h1 class="fw-bold m-0" style="font-size: 26px;">👑 TRẠM PHÊ DUYỆT ĐỀ THI ĐA TẦNG CHUYÊN MÔN</h1>
+            <p class="mt-2 mb-0 opacity-75 fw-bold">Môn học: {{ draft_exam.mon_hoc }} | Đề số: {{ draft_exam.de_so }} | Khối: {{ draft_exam.lop }} | Năm học: {{ draft_exam.nam }}</p>
+            <h4 class="mt-3 mb-0 fw-bold text-warning">📌 Tên đề: {{ draft_exam.ten_de }}</h4>
+        </div>
+
+        <!-- 🧭 [VIETDRAGON IDB] HỘP ĐIỀU PHỐI ĐIỀU HƯỚNG MÃ ĐỀ CHỜ DUYỆT ĐỘNG -->
+        <div class="vdb-card border border-primary-subtle bg-white shadow-sm mb-4 p-3 d-flex align-items-center justify-content-between gap-3" style="font-family: 'Segoe UI', sans-serif;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fs-5 fw-bold text-primary">📂 Kho lưu trữ đề đệm:</span>
+                <select class="form-select border-primary fw-bold text-primary" id="vdbSelectDraftExam" style="width: 250px;" onchange="vdbNavigateToSelectedDraft()">
+                    {% if not all_draft_navigation %}
+                        <option value="">🚨 Kho đệm trống trơn...</option>
+                    {% else %}
+                        {% for de in all_draft_navigation %}
+                            <option value="{{ de.de_so }}" {% if de.de_so|string == selected_de_so|string %}selected{% endif %}>                            
+                                📝 Đề số {{ de.de_so }} - Môn: {{ de.mon_hoc }} [{{ de.status.upper() }}]
+                            </option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="text-muted small italic fw-bold">👉 Chọn mã đề thi trong danh sách để nạp tươi ma trận câu hỏi lập tức!</div>
+        </div>
+        
+        <!-- 🚀 LÁ CHẮN ĐIỀU PHỐI AI ĐỐI SOÁT BẢN QUYỀN RỰC LỬA -->
+        <div class="vdb-card {% if draft_exam.ai_assessment.trung_lap_percent >= 80.0 %}border border-danger bg-danger-subtle{% else %}border border-success bg-success-subtle{% endif %}">
+            <h3 class="fw-bold {% if draft_exam.ai_assessment.trung_lap_percent >= 80.0 %}text-danger{% else %}text-success{% endif %}">
+                🛰️ TRẠM VŨ TRỤ AI KHẢO THÍ: ĐỐI SOÁT TRÙNG LẶP ĐẠT {{ draft_exam.ai_assessment.trung_lap_percent }}%
+            </h3>
+            <p class="fw-bold mt-2 mb-1 text-dark">⚠️ Cảnh báo trùng: <span class="text-secondary">{{ draft_exam.ai_assessment.canh_bao_trung }}</span></p>
+            <p class="fw-bold m-0 text-dark">🤖 Ghi chú trợ lý AI: <span class="text-secondary">{{ draft_exam.ai_assessment.ghi_chu_ai }}</span></p>
+            
+            <div class="mt-3 p-3 bg-white rounded shadow-sm border">
+                <span class="badge bg-primary px-3 py-2 me-2">Nhận biết: {{ draft_exam.ai_assessment.ma_tran_goi_y.NhanBiet }}</span>
+                <span class="badge bg-info px-3 py-2 me-2">Thông hiểu: {{ draft_exam.ai_assessment.ma_tran_goi_y.ThongHieu }}</span>
+                <span class="badge bg-warning px-3 py-2 text-dark me-2">Vận dụng: {{ draft_exam.ai_assessment.ma_tran_goi_y.VanDung }}</span>
+                <span class="badge bg-danger px-3 py-2">Vận dụng cao: {{ draft_exam.ai_assessment.ma_tran_goi_y.VanDungCao }}</span>
+            </div>
+        </div>
+
+        <!-- 📝 THÁP TRUNG TẦNG: MA TRẬN ĐỐI SOÁT CHÉO 3 PHẦN CẦU HỎI THỰC TẾ -->
+        <div class="vdb-card">
+            <h3 class="fw-bold mb-4 border-bottom pb-2 text-secondary">🗂️ NỘI DUNG MA TRẬN 3 PHẦN CẦU HỎI ĐANG CHỜ PHÊ DUYỆT</h3>
+            
+            {% if not draft_exam.questions %}
+                <div class="alert alert-warning fw-bold text-center">🚨 Hiện tại mảng câu hỏi thô đang trống rỗng bướng bỉnh! Giáo viên chưa đẩy câu hỏi lên kho đệm.</div>
+            {% else %}
+                <!-- ================= PHẦN I: TRẮC NGHIỆM 4 LỰA CHỌN ================= -->
+                <div class="section-header fw-bold text-primary mb-3" style="border-left: 5px solid #1e90ff; padding-left: 10px; font-size: 1.2rem; font-family: 'Segoe UI', sans-serif;">PHẦN I: TRẮC NGHIỆM 4 LỰA CHỌN</div>
+                {% for q in draft_exam.questions if q.cac_lua_chon != 'Đúng, Sai' and q.cac_lua_chon != 'Điền số' %}
+                    <div class="q-box row g-3 card p-3 shadow-sm mb-4 border-start border-4 border-primary bg-white rounded" style="font-family: 'Segoe UI', sans-serif;">
+                        <div class="col-md-12"><label class="form-label fw-bold text-primary">ID câu hỏi: <span class="badge bg-primary">{{ q.id }}</span></label></div>
+                        <div class="col-md-12"><h5 class="fw-bold text-dark">{{ q.cau_so }}: {{ q.noi_dung }}</h5></div>
+                        <div class="col-md-12 bg-light p-3 rounded mt-2 border">
+                            <strong class="text-secondary d-block mb-2">📋 Các phương án lựa chọn:</strong>
+                            {% if q.cac_lua_chon is string %}
+                                {% set options = q.cac_lua_chon.split(',') %}
+                            {% else %}
+                                {% set options = q.cac_lua_chon %}
+                            {% endif %}
+                            {% if options|length >= 4 %}
+                                <div class="row g-2">
+                                    <div class="col-md-12 mb-1 {% if q.dap_an_dung == 'A' %}text-success fw-bold bg-success-subtle p-2 rounded{% endif %}">🅰️. {{ options[0] }}</div>
+                                    <div class="col-md-12 mb-1 {% if q.dap_an_dung == 'B' %}text-success fw-bold bg-success-subtle p-2 rounded{% endif %}">🅱️. {{ options[1] }}</div>
+                                    <div class="col-md-12 mb-1 {% if q.dap_an_dung == 'C' %}text-success fw-bold bg-success-subtle p-2 rounded{% endif %}">🅲. {{ options[2] }}</div>
+                                    <div class="col-md-12 mb-1 {% if q.dap_an_dung == 'D' %}text-success fw-bold bg-success-subtle p-2 rounded{% endif %}">🅳. {{ options[3] }}</div>
+                                </div>
+                            {% else %}
+                                <div class="text-muted italic">{{ q.cac_lua_chon }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-12 mt-2"><p class="mb-1"><strong>🎯 Đáp án đúng đã găm:</strong> <span class="badge bg-success px-3 fs-6">Phương án {{ q.dap_an_dung }}</span></p></div>
+                        <div class="col-md-12 mt-2 p-2 rounded" style="background-color: #f1f5f9;"><p class="text-secondary m-0 small"><strong>💡 Giải chi tiết:</strong> {{ q.giai_chi_tiet or "Chưa có lời giải chi tiết." }}</p></div>
+                        <div class="col-md-12 mt-2 row g-2 align-items-center bg-dark-subtle p-2 rounded border mx-0">
+                            <div class="col-auto"><span class="badge bg-dark">Găm cờ lỗi câu hỏi con:</span></div>
+                            <div class="col"><input type="text" class="form-control form-control-sm txtVdbFeedback border-secondary" data-q-id="{{ q.id }}" placeholder="Gõ lời nhắc sửa lỗi riêng biệt cho câu này..."></div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- ================= PHẦN II: TRẮC NGHIỆM ĐÚNG / SAI ================= -->
+                <div class="section-header fw-bold text-warning mb-3 mt-5" style="border-left: 5px solid #f59e0b; padding-left: 10px; font-size: 1.2rem; font-family: 'Segoe UI', sans-serif;">PHẦN II: TRẮC NGHIỆM ĐÚNG / SAI</div>
+                {% for q in draft_exam.questions if q.cac_lua_chon == 'Đúng, Sai' %}
+                    <div class="q-box row g-3 card p-3 shadow-sm mb-4 border-start border-4 border-warning bg-white rounded" style="font-family: 'Segoe UI', sans-serif;">
+                        <div class="col-md-12"><label class="form-label fw-bold text-warning">ID câu hỏi: <span class="badge bg-warning text-dark">{{ q.id }}</span></label></div>
+                        <div class="col-md-12"><h5 class="fw-bold text-dark">{{ q.cau_so }}: {{ q.noi_dung }}</h5></div>
+                        <div class="col-md-12 bg-light p-3 rounded mt-2 border">
+                            <strong class="text-warning d-block mb-2">⚖️ Cấu trúc Trắc nghiệm Đúng/Sai Phan II:</strong>
+                            <table class="table table-sm table-bordered mb-0 bg-white">
+                                <thead>
+                                    <tr class="table-dark text-center"><th>Lệnh hỏi phụ</th><th style="width: 120px;">Đáp án găm</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% set answers = q.dap_an_dung.split(',') %}
+                                    <tr class="{% if answers|length > 0 and (answers[0] == 'Đ' or answers[0] == 'D') %}table-success text-success{% else %}table-danger text-danger{% endif %}">
+                                        <td>🔹 Lệnh hỏi phụ (a)</td>
+                                        <td class="text-center fw-bold">{% if answers|length > 0 and (answers[0] == 'Đ' or answers[0] == 'D') %}ĐÚNG{% else %}SAI{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if answers|length > 1 and (answers[1] == 'Đ' or answers[1] == 'D') %}table-success text-success{% else %}table-danger text-danger{% endif %}">
+                                        <td>🔹 Lệnh hỏi phụ (b)</td>
+                                        <td class="text-center fw-bold">{% if answers|length > 1 and (answers[1] == 'Đ' or answers[1] == 'D') %}ĐÚNG{% else %}SAI{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if answers|length > 2 and (answers[2] == 'Đ' or answers[2] == 'D') %}table-success text-success{% else %}table-danger text-danger{% endif %}">
+                                        <td>🔹 Lệnh hỏi phụ (c)</td>
+                                        <td class="text-center fw-bold">{% if answers|length > 2 and (answers[2] == 'Đ' or answers[2] == 'D') %}ĐÚNG{% else %}SAI{% endif %}</td>
+                                    </tr>
+                                    <tr class="{% if answers|length > 3 and (answers[3] == 'Đ' or answers[3] == 'D') %}table-success text-success{% else %}table-danger text-danger{% endif %}">
+                                        <td>🔹 Lệnh hỏi phụ (d)</td>
+                                        <td class="text-center fw-bold">{% if answers|length > 3 and (answers[3] == 'Đ' or answers[3] == 'D') %}ĐÚNG{% else %}SAI{% endif %}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-12 mt-2"><p class="mb-1"><strong>🎯 Chuỗi đáp án tổng hợp:</strong> <span class="badge bg-warning text-dark px-3 fs-6 fw-bold">{{ q.dap_an_dung }}</span></p></div>
+                        <div class="col-md-12 mt-2 p-2 rounded" style="background-color: #f1f5f9;"><p class="text-secondary m-0 small"><strong>💡 Giải chi tiết:</strong> {{ q.giai_chi_tiet or "Chưa có lời giải chi tiết." }}</p></div>
+                        <div class="col-md-12 mt-2 row g-2 align-items-center bg-dark-subtle p-2 rounded border mx-0">
+                            <div class="col-auto"><span class="badge bg-dark">Găm cờ lỗi câu hỏi con:</span></div>
+                            <div class="col"><input type="text" class="form-control form-control-sm txtVdbFeedback border-secondary" data-q-id="{{ q.id }}" placeholder="Gõ lời nhắc sửa lỗi riêng biệt cho câu này..."></div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- ================= PHẦN III: TRẮC NGHIỆM ĐIỀN SỐ ================= -->
+                <div class="section-header fw-bold text-success mb-3 mt-5" style="border-left: 5px solid #10b981; padding-left: 10px; font-size: 1.2rem; font-family: 'Segoe UI', sans-serif;">PHẦN III: TRẮC NGHIỆM ĐIỀN SỐ</div>
+                {% for q in draft_exam.questions if q.cac_lua_chon == 'Điền số' %}
+                    <div class="q-box row g-3 card p-3 shadow-sm mb-4 border-start border-4 border-success bg-white rounded" style="font-family: 'Segoe UI', sans-serif;">
+                        <div class="col-md-12"><label class="form-label fw-bold text-success">ID câu hỏi: <span class="badge bg-success">{{ q.id }}</span></label></div>
+                        <div class="col-md-12"><h5 class="fw-bold text-dark">{{ q.cau_so }}: {{ q.noi_dung }}</h5></div>
+                        <div class="col-md-12 bg-light p-3 rounded mt-2 border">
+                            <strong class="text-success d-block mb-1">🔢 Kết quả trả lời ngắn Phần III:</strong>
+                            <span class="text-dark fw-bold" style="font-size: 18px;">👉 Con số đáp án găm cứng: <span class="badge bg-primary px-3 fs-6">{{ q.dap_an_dung }}</span></span>
+                        </div>
+                        <div class="col-md-12 mt-2" style="background-color: #f1f5f9; padding: 10px; border-radius: 6px;"><p class="text-secondary m-0 small"><strong>💡 Giải chi tiết:</strong> {{ q.giai_chi_tiet or "Chưa có lời giải chi tiết." }}</p></div>
+                        <div class="col-md-12 mt-2 row g-2 align-items-center bg-dark-subtle p-2 rounded border mx-0">
+                            <div class="col-auto"><span class="badge bg-dark">Găm cờ lỗi câu hỏi con:</span></div>
+                            <div class="col"><input type="text" class="form-control form-control-sm txtVdbFeedback border-secondary" data-q-id="{{ q.id }}" placeholder="Gõ lời nhắc sửa lỗi riêng biệt cho câu này..."></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- 👑 BỆ KHUNG HẠ TẦNG: BỘ BA NÚT BẤM HÀNH ĐỘNG QUYỀN LỰC HOÀNG GIA -->
+        <div class="vdb-card text-center d-flex justify-content-center gap-3">
+            <button class="btn btn-lg btn-success fw-bold px-5 py-3 shadow" onclick="vdbExecuteAction('approve')">🟢 PHÊ DUYỆT ĐỀ THI CỨNG</button>
+            <button class="btn btn-lg btn-warning fw-bold px-5 py-3 shadow text-dark" onclick="vdbExecuteAction('reject')">🟡 GĂM CỜ TRẢ VỀ SỬA</button>
+            <button class="btn btn-lg btn-danger fw-bold px-5 py-3 shadow" onclick="vdbExecuteAction('delete')">🔴 HỦY ĐỀ THI VĨNH CỬU</button>
+        </div>
+    </div>
+
+    <script>
+        // 🪐 HÀM PHÁT HỎA THẦN KINH AJAX BẮN QUYẾT ĐỊNH HÀNH ĐỘNG VỀ BACKEND FASTAPI
+        async function vdbExecuteAction(actionType) {
+            const deSo = "{{ draft_exam.de_so }}";
+            const monHoc = "{{ draft_exam.mon_hoc }}";
+            
+            // Gom trọn gói ma trận găm cờ lỗi từng câu hỏi con gửi ngược về hai chiều
+            let feedbackMap = {};
+            document.querySelectorAll('.txtVdbFeedback').forEach(inp => {
+                if (inp.value.trim() !== "") {
+                    feedbackMap[inp.getAttribute('data-q-id')] = inp.value.trim();
+                }
+            });
+
+            const confirmation = confirm(`Vị Tổng công trình sư có chắc chắn muốn thực thi lệnh [${actionType.toUpperCase()}] cho Đề số ${deSo} môn ${monHoc}?`);
+            if (!confirmation) return;
+
+            try {
+                alert(`🎉 Lệnh [${actionType.toUpperCase()}] đã được kích nổ! Hệ thống đang xử lý đồng bộ vách sau...`);
+                // Ở các bước đi kế tiếp, chúng ta sẽ viết Route tiếp nhận xử lý bọc thép 3 nút bấm này vách sau main.py!
+                console.log("Action: " + actionType, "Data: ", feedbackMap);
+            } catch (err) {
+                alert("🚨 Lỗi đường truyền điều hành: " + err.message);
+            }
+        }
+
+        // 🪐 THẦN KINH ĐIỀU HƯỚNG: Tự động bẻ lái URL khi Quản lý chuyên môn bấm chuột thay đổi mã đề thi trong ô chọn Dropdown
+        function vdbNavigateToSelectedDraft() {
+            const selectBox = document.getElementById('vdbSelectDraftExam');
+            if (!selectBox || !selectBox.value) return;
+            
+            const selectedDeSo = selectBox.value;
+            // Bứt tốc bẻ lái link sang mã đề mới chọn, khép mạch long mạch dynamic vương miện
+            window.location.href = `/approve_exam?de_so=${selectedDeSo}`;
+        }
+    </script>
+</body>
+</html>
+
